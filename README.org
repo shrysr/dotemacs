@@ -1,3 +1,4 @@
+#+toc: t
 #+hugo_base_dir: ~/my_gits/hugo-sr/
 #+hugo_section: docs
 #+hugo_auto_set_lastmod: t
@@ -12,24 +13,42 @@
 #+hugo_menu: :menu "docs" :weight 2001
 #+hugo_custom_front_matter: :linktitle Dotemacs :parent Emacs :toc true :alpha 1 :beta "two words" :gamma 10
 #+hugo_draft: false
-#+TITLE: My Emacs configuration Test
+#+TITLE: My Emacs configuration
 
 * Introduction
 
-This is my literate, Org-mode based configuration for Emacs, which are essentially customisations built on top of the starter-kit Scimax.
+This is my literate, Org-mode based configuration for Emacs, which are essentially customisations built on top of the starter-kit Scimax. View a nicely rendered version with easy navigation on my website: https://shrysr.github.io/docs/sr-config/
 
 #+BEGIN_QUOTE
-Scimax - Awesome editing for scientists and engineers
-Scimax is an Emacs starterkit for scientists and engineers. It provides a comprehensive configuration of Emacs for scientific programming and publishing.
+Scimax - Awesome editing for scientists and engineers. Scimax is an Emacs starterkit for scientists and engineers. It provides a comprehensive configuration of Emacs for scientific programming and publishing.
 
 [[https://github.com/jkitchin][John Kitchin]]
 #+END_QUOTE
 
 Scimax specific variables have their own heading to make it 'easier' to experiment with other starter-kits.
 
-The style of documentation is influenced by the [[https://github.com/angrybacon/dotemacs/blob/master/dotemacs.org][dotemacs config]] of [[https://github.com/angrybacon][Mathieu Marques]], which I found very engaging to read.
+The style of documentation is particularly influenced by the [[https://github.com/angrybacon/dotemacs/blob/master/dotemacs.org][dotemacs config]] of [[https://github.com/angrybacon][Mathieu Marques]], which I found very engaging to read.
 
-* Interesting resources on literate configs for Emacs
+* This configuration
+
+Scimax's init calls the =user.el= script placed in the user folder. The following script is placed in =user.el= to load this org file and then my personal configuration, which is encrypted for security.
+
+#+BEGIN_SRC emacs-lisp :tangle no
+;; Adding some external packages like reveal for presentations
+(add-to-list 'load-path "~/scimax/user/external_packages/")
+
+;; Loading this file that you are viewing
+(org-babel-load-file (expand-file-name "sr-config.org" user-emacs-directory))
+
+;; Loading secret config containing personal information
+(org-babel-load-file (expand-file-name "sr-secrets.org.gpg" user-emacs-directory))
+
+(garbage-collect)
+#+END_SRC
+
+* Other literate Emacs configs
+These references were used for exploration and inspiration.
+
 1. [[https://karl-voit.at/2017/06/03/emacs-org/][Karl Voit]]
 2. [[https://github.com/angrybacon/dotemacs/blob/master/dotemacs.org][Mathieu Marques]]
 3. [[https://writequit.org/org/][Lee Hinman]]
@@ -68,6 +87,7 @@ Since I switch between a Linux machine and a Mac frequently, it is better to def
 #+end_src
 
 * Better defaults
+I need to explore the changed made by this package. For now, it is loaded right in the beginning so that it does not overwrite other customisations down the line.
 
 #+begin_src emacs-lisp
 (use-package better-defaults
@@ -309,7 +329,6 @@ Setting pandoc as the markdown command for live previews. The default command is
 (require 'ox-org)
 #+END_SRC
 
-
 ** Completed loading message
 
 #+BEGIN_SRC emacs-lisp
@@ -317,7 +336,6 @@ Setting pandoc as the markdown command for live previews. The default command is
 #+END_SRC
 
 * Python [0/2]
-
 ** TODO  setup virtual environment approach
 :PROPERTIES:
 :CREATED:  <2019-02-07 Thu 16:47>
@@ -389,6 +407,7 @@ Set C-a to move to the first non-whitespace character on a line, and then to tog
 #+end_src
 
 * Dired
+
 Source: https://github.com/angrybacon/dotemacs/blob/master/dotemacs.org
 
 #+BEGIN_SRC emacs-lisp
@@ -429,8 +448,11 @@ Source: https://github.com/angrybacon/dotemacs/blob/master/dotemacs.org
 : t
 
 * Swiper
+:PROPERTIES:
+:ID:       22EF84BD-97F8-488A-8E3A-2FF28D0A0F57
+:END:
 - Note taken on [2019-02-07 Thu 16:50] \\
-  I use swiper for a general search. however helm-swoop is awesome.
+  I use swiper for a general search. However [[id:3F1BAD63-98A3-4BF0-B5DD-67ED63D0AFEB][helm-swoop]] is awesome.
 
 #+BEGIN_SRC emacs-lisp
 (global-set-key (kbd "C-s") 'swiper)
@@ -481,7 +503,9 @@ Source: https://github.com/angrybacon/dotemacs/blob/master/dotemacs.org
 (setq magit-revert-buffers 'silent)
 #+END_SRC
 
-** TODO Time machine
+** TODO Time machine for git
+- Note taken on [2019-02-08 Fri 13:21] \\
+  Launched by =M-x git-timemachine=, this lets you navigate through the commit history with a single key press! This is especially awesome for tracking changes to a particular snippet of code.
 - Note taken on [2019-02-07 Thu 09:30]  \\
   Need to evaluate this. The purpose is for stepping through the history of a file recorded in git. This should be very interesting.
 
@@ -1180,6 +1204,9 @@ I prefer using Helm for specific functions like M-x, find files and bookmarks an
 #+end_src
 
 ** helm-swoop
+:PROPERTIES:
+:ID:       3F1BAD63-98A3-4BF0-B5DD-67ED63D0AFEB
+:END:
 - Note taken on [2019-02-07 Thu 16:53] \\
   This is an awesome find. Helm swoop changes the search pattern depending on the location of the cursor. Therefore, while placed on an org headline, calling helm-swoop will preset the search pattern to have headings. The same is true for source code blocks! Fantastic.
 
@@ -1969,11 +1996,11 @@ This is under construction and was initially started with the idea of having cus
 ** TODO Function for exporting dotemacs config
 
 This is the beginning of a function to perform 3 exports:
-1. Export to my hugo website as a part of my documentation (markdown)
-2. Export to github repository as an org file
-3. Export and tangle org file to the above github repository as emacs lisp file.
+1. Export to my hugo website as a part of my documentation (ox-hugo)
+2. Copy the org file to my github repo.
+3. Export and tangle the copied org file to the above github repository as emacs-lisp file.
 
-Maintaining the documentation on my website does not make it easy to others to view the changes in the configuration and fork or download the same as an org file or emacs-lisp script. Therefore it should be maintained in it's own repository, separate from Scimax.
+Maintaining the documentation on my website does not make it easy to others to view the changes in the configuration and fork or download the same as an org file or emacs-lisp script. Therefore the config that I publish should be maintained in it's own repository.
 
 As of now, I'm calling this function from my Emacs config file, and need to improve the above workflow.
 
