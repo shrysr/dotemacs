@@ -1,0 +1,2090 @@
+#+hugo_base_dir: ~/my_gits/hugo-sr/
+#+hugo_section: docs
+#+hugo_auto_set_lastmod: t
+#+hugo_weight: auto
+#+hugo_base_dir: ../
+#+hugo_section: ./
+#+hugo_weight: 2001
+#+date: 2017-09-10
+#+author: Shreyas Ragavan
+#+hugo_tags: Emacs org
+#+hugo_categories: Emacs
+#+hugo_menu: :menu "docs" :weight 2001
+#+hugo_custom_front_matter: :linktitle Dotemacs :parent Emacs :toc true :alpha 1 :beta "two words" :gamma 10
+#+hugo_draft: false
+#+TITLE: My Emacs configuration Test
+
+* Introduction
+
+This is my literate, Org-mode based configuration for Emacs, which are essentially customisations built on top of the starter-kit Scimax.
+
+#+BEGIN_QUOTE
+Scimax - Awesome editing for scientists and engineers
+Scimax is an Emacs starterkit for scientists and engineers. It provides a comprehensive configuration of Emacs for scientific programming and publishing.
+
+[[https://github.com/jkitchin][John Kitchin]]
+#+END_QUOTE
+
+Scimax specific variables have their own heading to make it 'easier' to experiment with other starter-kits.
+
+The style of documentation is influenced by the [[https://github.com/angrybacon/dotemacs/blob/master/dotemacs.org][dotemacs config]] of [[https://github.com/angrybacon][Mathieu Marques]], which I found very engaging to read.
+
+* Interesting resources on literate configs for Emacs
+1. [[https://karl-voit.at/2017/06/03/emacs-org/][Karl Voit]]
+2. [[https://github.com/angrybacon/dotemacs/blob/master/dotemacs.org][Mathieu Marques]]
+3. [[https://writequit.org/org/][Lee Hinman]]
+* OS Level variables [0/0]
+Since I switch between a Linux machine and a Mac frequently, it is better to define variables that can be used to set other variables depending on the OS.
+
+#+begin_src emacs-lisp
+;; Get current system's name
+(defun insert-system-name()
+  (interactive)
+  "Get current system's name"
+  (insert (format "%s" system-name))
+  )
+
+;; Get current system type
+(defun insert-system-type()
+  (interactive)
+  "Get current system type"
+  (insert (format "%s" system-type))
+  )
+
+;; Check if system is Darwin/Mac OS X
+(defun system-type-is-darwin ()
+  (interactive)
+  "Return true if system is darwin-based (Mac OS X)"
+  (string-equal system-type "darwin")
+  )
+
+;; Check if system is GNU/Linux
+(defun system-type-is-gnu ()
+  (interactive)
+  "Return true if system is GNU/Linux-based"
+  (string-equal system-type "gnu/linux")
+  )
+(message "Completed OS Level variables load")
+#+end_src
+
+* Better defaults
+
+#+begin_src emacs-lisp
+(use-package better-defaults
+  :ensure t
+)
+
+(message "Loaded better-defaults package")
+#+end_src
+
+* Crypto setup
+
+#+begin_src emacs-lisp
+(setq epa-file-encrypt-to '("shreyas@fastmail.com"))
+(require 'org-crypt)
+(add-to-list 'org-modules 'org-crypt)
+                                        ; Encrypt all entries before saving
+(org-crypt-use-before-save-magic)
+(setq org-tags-exclude-from-inheritance (quote ("crypt")))
+                                        ; GPG key to use for encryption. nil for symmetric encryption
+(setq org-crypt-key nil)
+(setq org-crypt-disable-auto-save t)
+(setq org-crypt-tag-matcher "locked")
+
+(message "Loaded crypto setup")
+#+end_src
+
+#+RESULTS:
+: locked
+
+** github token access
+Source: https://emacs.stackexchange.com/questions/40994/using-auth-source-with-magit-and-bitbucket
+
+#+begin_src emacs-lisp
+(setq auth-sources '((:source "~/.gh.authinfo.gpg")))
+(setq magit-process-find-password-functions '(magit-process-password-auth-source))
+#+end_src
+
+* Emacs General config
+** Remove trailing whitespace at the end of lines
+
+#+begin_src emacs-lisp
+(add-hook 'before-save-hook 'delete-trailing-whitespace)
+#+end_src
+
+** Remove '^' at the start of ivy commands
+
+#+begin_src emacs-lisp
+(setq ivy-initial-inputs-alist nil)
+#+end_src
+
+** Package installation
+*** Package list
+Though the use-package approach is a lot more elegant, I also like to have a list of all my installed packages. In any case, this is more in line with my earlier configurations. As things evolve, I willprobabyl shift fully to the use-package method.
+
+#+begin_src emacs-lisp
+(setq package-list '(diminish
+                     org-journal
+                     ztree
+                     org-gcal
+                     w3m
+                     org-trello
+                     org-web-tools
+                     ox-hugo
+                     auto-indent-mode
+                     ob-sql-mode
+                     dash
+                     org-super-agenda
+                     workgroups2
+                     switch-window
+                     ess
+                     ess-R-data-view
+                     interleave
+                     deft
+                     org-bookmark-heading
+                     writeroom-mode
+                     evil
+                     evil-leader
+                     polymode
+                     poly-R
+                     helm-ag
+                     writegood-mode
+                     artbollocks-mode
+                     multiple-cursors
+                     ox-reveal
+                     better-defaults
+                     jedi jedi-core
+                     ag ein
+                     ein-mumamo
+                     ido-vertical-mode
+                     company-jedi
+                     conda
+                     spacemacs-theme
+                     elfeed-goodies
+                     helpful
+                     browse-kill-ring
+                     ivy-yasnippet
+                     speed-type
+                     clojure-mode
+                     cider
+                     helm-dash
+                     org-projectile
+                     bash-completion
+                     elmacro
+                     org-noter
+                     helm-org-rifle
+                     sx define-word))
+#+end_src
+
+*** Fetch and install missing packages
+
+#+begin_src emacs-lisp
+;;fetch the list of packages available
+(unless package-archive-contents
+  (package-refresh-contents))
+
+;; install the missing packages
+(dolist (package package-list)
+  (unless (package-installed-p package)
+    (package-install package)))
+#+end_src
+
+** Switch-window configuration
+
+Source link: https://github.com/dimitri/switch-window
+
+#+begin_src emacs-lisp
+(use-package switch-window
+  :config
+  ;;
+
+  (require 'switch-window)
+
+  (global-set-key (kbd "C-x o") 'switch-window)
+  (global-set-key (kbd "C-x 1") 'switch-window-then-maximize)
+  (global-set-key (kbd "C-x 2") 'switch-window-then-split-below)
+  (global-set-key (kbd "C-x 3") 'switch-window-then-split-right)
+  (global-set-key (kbd "C-x 0") 'switch-window-then-delete)
+
+  (global-set-key (kbd "C-x 4 d") 'switch-window-then-dired)
+  (global-set-key (kbd "C-x 4 f") 'switch-window-then-find-file)
+  (global-set-key (kbd "C-x 4 m") 'switch-window-then-compose-mail)
+  (global-set-key (kbd "C-x 4 r") 'switch-window-then-find-file-read-only)
+
+  (global-set-key (kbd "C-x 4 C-f") 'switch-window-then-find-file)
+  (global-set-key (kbd "C-x 4 C-o") 'switch-window-then-display-buffer)
+
+  (global-set-key (kbd "C-x 4 0") 'switch-window-then-kill-buffer)
+
+  ;; selecting minibuffer
+  (setq switch-window-minibuffer-shortcut ?z)
+  )
+#+end_src
+
+** Create intermediate directories while saving files
+Source: https://superuser.com/questions/131538/can-i-create-directories-that-dont-exist-while-creating-a-new-file-in-emacs
+
+#+begin_src emacs-lisp
+(defadvice find-file (before make-directory-maybe (filename &optional wildcards) activate)
+  "Create parent directory if not exists while visiting file."
+  (unless (file-exists-p filename)
+    (let ((dir (file-name-directory filename)))
+      (unless (file-exists-p dir)
+        (make-directory dir)))))
+#+end_src
+
+** Markdown config
+
+Setting pandoc as the markdown command for live previews. The default command is =markdown=, which could be installed as a separate package.
+
+#+begin_src emacs-lisp
+
+(setq markdown-command "pandoc")
+#+end_src
+
+** Shorcuts and registers
+*** Registers
+
+#+begin_src emacs-lisp
+(set-register ?n (cons 'file "~/my_org/notes.org"))
+(set-register ?l (cons 'file "~/application_letters/letter.md"))
+(set-register ?k (cons 'file "~/application_letters/Cover_letter_Shreyas_R.pdf"))
+(set-register ?p (cons 'file "~/org_cv/CV_Shreyas_Ragavan.pdf"))
+(set-register ?r (cons 'file "~/org_cv/CV_Shreyas_Ragavan.org"))
+(set-register ?t (cons 'file "~/my_org/todo-global.org"))
+(set-register ?i (cons 'file "~/dotemacs/.emacs.d/new-init.org"))
+(set-register ?j (cons 'file "~/my_org/mrps_canjs.org"))
+(set-register ?f (cons 'file "~/scimax/user/sr-cust/"))
+(set-register ?d (cons 'file "~/my_org/datascience.org"))
+(set-register ?m (cons 'file "~/my_org/"))
+(set-register ?g (cons 'file "~/my_gits/"))
+#+end_src
+
+*** Google this
+
+#+begin_src emacs-lisp
+(global-set-key (kbd "M-s g") 'google-this-mode-submap)
+#+end_src
+
+*** ivy-yasnippet
+
+#+begin_src emacs-lisp
+(global-set-key (kbd "M-i") 'ivy-yasnippet)
+#+end_src
+
+*** Mu4e related
+#+begin_src emacs-lisp
+(global-set-key (kbd "M-s u") 'mu4e-update-mail-and-index)
+(global-set-key (kbd "M-s m") 'mu4e~headers-jump-to-maildir)
+(global-set-key (kbd "C-x m") 'mu4e-compose-new)
+#+end_src
+
+*** Org related
+
+#+begin_src emacs-lisp
+(global-set-key (kbd "C-x t") 'org-insert-todo-heading)
+(global-set-key (kbd "C-c d") 'org-time-stamp)
+(global-set-key (kbd "M-s s") 'org-save-all-org-buffers)
+(global-set-key (kbd "M-s j") 'org-journal-new-entry)
+#+end_src
+
+** yanking links in org format
+
+ Source: sacha chua.
+
+ Enables inserting a URL into an org document as '[<URL>][link]' by tapping F6 after copying the URL. This is useful to reduce clutter with long links, and even include links in headings.
+
+ #+begin_src emacs-lisp
+(defun my/yank-more ()
+  (interactive)
+  (insert "[[")
+  (yank)
+  (insert "][link]]"))
+(global-set-key (kbd "<f6>") 'my/yank-more)
+ #+end_src
+
+** Export setup
+
+#+BEGIN_SRC emacs-lisp
+(require 'ox-org)
+#+END_SRC
+
+
+** Completed loading message
+
+#+BEGIN_SRC emacs-lisp
+(message "Loaded Emacs general config")
+#+END_SRC
+
+* Python [0/2]
+
+** TODO  setup virtual environment approach
+:PROPERTIES:
+:CREATED:  <2019-02-07 Thu 16:47>
+:END:
+
+** TODO  setup conda, especially for auto complete
+:PROPERTIES:
+:CREATED:  <2019-02-07 Thu 16:47>
+:END:
+** General config
+#+BEGIN_SRC emacs-lisp
+(setq python-indent-guess-indent-offset nil)
+(elpy-enable)
+#+END_SRC
+
+#+RESULTS:
+| elpy-shell--enable-output-filter | #[0 \302\300!\210\303\304"\302\301!\210\305\211\207 [company-transformers company-minimum-prefix-length make-local-variable remove company-sort-by-occurrence 2] 3] |
+
+** Set python interpreter to be Jupyter
+
+#+BEGIN_SRC emacs-lisp
+(setq python-shell-interpreter "jupyter"
+      python-shell-interpreter-args "console --simple-prompt"
+      python-shell-prompt-detect-failure-warning nil)
+
+(add-to-list 'python-shell-completion-native-disabled-interpreters
+             "jupyter")
+#+END_SRC
+
+#+RESULTS:
+| jupyter | pypy | ipython |
+
+** Auto pep8
+Adding hook to enable py-autopep8 with elpy mode.
+
+#+BEGIN_SRC emacs-lisp
+(use-package py-autopep8
+  :ensure t
+  :defer t
+  :config
+  (require 'py-autopep8)
+  (add-hook 'elpy-mode-hook 'py-autopep8-enable-on-save)
+  )
+#+END_SRC
+
+#+RESULTS:
+
+** Autocomplete for python blocks
+
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'company-backends 'company-ob-ipython)
+(company-mode)
+#+END_SRC
+
+#+RESULTS:
+: t
+
+* Crux  - basic movement
+
+Source: https://jamiecollinson.com/blog/my-emacs-config/
+Contains functions from  Prelude. I should check this out in more detail.
+
+Set C-a to move to the first non-whitespace character on a line, and then to toggle between that and the beginning of the line.
+
+#+begin_src emacs-lisp
+(use-package crux
+  :ensure t
+  :bind (("C-a" . crux-move-beginning-of-line)))
+#+end_src
+
+* Dired
+Source: https://github.com/angrybacon/dotemacs/blob/master/dotemacs.org
+
+#+BEGIN_SRC emacs-lisp
+(use-package dired
+  :ensure nil
+  :delight dired-mode "Dired"
+  :preface
+  (defun me/dired-directories-first ()
+    "Sort dired listings with directories first before adding marks."
+    (save-excursion
+      (let (buffer-read-only)
+        (forward-line 2)
+        (sort-regexp-fields t "^.*$" "[ ]*." (point) (point-max)))
+      (set-buffer-modified-p nil)))
+  :hook (dired-mode . dired-hide-details-mode)
+  :config
+  (advice-add 'dired-readin :after #'me/dired-directories-first)
+  (setq-default
+   dired-auto-revert-buffer t
+   dired-dwim-target t
+   dired-hide-details-hide-symlink-targets nil
+   dired-listing-switches "-alh"
+   dired-ls-F-marks-symlinks nil
+   dired-recursive-copies 'always))
+
+(use-package dired-x
+  :ensure nil
+  :preface
+  (defun me/dired-revert-after-command (command &optional output error)
+    (revert-buffer))
+  :config
+  (advice-add 'dired-smart-shell-command :after #'me/dired-revert-after-command))
+
+(message "Loaded Dired customisation")
+#+END_SRC
+
+#+RESULTS:
+: t
+
+* Swiper
+- Note taken on [2019-02-07 Thu 16:50] \\
+  I use swiper for a general search. however helm-swoop is awesome.
+
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-s") 'swiper)
+(setq ivy-display-style 'fancy)
+
+;; advise swiper to recenter on exit
+(defun bjm-swiper-recenter (&rest args)
+  "recenter display after swiper"
+  (recenter)
+  )
+(advice-add 'swiper :after #'bjm-swiper-recenter)
+
+(message "Loaded Swiper customisation")
+#+END_SRC
+
+#+RESULTS:
+: Loaded Swiper customisation
+
+* Easier selection
+** TODO Expand region
+- Note taken on [2019-02-07 Thu 09:27]  \\
+  Explore how this works
+
+#+begin_src emacs-lisp
+(use-package expand-region
+  :ensure t
+  :bind ("C-=" . er/expand-region))
+
+(message "Loaded easier selection")
+#+end_src
+
+* git related
+** TODO Git gutter
+- Note taken on [2019-02-07 Thu 09:30]  \\
+  Started using this today. It is actually very convenient to quickly view the changes made in the document. There is a function to pop up the changes at that location. I need to learn more about using this tool effectively.
+
+#+begin_src emacs-lisp
+(use-package git-gutter
+  :ensure t
+  :config
+  (global-git-gutter-mode 't)
+  :diminish git-gutter-mode)
+#+end_src
+
+** magit settings
+
+#+BEGIN_SRC emacs-lisp
+(setq magit-revert-buffers 'silent)
+#+END_SRC
+
+** TODO Time machine
+- Note taken on [2019-02-07 Thu 09:30]  \\
+  Need to evaluate this. The purpose is for stepping through the history of a file recorded in git. This should be very interesting.
+
+#+begin_src emacs-lisp
+(use-package git-timemachine
+  :ensure t)
+#+end_src
+
+** Completed loading message
+
+#+BEGIN_SRC emacs-lisp
+(message "Loaded git related config")
+#+END_SRC
+
+* Writeroom customisations
+
+The goal is to enable a customised zen writing mode, especially facilitating blog posts and other longer forms of writing. As of now, there are customisations for the width, and calling the art-bollocks mode when writeroom mode is enabled.
+
+#+begin_src emacs-lisp
+(with-eval-after-load 'writeroom-mode
+  (define-key writeroom-mode-map (kbd "C-s-,") #'writeroom-decrease-width)
+  (define-key writeroom-mode-map (kbd "C-s-.") #'writeroom-increase-width)
+  (define-key writeroom-mode-map (kbd "C-s-=") #'writeroom-adjust-width))
+
+(advice-add 'text-scale-adjust :after
+	    #'visual-fill-column-adjust)
+
+;;  loading artbollocks whenever the writeroom mode is called in particular.
+(autoload 'artbollocks-mode "artbollocks-mode")
+(add-hook 'writeroom-mode-hook 'artbollocks-mode)
+
+(message "Loaded writeroom customisations")
+#+end_src
+
+* ESS configuration [/]
+
+#+begin_src emacs-lisp
+;; Setting up emacs ess and polymode
+(require 'ess)
+(require 'ess-R-data-view)
+(setq ess-describe-at-point-method 'tooltip)
+(setq ess-switch-to-end-of-proc-buffer t)
+(require 'ess-rutils)
+(setq ess-rutils-keys +1)
+(setq ess-eval-visibly 'nowait)
+
+(use-package ess-view
+  :ensure t
+  :config
+  (if (system-type-is-darwin)
+      (setq ess-view--spreadsheet-program "/Applications/Tad.app/Contents/MacOS/Tad")
+    ))
+
+(message "Loaded ESS configuration")
+            #+end_src
+
+	    #+RESULTS:
+	    : Loaded ESS configuration
+
+** TODO Set condition and path for TAD on Linux
+:PROPERTIES:
+:CREATED:  <2019-02-07 Thu 14:27>
+:END:
+
+* Polymode
+
+#+begin_src emacs-lisp
+(require 'poly-markdown)
+(require 'poly-R)
+
+;; MARKDOWN
+(add-to-list 'auto-mode-alist '("\\.md" . poly-markdown-mode))
+
+
+;; R modes
+(add-to-list 'auto-mode-alist '("\\.Snw" . poly-noweb+r-mode))
+(add-to-list 'auto-mode-alist '("\\.Rnw" . poly-noweb+r-mode))
+(add-to-list 'auto-mode-alist '("\\.Rmd" . poly-markdown+r-mode))
+
+(message "Loaded polymode configuration")
+#+end_src
+
+* Multiple Cursors
+
+#+begin_src emacs-lisp
+(use-package multiple-cursors
+  :ensure t
+  :config
+  (global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
+  (global-set-key (kbd "C->") 'mc/mark-next-like-this)
+  (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
+  (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
+  )
+
+(message "Loaded MC")
+#+end_src
+
+* ox-reveal - presentations
+
+#+begin_src emacs-lisp
+(use-package ox-reveal
+  :ensure ox-reveal
+  :config
+  (setq org-reveal-root "http://cdn.jsdelivr.net/reveal.js/3.0.0/")
+  (setq org-reveal-mathjax t)
+  )
+
+(use-package htmlize
+  :ensure t)
+
+(message "Loaded ox-reveal cust")
+#+end_src
+
+* Org-mode related
+** Default org directory and setting it as the agenda file directory
+
+#+begin_src emacs-lisp
+(setq
+ org-directory "~/my_org/"
+ org-agenda-files '("~/my_org/")
+ )
+ #+end_src
+
+** TODO Enabling org capture and org protocol
+- Note taken on [2019-02-07 Thu 08:55]  \\
+  Need to actually get org-capture via external browser protocol working. Not sure if I need to require org-capture in scimax.
+
+Source: http://www.diegoberrocal.com/blog/2015/08/19/org-protocol/
+
+#+begin_src emacs-lisp
+(require 'org-capture)
+(require 'org-protocol)
+#+End_src
+
+#+RESULTS:
+: org-capture
+
+** TODO Ensuring archive files are also in org mode
+- Note taken on [2019-02-07 Thu 08:31]  \\
+  check whether the add-to-list function is sufficient.
+
+#+begin_src emacs-lisp
+(add-hook 'find-file-hooks
+          (lambda ()
+            (let ((file (buffer-file-name)))
+              (when (and file (equal (file-name-directory file) "~/my_org/archive/"))
+                (org-mode)))))
+
+(add-to-list 'auto-mode-alist '("\\.org_archive\\'" . org-mode))
+#+end_src
+
+** Archiving mechanics
+
+Archive organised by Top level headings in the original file and with Tag preservation
+
+#+begin_src emacs-lisp
+
+(defun my-org-inherited-no-file-tags ()
+  (let ((tags (org-entry-get nil "ALLTAGS" 'selective))
+        (ltags (org-entry-get nil "TAGS")))
+    (mapc (lambda (tag)
+            (setq tags
+                  (replace-regexp-in-string (concat tag ":") "" tags)))
+          (append org-file-tags (when ltags (split-string ltags ":" t))))
+    (if (string= ":" tags) nil tags)))
+
+(defadvice org-archive-subtree (around my-org-archive-subtree-low-level activate)
+  (let ((tags (my-org-inherited-no-file-tags))
+        (org-archive-location
+         (if (save-excursion (org-back-to-heading)
+                             (> (org-outline-level) 1))
+             (concat (car (split-string org-archive-location "::"))
+                     "::* "
+                     (car (org-get-outline-path)))
+           org-archive-location)))
+    ad-do-it
+    (with-current-buffer (find-file-noselect (org-extract-archive-file))
+      (save-excursion
+        (while (org-up-heading-safe))
+        (org-set-tags-to tags)))))
+#+end_src
+
+** Org journal
+
+#+begin_src emacs-lisp
+(use-package org-journal
+  :ensure t
+  :defer t
+  :custom
+  (org-journal-dir "~/my_org/journal/")
+  (org-journal-file-format "%Y%m%d")
+  (org-journal-enable-agenda-integration t)
+  (add-to-list 'auto-mode-alist '(".*/[0-9]*$" . org-mode))
+  ;; (org-journal-date-format "%A, %d %B %Y")
+  ;; (org-journal-enable-encryption 't)
+  )
+#+end_src
+
+*** TODO  Figure out easy encryption approach for org journal
+:PROPERTIES:
+:CREATED:  <2019-02-07 Thu 13:51>
+:END:
+** Use Org ID for storing objects
+
+Using the org id for reference to headings ensures that even if the heading changes, the links will still work.
+
+#+begin_src emacs-lisp
+(setq org-id-method (quote uuidgen))
+#+end_src
+
+** Cosmetics for org
+*** TODO Basic cosmetics. Review & Convert to use-package style
+- Note taken on [2019-02-07 Thu 08:20]  \\
+  These settings have to be cleaned up and the code optimised.
+
+#+begin_src emacs-lisp
+(setq org-hide-leading-stars t)
+;;(setq org-alphabetical-lists t)
+(setq org-src-fontify-natively t)  ;; you want this to activate coloring in blocks
+(setq org-src-tab-acts-natively t) ;; you want this to have completion in blocks
+(setq org-hide-emphasis-markers t) ;; to hide the *,=, or / markers
+(setq org-pretty-entities t)       ;; to have \alpha, \to and others display as utf8 http://orgmode.org/manual/Special-symbols.html
+
+;; Highlighting lines in the agenda, where the cursor is placed.
+(add-hook 'org-agenda-mode-hook (lambda () (hl-line-mode 1)))
+
+;; Setting up clean indenting below respective headlines at startup. - from the org mode website
+(setq org-startup-indented t)
+
+;; use org bullets from emacsist
+(use-package org-bullets
+  :ensure t
+  :init
+  :config
+  (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
+#+end_src
+
+*** Setting font faces for headline level
+
+#+begin_src emacs-lisp
+(custom-set-faces
+ '(org-level-1 ((t (:inherit outline-1 :height 1.5))))
+ '(org-level-2 ((t (:inherit outline-2 :height 1.1))))
+ '(org-level-3 ((t (:inherit outline-3 :height 1.0))))
+ '(org-level-4 ((t (:inherit outline-4 :height 1.0))))
+ '(org-level-5 ((t (:inherit outline-5 :height 1.0))))
+ )
+#+end_src
+
+*** Striking out Done headlines
+source: Sacha Chua
+
+#+begin_src emacs-lisp
+(setq org-fontify-done-headline t)
+(custom-set-faces
+ '(org-done ((t (:foreground "PaleGreen"
+			     :weight normal
+			     :strike-through t))))
+ '(org-headline-done
+   ((((class color) (min-colors 16) (background dark))
+     (:foreground "LightSalmon" :strike-through t)))))
+#+end_src
+
+** Refiling settings
+*** Refile target level for search
+
+#+begin_src emacs-lisp
+(setq org-refile-targets
+      '((nil :maxlevel . 4)
+        (org-agenda-files :maxlevel . 4)))
+#+end_src
+
+*** TODO General refile settings
+- Note taken on [2019-02-07 Thu 08:33]  \\
+  Needs further review and optimisation
+
+#+begin_src emacs-lisp
+(setq org-refile-use-outline-path 'file)
+(setq org-outline-path-complete-in-steps nil)
+(setq org-reverse-note-order t)
+(setq org-refile-allow-creating-parent-nodes 'confirm)
+#+end_src
+
+*** [[id:a7ceeb6d-2085-4380-909f-78f5ee698ad7][Also refer Refiling hydra]]
+** Agenda mechanics
+*** Weekday starts on Monday
+
+#+begin_src emacs-lisp
+(setq org-agenda-start-on-weekday 1)
+#+end_src
+
+*** Display heading tags farther to the right
+
+#+begin_src emacs-lisp
+(setq org-agenda-tags-column -150)
+#+end_src
+
+*** TODO Agenda customisation
+
+- Note taken on [2019-02-07 Thu 08:26]  \\
+  Need to clear up the search functions, enabling complete search in journal files. Archive and some external directories are included, since they are explictly in org mode.
+
+#+begin_src emacs-lisp
+
+(setq org-agenda-custom-commands
+      '(("c" "Simple agenda view"
+         ((tags "recurr"
+		((org-agenda-overriding-header "Recurring Tasks")))
+          (agenda "")
+          (todo "")))
+        ("o" agenda "Office mode" ((org-agenda-tag-filter-preset '("-course" "-habit" "-someday" "-book" "-emacs"))))
+        ("qc" tags "+commandment")
+	("e" tags "+org")
+	("w" agenda "Today" ((org-agenda-tag-filter-preset '("+work"))))
+	("W" todo-tree "WAITING")
+	("q" . "Custom queries") ;; gives label to "q"
+	("d" . "ds related")	 ;; gives label to "d"
+	("ds" agenda "Datascience" ((org-agenda-tag-filter-preset '("+datascience"))))
+	("qw" agenda "MRPS" ((org-agenda-tag-filter-preset '("+canjs"))))
+	("qa" "Archive tags search" org-tags-view ""
+         ((org-agenda-files (file-expand-wildcards "~/my_org/*.org*"))))
+        ("j" "Journal Search" search ""
+         ''((org-agenda-text-search-extra-files (file-expand-wildcards "~/my_org/journal/"))))
+        ("S" search ""
+	 ((org-agenda-files '("~/my_org/"))
+	  (org-agenda-text-search-extra-files )))
+	)
+      )
+#+end_src
+
+*** Expanding search locations
+
+#+begin_src emacs-lisp
+(setq org-agenda-text-search-extra-files (apply 'append
+						(mapcar
+						 (lambda (directory)
+						   (directory-files-recursively
+						    directory org-agenda-file-regexp))
+						 '("~/my_org/journal/" "~/my_org/zeeco_archive/" "~/my_projects/" ))))
+#+end_src
+
+**** TODO Adding org archive for text search. Optimise this
+
+:PROPERTIES:
+:CREATED:  <2019-02-07 Thu 08:29>
+:END:
+#+begin_src emacs-lisp
+(setq org-agenda-text-search-extra-files '(agenda-archives))
+#+end_src
+
+*** Enable default fuzzy search like in google
+
+#+begin_src emacs-lisp
+(setq org-agenda-search-view-always-boolean t)
+#+end_src
+
+*** Enable sticky agenda
+
+Experimenting with this setting.
+
+#+begin_src emacs-lisp
+(setq org-agenda-sticky t)
+#+end_src
+
+*** TODO org-habit
+- Note taken on [2019-02-07 Thu 09:50] \\
+  Appears the use-package config for org-habit is not correct and there is some issue in downloading it as a package.
+
+I want to shift the org habit graph in the agenda further out right so as to leave enough room for the headings to be visible.
+
+#+begin_src emacs-lisp
+(setq org-habit-graph-column 90)
+#+end_src
+
+#+RESULTS:
+
+** TODO Capture mechanics
+- Note taken on [2019-02-07 Thu 08:24]  \\
+  need to clean this up.
+
+*** Capture templates
+
+#+begin_src emacs-lisp
+(setq org-capture-templates
+      '(("t" "Task entry")
+        ("tt" "Todo - Fast" entry (file+headline "~/my_org/todo-global.org" "--Inbox")
+	 "** TODO %?")
+        ("tb" "Todo -BGR" entry (file+headline "~/my_org/bgr.org" "#BGR #Inbox")
+	 "** TODO %?")
+        ("te" "Todo - Emacs" entry (file+headline "~/my_org/todo-global.org" ";Emacs stuff")
+	 "** TODO %?")
+	("tm" "Mail Link Todo" entry (file+headline "~/my_org/todo-global.org" "--Inbox")
+	 "** TODO Mail: %a ")
+        ("l" "Link/Snippet" entry (file+headline "~/my_org/link_database.org" ".UL Unfiled Links")
+         "** %? %a ")
+        ("e" "Protocol info" entry ;; 'w' for 'org-protocol'
+         (file+headline "~/my_org/link_database.org" ".UL Unfiled Links")
+         "*** %a, %T\n %:initial")
+        ("n" "Notes")
+        ("ne" "Emacs note" entry (file+headline "~/my_org/todo-global.org" ";Emacs stuff")
+         "** %?")
+        ("nn" "General note" entry (file+headline "~/my_org/notes.org" ".NOTES")
+         "** %?")
+        ("n" "Note" entry (file+headline "~/my_org/notes.org" ".NOTES")
+         "** %?")
+        ("b" "BGR stuff")
+        ("bi" "Inventory project")
+        ("bil" "Daily log" entry (file+olp+datetree "~/my_org/bgr.org" "Inventory management Project") "** %? %i")
+        ("C" "Commandment" entry (file+datetree "~/my_org/lifebook.org" "")
+         "** %? %i %T :commandment:")
+        ("c" "canjs" entry (file+headline "~/my_org/mrps_canjs.org" "MRPS #CANJS")
+         "** TODO %? %i %T")
+        ("r" "Self Reflection" entry (file+datetree "~/my_org/lifebook.org" "")
+         "b** %? %i %T :self_reflection:")
+        ("w" "Website" plain
+         (function org-website-clipper)
+         "* %a %T\n" :immediate-finish t)
+        ("j" "Journal Note"  plain (function get-journal-file-today) "* Event: %?\n\n  %i\n\n  " :empty-lines 1)
+        ("i" "Whole article capture" entry
+         (file+headline "~/my_org/full_article_archive.org" "" :empty-lines 1)
+         "** %a, %T\n %:initial" :empty-lines 1)
+        ("d" "Datascience stuff")
+        ("dt" "Datascience inbox" entry (file+headline "~/my_org/datascience.org" "@Datascience @Inbox")
+         "** TODO %? %T")
+        ("dn" "Datascience note" entry (file+headline "~/my_org/datascience.org" "@Datascience @Notes")
+         "** %? %T")
+        ))
+#+end_src
+
+*** TODO Hooks for capture frame control
+- Note taken on [2019-02-07 Thu 08:53]  \\
+  Needs further review.
+
+Source: http://stackoverflow.com/questions/23517372/hook-or-advice-when-aborting-org-capture-before-template-selection
+
+#+begin_src emacs-lisp
+(defadvice org-capture
+    (after make-full-window-frame activate)
+  "Advise capture to be the only window when used as a popup"
+  (if (equal "emacs-capture" (frame-parameter nil 'name))
+      (delete-other-windows)))
+
+(defadvice org-capture-finalize
+    (after delete-capture-frame activate)
+  "Advise capture-finalize to close the frame"
+  (if (equal "emacs-capture" (frame-parameter nil 'name))
+      (delete-frame)))
+#+end_src
+
+** TODO version control and backup of files
+- Note taken on [2019-02-07 Thu 08:15]  \\
+  Need to check out how this works and whether this is still necessary, since I am using Git.
+#+begin_src emacs-lisp
+(setq delete-old-versions -1)
+(setq version-control t)
+#+end_src
+
+** Include gpg files in agenda generation
+
+Source: https://emacs.stackexchange.com/questions/36542/include-org-gpg-files-in-org-agenda
+
+#+begin_src emacs-lisp
+(unless (string-match-p "\\.gpg" org-agenda-file-regexp)
+  (setq org-agenda-file-regexp
+        (replace-regexp-in-string "\\\\\\.org" "\\\\.org\\\\(\\\\.gpg\\\\)?"
+                                  org-agenda-file-regexp)))
+#+end_src
+
+** org-noter
+
+#+BEGIN_QUOTE
+Org-noter’s purpose is to let you create notes that are kept in sync when you scroll through the document, but that are external to it - the notes themselves live in an Org-mode file. As such, this leverages the power of Org-mode (the notes may have outlines, latex fragments, babel, etc…) while acting like notes that are made inside the document. Also, taking notes is very simple: just press i and annotate away!
+
+[[https://github.com/weirdNox][Gonçalo Santos]]
+#+END_QUOTE
+
+#+begin_src emacs-lisp
+(setq org-noter-set-auto-save-last-location t)
+#+end_src
+
+** TODO Persp-projectile
+:PROPERTIES:
+:CREATED:  <2019-02-07 Thu 13:59>
+:END:
+[[https://github.com/howardabrams/dot-files/blob/master/emacs.org#perspective][Refer Howard's config snippet]] to setup a test.
+
+** TODO org-projectile
+- Note taken on [2019-02-07 Thu 08:42]  \\
+  need to optimise further and convert to use-package style. Also need a way to capture Notes from projects, in addition to tasks.
+
+Starting off with the basic configuration posted in org-projectile github repo.
+
+#+begin_src emacs-lisp
+(require 'org-projectile)
+
+(setq org-projectile-projects-file
+      "~/my_org/project-tasks.org")
+(push (org-projectile-project-todo-entry) org-capture-templates)
+
+;; (setq org-agenda-files (append org-agenda-files (org-projectile-todo-files)))
+;; Excluding the above since the entire my_org directory is already included in the agenda
+
+(global-set-key (kbd "C-c n p") 'org-projectile-project-todo-completing-read)
+#+end_src
+
+** TODO org-gcal customisation
+
+** TODO Property customisation
+
+*** TODO Add a CREATED property for org heading
+- Note taken on [2019-02-07 Thu 09:10]  \\
+  Needs further review and optimisation.
+
+#+begin_src emacs-lisp
+
+(require 'org-expiry)
+;; Configure it a bit to my liking
+(setq
+ org-expiry-created-property-name "CREATED" ; Name of property when an item is created
+ org-expiry-inactive-timestamps   nil         ; Don't have everything in the agenda view
+ )
+
+(defun mrb/insert-created-timestamp()
+  "Insert a CREATED property using org-expiry.el for TODO entries"
+  (org-expiry-insert-created)
+  (org-back-to-heading)
+  (org-end-of-line)
+  (insert " ")
+  )
+
+;; Whenever a TODO entry is created, I want a timestamp
+;; Advice org-insert-todo-heading to insert a created timestamp using org-expiry
+(defadvice org-insert-todo-heading (after mrb/created-timestamp-advice activate)
+  "Insert a CREATED property using org-expiry.el for TODO entries"
+  (mrb/insert-created-timestamp)
+  )
+;; Make it active
+(ad-activate 'org-insert-todo-heading)
+
+(require 'org-capture)
+
+(defadvice org-capture (after mrb/created-timestamp-advice activate)
+  "Insert a CREATED property using org-expiry.el for TODO entries"
+   					; Test if the captured entry is a TODO, if so insert the created
+   					; timestamp property, otherwise ignore
+  (mrb/insert-created-timestamp))
+;;  (when (member (org-get-todo-state) org-todo-keywords-1)
+;;    (mrb/insert-created-timestamp)))
+  (ad-activate 'org-capture)
+#+end_src
+
+*** Enabling adding tags in the capture window
+
+#+begin_src emacs-lisp
+;; Add feature to allow easy adding of tags in a capture window
+(defun mrb/add-tags-in-capture()
+  (interactive)
+  "Insert tags in a capture window without losing the point"
+  (save-excursion
+    (org-back-to-heading)
+    (org-set-tags)))
+;; Bind this to a reasonable key
+(define-key org-capture-mode-map "\C-c\C-t" 'mrb/add-tags-in-capture)
+#+end_src
+
+** TODO org web clipper
+- Note taken on [2019-02-07 Thu 09:11]  \\
+  This works fine now. However, it would be nice to find a way to strip the headers and menu columns and other unnecessary information before capture.
+
+Source: http://www.bobnewell.net/publish/35years/webclipper.html
+
+#+begin_src emacs-lisp
+;; org-eww and org-w3m should be in your org distribution, but see
+;; note below on patch level of org-eww.
+(require 'org-eww)
+(require 'org-w3m)
+(defvar org-website-page-archive-file "~/my_org/full_article_archive.org")
+(defun org-website-clipper ()
+  "When capturing a website page, go to the right place in capture file,
+   but do sneaky things. Because it's a w3m or eww page, we go
+   ahead and insert the fixed-up page content, as I don't see a
+   good way to do that from an org-capture template alone. Requires
+   Emacs 25 and the 2017-02-12 or later patched version of org-eww.el."
+  (interactive)
+
+  ;; Check for acceptable major mode (w3m or eww) and set up a couple of
+  ;; browser specific values. Error if unknown mode.
+
+  (cond
+   ((eq major-mode 'w3m-mode)
+    (org-w3m-copy-for-org-mode))
+   ((eq major-mode 'eww-mode)
+    (org-eww-copy-for-org-mode))
+   (t
+    (error "Not valid -- must be in w3m or eww mode")))
+
+  ;; Check if we have a full path to the archive file.
+  ;; Create any missing directories.
+
+  (unless (file-exists-p org-website-page-archive-file)
+    (let ((dir (file-name-directory org-website-page-archive-file)))
+      (unless (file-exists-p dir)
+        (make-directory dir))))
+
+  ;; Open the archive file and yank in the content.
+  ;; Headers are fixed up later by org-capture.
+
+  (find-file org-website-page-archive-file)
+  (goto-char (point-max))
+  ;; Leave a blank line for org-capture to fill in
+  ;; with a timestamp, URL, etc.
+  (insert "\n\n")
+  ;; Insert the web content but keep our place.
+  (save-excursion (yank))
+  ;; Don't keep the page info on the kill ring.
+  ;; Also fix the yank pointer.
+  (setq kill-ring (cdr kill-ring))
+  (setq kill-ring-yank-pointer kill-ring)
+  ;; Final repositioning.
+  (forward-line -1)
+  )
+#+end_src
+
+** Org-babel
+
+*** Loading language base
+
+#+begin_src emacs-lisp
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((clojure . t)
+   (scheme . t))
+ )
+#+end_src
+
+*** Clojure and cider
+
+#+begin_src emacs-lisp
+(require 'cider)
+(setq org-babel-clojure-backend 'cider)
+#+end_src
+
+** TODO Org-trello
+** Loading completed
+
+#+BEGIN_SRC emacs-lisp
+(message "Loaded org customisations")
+#+END_SRC
+
+* Helm
+** Setting Helm to be used for specific functions
+I prefer using Helm for specific functions like M-x, find files and bookmarks and switching buffers.
+
+#+begin_src emacs-lisp
+;; Setting Helm as preferred package to use
+(global-set-key (kbd "M-x") #'helm-M-x)
+(global-set-key (kbd "C-x r b") #'helm-filtered-bookmarks)
+(global-set-key (kbd "C-x C-f") #'helm-find-files)
+(global-set-key (kbd "C-x b") #'helm-mini)
+#+end_src
+
+#+RESULTS:
+| helm-source-buffers-list | helm-source-recentf | helm-source-bookmarks | helm-source-buffer-not-found |
+
+** TODO Persistent follow mode for Helm
+- Note taken on [2019-02-07 Thu 07:46]  \\
+  Need to find exactly what this does
+
+#+begin_src emacs-lisp
+(custom-set-variables
+ '(helm-follow-mode-persistent t))
+#+end_src
+
+** TODO Setting sources for helm
+- Note taken on [2019-02-07 Thu 16:28] \\
+  This was needed as it seems helm was not sourcing from recentf file lists. With this source list defined, it provides options to choose from recent files, bookmarks, open buffers.
+
+#+BEGIN_SRC emacs-lisp
+(setq helm-mini-default-sources '(helm-source-buffers-list
+                                  helm-source-recentf
+                                  helm-source-bookmarks
+                                  helm-source-buffer-not-found))
+
+(setq helm-buffers-list-default-sources '(helm-source-buffers-list
+                                          helm-source-recentf
+                                          helm-source-bookmarks
+                                          helm-source-buffer-not-found))
+
+#+END_SRC
+
+** helm-ag and helm-org-rifle
+
+#+begin_src emacs-lisp
+(require 'helm-ag)
+(require 'helm-org-rifle)
+#+end_src
+
+** helm-swoop
+- Note taken on [2019-02-07 Thu 16:53] \\
+  This is an awesome find. Helm swoop changes the search pattern depending on the location of the cursor. Therefore, while placed on an org headline, calling helm-swoop will preset the search pattern to have headings. The same is true for source code blocks! Fantastic.
+
+Source: https://writequit.org/org/#orgheadline92
+
+#+BEGIN_SRC emacs-lisp
+(use-package helm-swoop
+  :ensure t
+  :bind (("M-i" . helm-swoop)
+         ("M-I" . helm-swoop-back-to-last-point)
+         ("C-c M-i" . helm-multi-swoop))
+  :config
+  ;; When doing isearch, hand the word over to helm-swoop
+  (define-key isearch-mode-map (kbd "M-i") 'helm-swoop-from-isearch)
+  ;; From helm-swoop to helm-multi-swoop-all
+  (define-key helm-swoop-map (kbd "M-i") 'helm-multi-swoop-all-from-helm-swoop)
+  ;; Save buffer when helm-multi-swoop-edit complete
+  (setq helm-multi-swoop-edit-save t
+        ;; If this value is t, split window inside the current window
+        helm-swoop-split-with-multiple-windows t
+        ;; Split direcion. 'split-window-vertically or 'split-window-horizontally
+        helm-swoop-split-direction 'split-window-vertically
+        ;; If nil, you can slightly boost invoke speed in exchange for text color
+        helm-swoop-speed-or-color nil))
+#+END_SRC
+
+#+RESULTS:
+: helm-multi-swoop
+
+** Loading completed
+
+#+BEGIN_SRC emacs-lisp
+(message "Loaded Helm customisations")
+#+END_SRC
+
+* Flycheck
+Source: https://writequit.org/org/
+
+** Basic config
+
+#+BEGIN_SRC emacs-lisp
+(use-package flycheck
+  :defer 5
+  :bind (("M-g M-n" . flycheck-next-error)
+         ("M-g M-p" . flycheck-previous-error)
+         ("M-g M-=" . flycheck-list-errors))
+  :init (global-flycheck-mode)
+  :diminish flycheck-mode
+  :config
+  (progn
+    (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc json-jsonlint json-python-json))
+    (use-package flycheck-pos-tip
+      :init (flycheck-pos-tip-mode))
+    (use-package helm-flycheck
+      :init (define-key flycheck-mode-map (kbd "C-c ! h") 'helm-flycheck))
+    (use-package flycheck-haskell
+      :init (add-hook 'flycheck-mode-hook #'flycheck-haskell-setup))))
+#+END_SRC
+
+** Replacing flymake with flycheck
+This is especially for python modules at the moment.
+
+#+BEGIN_SRC emacs-lisp
+(when (require 'flycheck nil t)
+  (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
+  (add-hook 'elpy-mode-hook 'flycheck-mode))
+#+END_SRC
+
+* Scheme setup
+- References
+  - http://praveen.kumar.in/2011/03/06/gnu-emacs-and-mit-scheme-on-mac-os-x/
+
+#+begin_src emacs-lisp
+(setq scheme-program-name "/Applications/MIT-GNU-Scheme.app/Contents/Resources/mit-scheme")
+(require 'xscheme)
+
+(message "Loaded scheme setup")
+#+end_src
+
+* Hydras
+** Refiling
+:PROPERTIES:
+:ID:       a7ceeb6d-2085-4380-909f-78f5ee698ad7
+:END:
+
+Adapted from https://emacs.stackexchange.com/questions/8045/org-refile-to-a-known-fixed-location
+
+source: https://gist.github.com/mm--/60e0790bcbf8447160cc87a66dc949ab
+
+#+begin_src emacs-lisp
+
+(defun my/refile (file headline &optional arg)
+  "Refile to a specific location.
+
+With a 'C-u' ARG argument, we jump to that location (see
+`org-refile').
+
+Use `org-agenda-refile' in `org-agenda' mode."
+  (let* ((pos (with-current-buffer (or (get-buffer file) ;Is the file open in a buffer already?
+				       (find-file-noselect file)) ;Otherwise, try to find the file by name (Note, default-directory matters here if it isn't absolute)
+		(or (org-find-exact-headline-in-buffer headline)
+		    (error "Can't find headline `%s'" headline))))
+	 (filepath (buffer-file-name (marker-buffer pos))) ;If we're given a relative name, find absolute path
+	 (rfloc (list headline filepath nil pos)))
+    (if (and (eq major-mode 'org-agenda-mode) (not (and arg (listp arg)))) ;Don't use org-agenda-refile if we're just jumping
+	(org-agenda-refile nil rfloc)
+      (org-refile arg nil rfloc))))
+
+(defun josh/refile (file headline &optional arg)
+  "Refile to HEADLINE in FILE. Clean up org-capture if it's activated.
+
+With a `C-u` ARG, just jump to the headline."
+  (interactive "P")
+  (let ((is-capturing (and (boundp 'org-capture-mode) org-capture-mode)))
+    (cond
+     ((and arg (listp arg))	    ;Are we jumping?
+      (my/refile file headline arg))
+     ;; Are we in org-capture-mode?
+     (is-capturing      	;Minor mode variable that's defined when capturing
+      (josh/org-capture-refile-but-with-args file headline arg))
+     (t
+      (my/refile file headline arg)))
+    (when (or arg is-capturing)
+      (setq hydra-deactivate t))))
+
+(defun josh/org-capture-refile-but-with-args (file headline &optional arg)
+  "Copied from `org-capture-refile' since it doesn't allow passing arguments. This does."
+  (unless (eq (org-capture-get :type 'local) 'entry)
+    (error
+     "Refiling from a capture buffer makes only sense for `entry'-type templates"))
+  (let ((pos (point))
+	(base (buffer-base-buffer (current-buffer)))
+	(org-capture-is-refiling t)
+	(kill-buffer (org-capture-get :kill-buffer 'local)))
+    (org-capture-put :kill-buffer nil)
+    (org-capture-finalize)
+    (save-window-excursion
+      (with-current-buffer (or base (current-buffer))
+	(org-with-wide-buffer
+	 (goto-char pos)
+	 (my/refile file headline arg))))
+    (when kill-buffer (kill-buffer base))))
+
+(defmacro josh/make-org-refile-hydra (hydraname file keyandheadline)
+  "Make a hydra named HYDRANAME with refile targets to FILE.
+KEYANDHEADLINE should be a list of cons cells of the form (\"key\" . \"headline\")"
+  `(defhydra ,hydraname (:color blue :after-exit (unless (or hydra-deactivate
+							     current-prefix-arg) ;If we're just jumping to a location, quit the hydra
+						   (josh/org-refile-hydra/body)))
+     ,file
+     ,@(cl-loop for kv in keyandheadline
+		collect (list (car kv) (list 'josh/refile file (cdr kv) 'current-prefix-arg) (cdr kv)))
+     ("q" nil "cancel")))
+
+;;;;;;;;;;
+;; Here we'll define our refile headlines
+;;;;;;;;;;
+
+(josh/make-org-refile-hydra josh/org-refile-hydra-file-ds
+			    "~/my_org/datascience.org"
+			    (("1" . "@Datascience @Inbox")
+			     ("2" . "@Datascience @Notes")))
+
+(josh/make-org-refile-hydra josh/org-refile-hydra-file-bgr
+			    "~/my_org/bgr.org"
+			    (("1" . "#BGR #Inbox")
+			     ("2" . "#questions @ BGR")
+                             ("3" . "Inventory management Project")))
+
+(josh/make-org-refile-hydra josh/org-refile-hydra-file-todoglobal
+			    "todo-global.org"
+			    (("1" . ";Emacs Stuff")
+			     ("2" . ";someday")))
+
+(defhydra josh/org-refile-hydra (:foreign-keys run)
+  "Refile"
+  ("a" josh/org-refile-hydra-file-ds/body "File A" :exit t)
+  ("b" josh/org-refile-hydra-file-bgr/body "File B" :exit t)
+  ("c" josh/org-refile-hydra-file-todoglobal/body "File C" :exit t)
+  ("j" org-refile-goto-last-stored "Jump to last refile" :exit t)
+  ("q" nil "cancel"))
+
+(global-set-key (kbd "<f8> r") 'josh/org-refile-hydra/body)
+#+end_src
+
+** helm-do-ag in specific locations
+
+Reference: https://emacs.stackexchange.com/questions/44128/function-to-do-helm-do-ag-for-a-specific-project
+
+*** In project directory
+
+#+begin_src emacs-lisp
+(defun helm-do-ag-projects ()
+  "Grep string in Project directory" (interactive)
+  (let ((rootdir (concat "~/my_projects/")))
+    (let ((helm-ag-command-option (concat helm-ag-command-option "")))
+      (helm-do-ag rootdir))))
+#+end_src
+
+#+RESULTS:
+: helm-do-ag-projects
+
+*** Scimax config directory
+
+#+begin_src emacs-lisp
+(defun helm-do-ag-emacs-config ()
+  "Grep string in Emacs custom code"
+  (interactive)
+  (let ((rootdir (concat "~/scimax/user/sr-cust/")))
+    (let ((helm-ag-command-option (concat helm-ag-command-option "")))
+      (helm-do-ag rootdir))))
+#+end_src
+
+#+RESULTS:
+: helm-do-ag-emacs-config
+
+*** Journal directory
+
+#+begin_src emacs-lisp
+(defun helm-do-ag-journal ()
+  "Grep string in journal"
+  (interactive)
+  (let ((specfile (concat "~/my_org/journal/")))
+    (let ((helm-ag-command-option (concat helm-ag-command-option "")))
+      (helm-ag-this-file rootdir))))
+#+end_src
+
+*** BGR file
+
+#+begin_src emacs-lisp
+(defun helm-do-ag-bgr ()
+  "Grep string in BGR file"
+  (interactive)
+  (let ((specfile (concat "~/my_org/bgr.org")))
+    (let ((helm-ag-command-option (concat helm-ag-command-option "")))
+      (helm-do-ag-this-file specfile))))
+#+end_src
+
+*** Defining hydra
+
+#+begin_src emacs-lisp
+(defhydra shrysr/hydra-helm-ag-do-menu ()
+  "
+Helm-do-ag in specified locations
+^location^  ^command^
+----------------------------------------------------------
+e:        emacs custom config
+b:        bgr file
+o:        org files
+j:        journal search
+"
+  ("e" helm-do-ag-emacs-config)
+  ("j" helm-do-ag-journal :color blue)
+  ("p" helm-do-ag-projects)
+  ("o" helm-do-ag-org)
+  ("q" quit-window "quit" :color red))
+
+(global-set-key (kbd "<f8> h") 'shrysr/hydra-helm-ag-do-menu/body)
+#+end_src
+
+** Frame configurations fo magit and project launch
+*** Scimax - magit and windows
+
+#+begin_src emacs-lisp
+;; scimax directory magit status
+(defun sr/windows-magit-scimax ()
+  (interactive)
+  (ace-delete-other-windows)
+  (dired "~/scimax/user/")
+  (switch-window-then-split-right nil)
+  (magit-status "~/scimax/")
+  (switch-window)
+  (split-window-vertically)
+  (dired-up-directory)
+  (windmove-right)
+  )
+#+end_src
+
+*** Org files - magit and windows
+
+#+begin_src emacs-lisp
+;; my_org magit status
+(defun sr/windows-magit-org ()
+  (interactive)
+  (ace-delete-other-windows)
+  (magit-status "~/my_org/")
+  )
+#+end_src
+
+*** Project directory - magit and windows
+
+#+begin_src emacs-lisp
+;; magit status
+(defun sr/windows-magit-projects ()
+  (interactive)
+  (ace-delete-other-windows)
+  (switch-window-then-split-right nil)
+  (magit-status "~/my_projects/")
+  (switch-window)
+  (dired "~/my_projects/")
+  (switch-window)
+  )
+#+end_src
+
+*** Project: Switch and windows
+
+#+begin_src emacs-lisp
+(defun sr/windows-projects ()
+  (interactive)
+  (ace-delete-other-windows)
+  (switch-window-then-split-right nil)
+  (projectile-switch-project)
+  (switch-window)
+  (find-file "~/my_org/project-tasks.org")
+  (widen)
+  (helm-org-rifle-current-buffer)
+  (org-narrow-to-subtree)
+  (outline-show-children)
+  )
+#+end_src
+
+*** Defining Hydra
+
+#+begin_src emacs-lisp
+(defhydra sr/process-window-keys ()
+  "
+Key^^   ^Workflow^
+--------------------
+o       org magit
+s       scimax magit
+p       projects magit
+w       select project and set window config
+SPC     exit
+"
+  ("o" sr/windows-magit-org )
+  ("p" sr/windows-magit-projects )
+  ("s" sr/windows-magit-scimax )
+  ("w" sr/windows-projects)
+  ("SPC" nil)
+  )
+
+(global-set-key (kbd "<f8> m") 'sr/process-window-keys/body)
+#+end_src
+
+** Loading completed
+
+#+BEGIN_SRC emacs-lisp
+(message "Loaded Hydras")
+#+END_SRC
+
+* Elfeed customisation
+
+** Elfeed-org setup [/]
+
+Using an org source is the easiest way to organise my RSS feeds for reading with Elfeed.
+
+#+begin_src emacs-lisp
+;; use an org file to organise feeds
+(use-package elfeed-org
+  :ensure t
+  :config
+  (elfeed-org)
+  (setq rmh-elfeed-org-files (list "~/my_org/elfeed.org"))
+  )
+#+end_src
+
+** TODO Consider storing the Feed sources here in org format
+
+** Loading completed
+
+#+BEGIN_SRC emacs-lisp
+(message "Loaded Elfeed customisations")
+#+END_SRC
+
+* w3m customisation
+
+A few snippets were sourced from: http://beatofthegeek.com/2014/02/my-setup-for-using-emacs-as-web-browser.html
+
+#+begin_src emacs-lisp
+(setq browse-url-browser-function 'w3m-goto-url-new-session)
+(setq w3m-default-display-inline-images t)
+#+end_src
+
+** TODO Appending HTTP to web addresses entered by hand
+- Note taken on [2019-02-07 Thu 07:40]  \\
+  Check whether this is necessary
+
+#+begin_src emacs-lisp
+;;when I want to enter the web address all by hand
+(defun w3m-open-site (site)
+  "Opens site in new w3m session with 'http://' appended"
+  (interactive
+   (list (read-string "Enter website address(default: w3m-home):" nil nil w3m-home-page nil )))
+  (w3m-goto-url-new-session
+   (concat "http://" site)))
+#+end_src
+
+** Changing w3m shortcuts for better tabbed browsing
+
+Source:  Sacha Chua : http://sachachua.com/blog/2008/09/emacs-and-w3m-making-tabbed-browsing-easier/
+
+#+begin_src emacs-lisp
+(eval-after-load 'w3m
+  '(progn
+     (define-key w3m-mode-map "q" 'w3m-previous-buffer)
+     (define-key w3m-mode-map "w" 'w3m-next-buffer)
+     (define-key w3m-mode-map "x" 'w3m-close-window)))
+#+end_src
+
+** TODO Default external browser settings
+- Note taken on [2019-02-07 Thu 07:37]  \\
+  Need to have this change depending whether the OS is Linux or Mac OS
+
+#+begin_src emacs-lisp
+(defun wicked/w3m-open-current-page-in-firefox ()
+  "Open the current URL in Mozilla Firefox."
+  (interactive)
+  (browse-url-default-macosx-browser w3m-current-url)) ;; (1)
+
+(defun wicked/w3m-open-link-or-image-in-firefox ()
+  "Open the current link or image in Firefox."
+  (interactive)
+  (browse-url-default-macosx-browser (or (w3m-anchor) ;; (2)
+                                         (w3m-image)))) ;; (3)
+
+(eval-after-load 'w3m
+  '(progn
+     (define-key w3m-mode-map "o" 'wicked/w3m-open-current-page-in-firefox)
+     (define-key w3m-mode-map "O" 'wicked/w3m-open-link-or-image-in-firefox)))
+#+end_src
+
+** Wikipedia search
+
+#+begin_src emacs-lisp
+(defun wikipedia-search (search-term)
+  "Search for SEARCH-TERM on wikipedia"
+  (interactive
+   (let ((term (if mark-active
+                   (buffer-substring (region-beginning) (region-end))
+                 (word-at-point))))
+     (list
+      (read-string
+       (format "Wikipedia (%s):" term) nil nil term)))
+   )
+  (browse-url
+   (concat
+    "http://en.m.wikipedia.org/w/index.php?search="
+    search-term
+    ))
+  )
+#+end_src
+
+** Access Hacker News
+
+#+begin_src emacs-lisp
+(defun hn ()
+  (interactive)
+  (browse-url "http://news.ycombinator.com"))
+#+end_src
+
+* ediff
+
+I have to diff between org files pretty often, and need the headings to be unfolded.
+
+Source: http://emacs.stackexchange.com/questions/21335/prevent-folding-org-files-opened-by-ediff
+
+#+begin_src emacs-lisp
+;; Check for org mode and existence of buffer
+(defun f-ediff-org-showhide (buf command &rest cmdargs)
+  "If buffer exists and is orgmode then execute command"
+  (when buf
+    (when (eq (buffer-local-value 'major-mode (get-buffer buf)) 'org-mode)
+      (save-excursion (set-buffer buf) (apply command cmdargs)))))
+
+(defun f-ediff-org-unfold-tree-element ()
+  "Unfold tree at diff location"
+  (f-ediff-org-showhide ediff-buffer-A 'org-reveal)
+  (f-ediff-org-showhide ediff-buffer-B 'org-reveal)
+  (f-ediff-org-showhide ediff-buffer-C 'org-reveal))
+
+(defun f-ediff-org-fold-tree ()
+  "Fold tree back to top level"
+  (f-ediff-org-showhide ediff-buffer-A 'hide-sublevels 1)
+  (f-ediff-org-showhide ediff-buffer-B 'hide-sublevels 1)
+  (f-ediff-org-showhide ediff-buffer-C 'hide-sublevels 1))
+
+(add-hook 'ediff-select-hook 'f-ediff-org-unfold-tree-element)
+(add-hook 'ediff-unselect-hook 'f-ediff-org-fold-tree)
+#+end_src
+
+* Theme and visuals
+** Emacsclient or frame specific settings
+Since I run emacs as a daemon and call the emacsclient, the background has to be set for new frames. Additionally, I'd like the frames to launch full screen.
+
+#+begin_src emacs-lisp
+(setq default-frame-alist
+      '((background-color . "light grey")
+        (foreground-color . "black")
+        (fullscreen . maximized)
+        ))
+        #+end_src
+
+** Custom Safe themes and Background change to light grey
+#+begin_src emacs-lisp
+(setq custom-safe-themes t)
+(set-background-color "light gray")
+#+end_src
+
+** Font Customisation based on OS
+
+The same font is named differently in Antergos (Linux) and in the Mac OS.
+
+#+begin_src emacs-lisp
+;; For Linux
+(if (system-type-is-gnu)
+    (set-face-attribute 'default nil :family "ttf-iosevka" :height 140))
+
+;; For Mac OS
+(if (system-type-is-darwin)
+    (set-face-attribute 'default nil :family "Iosevka Type" :height 150))
+#+end_src
+
+** visual-fill-column
+Source: https://github.com/wasamasa/dotemacs/blob/master/init.org
+
+Adding a hook to enable visual fill column mode once visual line mode is called did not work for me. The issue is that this is called
+#+BEGIN_SRC emacs-lisp
+(setq
+ global-visual-line-mode 1
+ fill-column 80)
+#+END_SRC
+
+#+RESULTS:
+: 80
+
+* Hugo
+
+** Function to create specific properties for a blog post
+Modified this function from:
+
+*** TODO Defining content directory
+- Note taken on [2019-02-07 Thu 08:06]  \\
+  Need to check if this is still required since I have switche to ox-hugo
+
+#+begin_src emacs-lisp
+(defvar hugo-content-dir "~/my_gits/hugo-sr/content/post/"
+  "Path to Hugo's content directory")
+#+end_src
+
+*** Ensuring properties exist and creating if they dont exist
+
+#+begin_src emacs-lisp
+(defun hugo-ensure-property (property)
+  "Make sure that a property exists. If not, it will be created.
+Returns the property name if the property has been created, otherwise nil."
+  (org-id-get-create)
+  (if (org-entry-get nil property)
+      nil
+    (progn (org-entry-put nil property "")
+           property)))
+
+(defun hugo-ensure-properties ()
+
+  (require 'dash)
+  (let ((current-time (format-time-string
+                       (org-time-stamp-format t t) (org-current-time)))
+        first)
+    (save-excursion
+      (setq first (--first it (mapcar #'hugo-ensure-property
+                                      '("HUGO_TAGS" "HUGO_CATEGORIES"))))
+      (unless (org-entry-get nil "HUGO_DATE")
+        (org-entry-put nil "EXPORT_DATE" current-time)))
+    (org-entry-put nil "EXPORT_FILE_NAME" (org-id-get-create))
+    (org-entry-put nil "EXPORT_HUGO_CUSTOM_FRONT_MATTER" ":profile false")
+    (when first
+      (goto-char (org-entry-beginning-position))
+      ;; The following opens the drawer
+      (forward-line 1)
+      (beginning-of-line 1)
+      (when (looking-at org-drawer-regexp)
+        (org-flag-drawer nil))
+      ;; And now move to the drawer property
+      (search-forward (concat ":" first ":"))
+      (end-of-line))
+    first))
+#+end_src
+
+*** Hugo function calling the above
+
+#+begin_src emacs-lisp
+(defun hugo ()
+  (interactive)
+  (unless (hugo-ensure-properties)
+    (let* ((type    (concat "type = \"" (org-entry-get nil "HUGO_TYPE") "\"\n"))
+           (date     (concat "date = \""
+                             (format-time-string "%Y-%m-%d"
+                                                 (apply 'encode-time
+                                                        (org-parse-time-string
+                                                         (org-entry-get nil "HUGO_DATE"))) t) "\"\n"))
+           (tags     (concat "tags = [ \""
+                             (mapconcat 'identity
+                                        (split-string
+                                         (org-entry-get nil "HUGO_TAGS")
+                                         "\\( *, *\\)" t) "\", \"") "\" ]\n"))
+           (fm (concat "+++\n"
+                       title
+		       type
+                       date
+                       tags
+                       topics
+                       "+++\n\n"))
+           (coding-system-for-write buffer-file-coding-system)
+           (backend  'md)
+           (blog))
+      ;; try to load org-mode/contrib/lisp/ox-gfm.el and use it as backend
+      (if (require 'ox-gfm nil t)
+          (setq backend 'gfm)
+        (require 'ox-md))
+      (setq blog (org-export-as backend t))
+      ;; Normalize save file path
+      (unless (string-match "^[/~]" file)
+        (setq file (concat hugo-content-dir file))
+        (unless (string-match "\\.md$" file)
+          (setq file (concat file ".md")))
+        ;; save markdown
+        (with-temp-buffer
+          (insert fm)
+          (insert blog)
+          (untabify (point-min) (point-max))
+          (write-file file)
+          (message "Exported to %s" file))))))
+#+end_src
+
+** ox-hugo setup
+
+#+begin_src emacs-lisp
+(use-package ox-hugo
+  :ensure t
+  :defer t
+  :custom
+  (org-hugo--tag-processing-fn-replace-with-hyphens-maybe t)
+  )
+#+end_src
+
+* Scimax customisations
+
+These are settings which custmise scimax specific variables. These are separated out here so that it becomes easier to try out Emacs configurations that are outside scimax.
+
+** Defining Hotspots
+
+#+begin_src emacs-lisp
+(defun hotspots ()
+  "helm interface to my hotspots, which includes my locations,
+org-files and bookmarks"
+  (interactive)
+  (helm :sources `(((name . "Mail and News")
+                    (candidates . (("Agenda All" . (lambda () (org-agenda "" "a")))
+                                   ("Agenda Office" . (lambda () (org-agenda "" "o")))
+				   ("Mail" . (lambda ()
+                                               (if (get-buffer "*mu4e-headers*")
+                                                   (progn
+                                                     (switch-to-buffer "*mu4e-headers*")
+                                                     (delete-other-windows))
+                                                 (mu4e))))
+                                   ("Calendar" .
+                                    (lambda ()
+                                      (browse-url
+                                       "https://www.google.com/calendar/render")))
+                                   ("RSS" . elfeed)))
+                    (action . (("Open" . (lambda (x) (funcall x))))))
+                   ((name . "My Locations")
+                    (candidates . (("CV Org" . "~/org_cv/CV_Shreyas_Ragavan.org")
+                                   ("scd - scimax dir" . "~/scimax/" )
+                                   ("scu - scimax user dir" . "~/scimax/user/")
+                                   ( "sco - scimax org conf". "~/scimax/user/sr-config.org")
+                                   ("blog" . "~/my_org/blog-book.org")
+				   ("github" . "~/my_gits/")
+                                   ("project" . "~/my_projects/")
+                                   ("cheatsheet" . "~/my_cheatsheets/")
+                                   ("passwords" . "~/my_org/secrets.org.gpg")
+                                   ("references" . "~/Dropbox/bibliography/references.bib")
+                                   ))
+                    (action . (("Open" . (lambda (x) (find-file x))))))
+
+                   ((name . "My org files")
+                    (candidates . ,(f-entries "~/my_org"))
+                    (action . (("Open" . (lambda (x) (find-file x))))))
+                   helm-source-recentf
+                   helm-source-bookmarks
+                   helm-source-bookmark-set)))
+#+end_src
+
+#+RESULTS:
+: hotspots
+
+** Notebook directory
+
+#+begin_src emacs-lisp
+(setq nb-notebook-directory "~/my_projects/")
+#+end_src
+
+** scimax notebook
+#+begin_src emacs-lisp
+(global-set-key (kbd "M-s n") 'nb-open)
+#+end_src
+
+** Python
+
+#+BEGIN_SRC emacs-lisp
+(scimax-ob-ipython-turn-on-eldoc)
+
+#+END_SRC
+
+** TODO Bibliography settings and customisation
+
+ This was setup a long time ago to convert past technical repots into org mode, with references made in correct technical style. This project is on hold.
+
+ #+BEGIN_SRC emacs-lisp :tangle no
+(require 'doi-utils)
+(require 'org-ref-wos)
+(require 'org-ref-pubmed)
+(require 'org-ref-arxiv)
+(require 'org-ref-bibtex)
+(require 'org-ref-pdf)
+(require 'org-ref-url-utils)
+(require 'org-ref-helm)
+
+;; note and bib location
+
+(setq org-ref-bibliography-notes "~/my_org/references/references.org"
+      org-ref-bibliography-notes "~/my_org/references/research_notes.org"
+      org-ref-default-bibliography '("~/my_org/references/references.bib")
+      org-ref-pdf-directory "~/my_org/references/pdfs/")
+
+;; setting up helm-bibtex
+(setq helm-bibtex-bibliography "~/my_org/references/references.bib"
+      helm-bibtex-library-path "~/my_org/org/references/pdfs"
+      helm-bibtex-notes-path "~/my_org/references/research_notes.org")
+ #+END_SRC
+
+** Export
+
+#+BEGIN_SRC emacs-lisp
+(require 'ox-word)
+#+END_SRC
+
+#+RESULTS:
+: ox-word
+
+* TODO Project publishing setup [0/2]
+
+This is under construction and was initially started with the idea of having custom publishing settings for different projects. I was initially looking at this for publishing my hugo blog. However, the need has been negated with the excellent ox-hugo package.
+
+** TODO Exporting org projects
+#+BEGIN_SRC emacs-lisp :tangle no
+(
+ setq org-publish-project-alist
+ '(
+   ("org-repo"
+    :base-directory "./"
+    :base-extension "org"
+    :publishing-directory "/Users/shreyas/my_projects/dotemacs"
+    :EXPORT_FILE_NAME "README.org"
+    :recursive f
+    :publishing-function org-html-publish-to-html
+    ;; :html-head "<link rel="stylesheet" href="http://dakrone.github.io/org2.css" type="text/css" />"
+    )
+
+   ("md"
+    :base-directory "./"
+    :base-extension "org"
+    :publishing-directory "./export/"
+    :recursive t
+    :publishing-function org-md-export-to-markdown
+    )
+
+   ("Documentation - html + md"
+    :components ("html-static" "md" )
+    )))
+#+END_SRC
+
+#+RESULTS:
+| org-repo                  | :base-directory | ./               | :base-extension | org | :publishing-directory | /Users/shreyas/my_projects/dotemacs | :EXPORT_FILE_NAME | README.org | :recursive           | f                         | :publishing-function | org-html-publish-to-html |
+| md                        | :base-directory | ./               | :base-extension | org | :publishing-directory | ./export/                          | :recursive      | t          | :publishing-function | org-md-export-to-markdown |                      |                          |
+| Documentation - html + md | :components     | (html-static md) |                 |     |                       |                                    |                 |            |                      |                           |                      |                          |
+
+** TODO Function for exporting dotemacs config
+
+This is the beginning of a function to perform 3 exports:
+1. Export to my hugo website as a part of my documentation (markdown)
+2. Export to github repository as an org file
+3. Export and tangle org file to the above github repository as emacs lisp file.
+
+Maintaining the documentation on my website does not make it easy to others to view the changes in the configuration and fork or download the same as an org file or emacs-lisp script. Therefore it should be maintained in it's own repository, separate from Scimax.
+
+As of now, I'm calling this function from my Emacs config file, and need to improve the above workflow.
+
+#+BEGIN_SRC emacs-lisp
+(defun sr/dotemacs-export()
+  (interactive)
+  "Exporting to org file and lisp"
+  (org-hugo-export-to-md)
+  (copy-file "~/scimax/user/sr-config.org" "~/my_projects/dotemacs/README.org" "OK-IF-ALREADY-EXISTS")
+  ;; (find-file-existing "~/my_projects/dotemacs/README.org")
+  (org-babel-tangle-file  "~/my_projects/dotemacs/README.org" "~/my_projects/dotemacs/config.el"))
+#+END_SRC
+
+#+RESULTS:
+: sr/dotemacs-export
+
+* TODO mu4e
+- Note taken on [2019-02-07 Thu 20:43] \\
+  The mu4e config has to be broken down and the send email with htmlize has to be evaluated.
+- Note taken on [2019-02-07 Thu 09:04] \\
+  As of now, I do not acess my email on different computers via Emacs. The end goal is to setup a mail server via VPS and store my email online, which can then be searched via Emacs and mu4e from any location.
+
+  I would also like to figure out how to have specific portions encrypted and to tangle blocks of code conditionally.
+
+#+BEGIN_SRC emacs-lisp
+(if (system-type-is-darwin)
+    (progn
+      (use-package mu4e
+        :ensure nil
+        :config
+        (require 'mu4e)
+        (require 'mu4e-contrib)
+        (require 'org-mu4e)
+
+        (setq
+         mue4e-headers-skip-duplicates  t
+         mu4e-view-show-images t
+         mu4e-view-show-addresses 't
+         mu4e-compose-format-flowed nil
+         mu4e-update-interval 200
+         message-ignored-cited-headers 'nil
+         mu4e-date-format "%y/%m/%d"
+         mu4e-headers-date-format "%Y/%m/%d"
+         mu4e-change-filenames-when-moving t
+         mu4e-attachments-dir "~/Downloads/Mail-Attachments/"
+         mu4e-maildir (expand-file-name "~/my_mail/fmail")
+         )
+
+        ;; mu4e email refiling loations
+        (setq
+         mu4e-refile-folder "/Archive"
+         mu4e-trash-folder  "/Trash"
+         mu4e-sent-folder   "/Sent"
+         mu4e-drafts-folder "/Drafts"
+         )
+
+        ;; setup some handy shortcuts
+        (setq mu4e-maildir-shortcuts
+              '(("/INBOX"   . ?i)
+	        ("/Sent"    . ?s)
+	        ("/Archive" . ?a)
+	        ("/Trash"   . ?t)))
+
+        ;;store link to message if in header view, not to header query
+        (setq org-mu4e-link-query-in-headers-mode nil
+              org-mu4e-convert-to-html t) ;; org -> html
+
+        ;; Enabling view in browser for HTML heavy emails that don't render well
+        (add-to-list 'mu4e-view-actions
+	             '("ViewInBrowser" . mu4e-action-view-in-browser) t)
+
+        (autoload 'mu4e "mu4e" "mu for Emacs." t)
+
+        ;; Config for sending email
+        (setq
+         message-send-mail-function 'message-send-mail-with-sendmail
+         send-mail-function 'sendmail-send-it
+         message-kill-buffer-on-exit t
+         )
+
+        ;; allow for updating mail using 'U' in the main view:
+        (setq mu4e-get-mail-command  "mbsync -a -q")
+
+        ;; Don't keep asking for confirmation for every action
+        (defun my-mu4e-mark-execute-all-no-confirm ()
+          "Execute all marks without confirmation."
+          (interactive)
+          (mu4e-mark-execute-all 'no-confirm))
+        ;; mapping x to above function
+        (define-key mu4e-headers-mode-map "x" #'my-mu4e-mark-execute-all-no-confirm)
+        )
+      ;; source: http://matt.hackinghistory.ca/2016/11/18/sending-html-mail-with-mu4e/
+
+      ;; this is stolen from John but it didn't work for me until I
+      ;; made those changes to mu4e-compose.el
+      (defun htmlize-and-send ()
+        "When in an org-mu4e-compose-org-mode message, htmlize and send it."
+        (interactive)
+        (when
+            (member 'org~mu4e-mime-switch-headers-or-body post-command-hook)
+          (org-mime-htmlize)
+          (org-mu4e-compose-org-mode)
+          (mu4e-compose-mode)
+          (message-send-and-exit)))
+
+      ;; This overloads the amazing C-c C-c commands in org-mode with one more function
+      ;; namely the htmlize-and-send, above.
+      (add-hook 'org-ctrl-c-ctrl-c-hook 'htmlize-and-send t)
+      )
+  )
+#+END_SRC
+
+#+RESULTS:
+| scimax-radio-CcCc | htmlize-and-send |
