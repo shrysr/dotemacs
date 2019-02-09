@@ -31,13 +31,13 @@ The style of documentation is particularly influenced by the [[https://github.co
 
 * This configuration
 
-Scimax's init calls the =user.el= script placed in the user folder. The following script is placed in =user.el= to load this org file and then my personal configuration, which is encrypted for security.
+Scimax's init calls the =user.el= script placed in the user folder. The following snippet is placed in =user.el= to load this org file and then my encrypted personal configuration.
 
 #+BEGIN_SRC emacs-lisp :tangle no
 ;; Adding some external packages like reveal for presentations
 (add-to-list 'load-path "~/scimax/user/external_packages/")
 
-;; Loading this file that you are viewing
+;; Loading this file that you are viewing, which I name sr-config.org
 (org-babel-load-file (expand-file-name "sr-config.org" user-emacs-directory))
 
 ;; Loading secret config containing personal information
@@ -45,6 +45,14 @@ Scimax's init calls the =user.el= script placed in the user folder. The followin
 
 (garbage-collect)
 #+END_SRC
+
+To use this config:
+1. Clone Scimax
+2. Add the above snippet to =user.el= in the user directory
+3. Place this org file the user directory.
+4. Run the provided script for installing the packages needed for Scimax. Once that is done, =user.el= will call this org file.
+
+You may need to set :tangle no in the headers for the code snippets that you do not need, and set the location of directories for org files, org agenda etc.
 
 * Other literate Emacs configs
 These references were used for exploration and inspiration.
@@ -393,7 +401,7 @@ Adding hook to enable py-autopep8 with elpy mode.
 #+RESULTS:
 : t
 
-* Crux  - basic movement
+* TODO Crux  - basic movement
 
 Source: https://jamiecollinson.com/blog/my-emacs-config/
 Contains functions from  Prelude. I should check this out in more detail.
@@ -1998,7 +2006,7 @@ This is under construction and was initially started with the idea of having cus
 This is the beginning of a function to perform 3 exports:
 1. Export to my hugo website as a part of my documentation (ox-hugo)
 2. Copy the org file to my github repo.
-3. Export and tangle the copied org file to the above github repository as emacs-lisp file.
+3. Tangle the copied org file to the above github repository to have the script ready.
 
 Maintaining the documentation on my website does not make it easy to others to view the changes in the configuration and fork or download the same as an org file or emacs-lisp script. Therefore the config that I publish should be maintained in it's own repository.
 
@@ -2022,8 +2030,6 @@ As of now, I'm calling this function from my Emacs config file, and need to impr
   The mu4e config has to be broken down and the send email with htmlize has to be evaluated.
 - Note taken on [2019-02-07 Thu 09:04] \\
   As of now, I do not acess my email on different computers via Emacs. The end goal is to setup a mail server via VPS and store my email online, which can then be searched via Emacs and mu4e from any location.
-
-  I would also like to figure out how to have specific portions encrypted and to tangle blocks of code conditionally.
 
 #+BEGIN_SRC emacs-lisp
 (if (system-type-is-darwin)
