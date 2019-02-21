@@ -1,3 +1,20 @@
+(defun sr/tangle-on-save-emacs-config-org-file()
+  (interactive)
+  (if (string= buffer-file-name (file-truename "~/scimax/user/sr-config.org"))
+      (org-babel-tangle-file  "~/scimax/user/sr-config.org" "~/scimax/user/sr-config.el")
+    )
+  )
+
+(defun sr/tangle-if-file-absent ()
+  (interactive)
+  (if nil  (file-exists-p "~/scimax/user/sr-config.el")
+    (org-babel-tangle-file  "~/scimax/user/sr-config.org" "~/scimax/user/sr-config.el")
+    )
+  )
+;; (add-hook 'after-save-hook 'sr/dotemacs-export)
+(add-hook 'after-save-hook
+          'sr/tangle-on-save-emacs-config-org-file)
+
 ;; Get current system's name
 (defun insert-system-name()
   (interactive)
@@ -27,6 +44,15 @@
   )
 (message "Completed OS Level variables load")
 
+(use-package pdf-tools
+  :ensure t
+  :config
+  (custom-set-variables
+   '(pdf-tools-handle-upgrades nil)) ; Use brew upgrade pdf-tools instead in the mac
+  (setq pdf-info-epdfinfo-program "/usr/local/bin/epdfinfo")
+  (pdf-tools-install)
+)
+
 (use-package better-defaults
   :ensure t
 )
@@ -54,13 +80,11 @@
 (setq ivy-initial-inputs-alist nil)
 
 (setq package-list '(diminish
-                     org-journal
                      ztree
                      org-gcal
                      w3m
                      org-trello
                      org-web-tools
-                     ox-hugo
                      auto-indent-mode
                      ob-sql-mode
                      dash
@@ -101,7 +125,6 @@
                      org-projectile
                      bash-completion
                      elmacro
-                     org-noter
                      helm-org-rifle
                      sx define-word))
 
@@ -147,8 +170,6 @@
       (unless (file-exists-p dir)
         (make-directory dir)))))
 
-(setq markdown-command "pandoc")
-
 (set-register ?n (cons 'file "~/my_org/notes.org"))
 (set-register ?l (cons 'file "~/application_letters/letter.md"))
 (set-register ?k (cons 'file "~/application_letters/Cover_letter_Shreyas_R.pdf"))
@@ -183,29 +204,16 @@
 (global-set-key (kbd "<f6>") 'my/yank-more)
 
 (require 'ox-org)
+(require 'ox-word)
+(require 'ox-md)
 
-(message "Loaded Emacs general config")
+(setq markdown-command "pandoc")
 
-(setq python-indent-guess-indent-offset nil)
-(elpy-enable)
-
-(setq python-shell-interpreter "jupyter"
-      python-shell-interpreter-args "console --simple-prompt"
-      python-shell-prompt-detect-failure-warning nil)
-
-(add-to-list 'python-shell-completion-native-disabled-interpreters
-             "jupyter")
-
-(use-package py-autopep8
+(use-package ob-async
   :ensure t
-  :defer t
-  :config
-  (require 'py-autopep8)
-  (add-hook 'elpy-mode-hook 'py-autopep8-enable-on-save)
   )
 
-(add-to-list 'company-backends 'company-ob-ipython)
-(company-mode)
+(message "Loaded Emacs general config")
 
 (use-package crux
   :ensure t
@@ -222,7 +230,7 @@
         (forward-line 2)
         (sort-regexp-fields t "^.*$" "[ ]*." (point) (point-max)))
       (set-buffer-modified-p nil)))
-  :hook (dired-mode . dired-hide-details-mode)
+  ;:hook ;(dired-mode . dired-hide-details-mode)
   :config
   (advice-add 'dired-readin :after #'me/dired-directories-first)
   (setq-default
@@ -296,13 +304,16 @@
 (require 'ess-rutils)
 (setq ess-rutils-keys +1)
 (setq ess-eval-visibly 'nowait)
+(setq ess-use-flymake nil)
+(setq ess-use-eldoc t)
 
 (use-package ess-view
   :ensure t
   :config
   (if (system-type-is-darwin)
       (setq ess-view--spreadsheet-program "/Applications/Tad.app/Contents/MacOS/Tad")
-    ))
+    )
+  )
 
 (message "Loaded ESS configuration")
 
@@ -333,6 +344,7 @@
 
 (use-package ox-reveal
   :ensure ox-reveal
+  :defer t
   :config
   (setq org-reveal-root "http://cdn.jsdelivr.net/reveal.js/3.0.0/")
   (setq org-reveal-mathjax t)
@@ -347,6 +359,9 @@
  org-directory "~/my_org/"
  org-agenda-files '("~/my_org/")
  )
+
+(setq org-log-state-notes-insert-after-drawers t)
+(setq org-log-redeadline 'time)
 
 (require 'org-capture)
 (require 'org-protocol)
@@ -397,6 +412,11 @@
 
 (setq org-id-method (quote uuidgen))
 
+(setq org-todo-keywords
+      '((sequence "TODO(t)" "NEXT(n)" "CANCEL(c)" "POSTPONED(p)" "|" "DONE(d)" "STABLE(s)")
+        (sequence "TEST(T)" "BUG(b)" "KNOWNCAUSE(k)" "|" "FIXED(f)")
+        (sequence "|" )))
+
 (setq org-hide-leading-stars t)
 ;;(setq org-alphabetical-lists t)
 (setq org-src-fontify-natively t)  ;; you want this to activate coloring in blocks
@@ -433,6 +453,26 @@
  '(org-headline-done
    ((((class color) (min-colors 16) (background dark))
      (:foreground "LightSalmon" :strike-through t)))))
+
+(set-face-attribute 'org-todo nil
+                    :box '(:line-width 2
+                           :color "black"
+                           :style released-button)
+                    :inverse-video t
+                    )
+(set-face-attribute 'org-done nil
+                    :box '(:line-width 2
+                           :color "black"
+                           :style released-button)
+                    :inverse-video t
+                    )
+(set-face-attribute 'org-priority nil
+                    :inherit font-lock-keyword-face
+                    :inverse-video t
+                    :box '(:line-width 2
+                           :color "black"
+                           :style released-button)
+                    )
 
 (setq org-refile-targets
       '((nil :maxlevel . 4)
@@ -485,6 +525,7 @@
 
 (setq org-agenda-sticky t)
 
+(require 'org-habit)
 (setq org-habit-graph-column 90)
 
 (setq org-capture-templates
@@ -552,7 +593,12 @@
         (replace-regexp-in-string "\\\\\\.org" "\\\\.org\\\\(\\\\.gpg\\\\)?"
                                   org-agenda-file-regexp)))
 
-(setq org-noter-set-auto-save-last-location t)
+(use-package org-noter
+  :ensure t
+  :defer t
+  :config
+  (setq org-noter-set-auto-save-last-location t)
+  )
 
 (require 'org-projectile)
 
@@ -683,11 +729,13 @@
 (setq helm-mini-default-sources '(helm-source-buffers-list
                                   helm-source-recentf
                                   helm-source-bookmarks
+                                  helm-source-bookmark-set
                                   helm-source-buffer-not-found))
 
 (setq helm-buffers-list-default-sources '(helm-source-buffers-list
                                           helm-source-recentf
                                           helm-source-bookmarks
+                                          helm-source-bookmark-set
                                           helm-source-buffer-not-found))
 
 (require 'helm-ag)
@@ -713,23 +761,6 @@
         helm-swoop-speed-or-color nil))
 
 (message "Loaded Helm customisations")
-
-(use-package flycheck
-  :defer 5
-  :bind (("M-g M-n" . flycheck-next-error)
-         ("M-g M-p" . flycheck-previous-error)
-         ("M-g M-=" . flycheck-list-errors))
-  :init (global-flycheck-mode)
-  :diminish flycheck-mode
-  :config
-  (progn
-    (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc json-jsonlint json-python-json))
-    (use-package flycheck-pos-tip
-      :init (flycheck-pos-tip-mode))
-    (use-package helm-flycheck
-      :init (define-key flycheck-mode-map (kbd "C-c ! h") 'helm-flycheck))
-    (use-package flycheck-haskell
-      :init (add-hook 'flycheck-mode-hook #'flycheck-haskell-setup))))
 
 (when (require 'flycheck nil t)
   (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
@@ -832,6 +863,70 @@ KEYANDHEADLINE should be a list of cons cells of the form (\"key\" . \"headline\
   ("q" nil "cancel"))
 
 (global-set-key (kbd "<f8> r") 'josh/org-refile-hydra/body)
+
+;;  Hydras for window configuration. Using the deluxe
+(defhydra hydra-window ()
+  "
+Movement^^        ^Split^         ^Switch^		^Resize^
+----------------------------------------------------------------
+_h_ ←       	_v_ertical    	_b_uffer		_q_ X←
+_j_ ↓        	_x_ horizontal	_f_ind files	_w_ X↓
+_k_ ↑        	_z_ undo      	_a_ce 1		_e_ X↑
+_l_ →        	_Z_ reset      	_s_wap		_r_ X→
+_F_ollow		_D_lt Other   	_S_ave		max_i_mize
+_SPC_ cancel	_o_nly this   	_d_elete
+"
+  ("h" windmove-left )
+  ("j" windmove-down )
+  ("k" windmove-up )
+  ("l" windmove-right )
+  ("q" hydra-move-splitter-left)
+  ("w" hydra-move-splitter-down)
+  ("e" hydra-move-splitter-up)
+  ("r" hydra-move-splitter-right)
+  ("b" helm-mini)
+  ("f" helm-find-files)
+  ("F" follow-mode)
+  ("a" (lambda ()
+         (interactive)
+         (ace-window 1)
+         (add-hook 'ace-window-end-once-hook
+                   'hydra-window/body))
+   )
+  ("v" (lambda ()
+         (interactive)
+         (split-window-right)
+         (windmove-right))
+   )
+  ("x" (lambda ()
+         (interactive)
+         (split-window-below)
+         (windmove-down))
+   )
+  ("s" (lambda ()
+         (interactive)
+         (ace-window 4)
+         (add-hook 'ace-window-end-once-hook
+                   'hydra-window/body)))
+  ("S" save-buffer)
+  ("d" delete-window)
+  ("D" (lambda ()
+         (interactive)
+         (ace-window 16)
+         (add-hook 'ace-window-end-once-hook
+                   'hydra-window/body))
+   )
+  ("o" delete-other-windows)
+  ("i" ace-maximize-window)
+  ("z" (progn
+         (winner-undo)
+         (setq this-command 'winner-undo))
+   )
+  ("Z" winner-redo)
+  ("SPC" nil)
+  )
+
+(global-set-key (kbd "<f8> w") 'hydra-window/body)
 
 (defun helm-do-ag-projects ()
   "Grep string in Project directory" (interactive)
@@ -943,13 +1038,115 @@ SPC     exit
 
 (message "Loaded Hydras")
 
+;; Elfeed configuration source :
+(use-package elfeed
+  :bind ("C-c f" . elfeed)
+  :init
+  (setq my/default-elfeed-search-filter "@1-month-ago +unread !sport ")
+  (setq-default elfeed-search-filter my/default-elfeed-search-filter)
+  (setq elfeed-db-direcory "~/scimax/user/elfeeddb")
+  :config
+  (elfeed-org)
+
+  ;;
+  ;; linking and capturing
+  ;;
+
+  (defun elfeed-link-title (entry)
+    "Copy the entry title and URL as org link to the clipboard."
+    (interactive)
+    (let* ((link (elfeed-entry-link entry))
+           (title (elfeed-entry-title entry))
+           (titlelink (concat "[[" link "][" title "]]")))
+      (when titlelink
+        (kill-new titlelink)
+        (x-set-selection 'PRIMARY titlelink)
+        (message "Yanked: %s" titlelink))))
+
+  ;; show mode
+
+  (defun elfeed-show-link-title ()
+    "Copy the current entry title and URL as org link to the clipboard."
+    (interactive)
+    (elfeed-link-title elfeed-show-entry))
+
+  (defun elfeed-show-quick-url-note ()
+    "Fastest way to capture entry link to org agenda from elfeed show mode"
+    (interactive)
+    (elfeed-link-title elfeed-show-entry)
+    (org-capture nil "n")
+    (yank)
+    (org-capture-finalize))
+
+  (bind-keys :map elfeed-show-mode-map
+             ("l" . elfeed-show-link-title)
+             ("v" . elfeed-show-quick-url-note))
+
+  ;; search mode
+
+  (defun elfeed-search-link-title ()
+    "Copy the current entry title and URL as org link to the clipboard."
+    (interactive)
+    (let ((entries (elfeed-search-selected)))
+      (cl-loop for entry in entries
+               when (elfeed-entry-link entry)
+               do (elfeed-link-title entry))))
+
+  (defun elfeed-search-quick-url-note ()
+    "In search mode, capture the title and link for the selected
+     entry or entries in org aganda."
+    (interactive)
+    (let ((entries (elfeed-search-selected)))
+      (cl-loop for entry in entries
+               do (elfeed-untag entry 'unread)
+               when (elfeed-entry-link entry)
+               do (elfeed-link-title entry)
+               do (org-capture nil "n")
+               do (yank)
+               do (org-capture-finalize)
+               (mapc #'elfeed-search-update-entry entries))
+      (unless (use-region-p) (forward-line))))
+
+  (bind-keys :map elfeed-search-mode-map
+             ("l" . elfeed-search-link-title)
+             ("v" . elfeed-search-quick-url-note)))
+
 ;; use an org file to organise feeds
 (use-package elfeed-org
   :ensure t
   :config
-  (elfeed-org)
   (setq rmh-elfeed-org-files (list "~/my_org/elfeed.org"))
   )
+
+(use-package elfeed-goodies
+  :ensure t
+  :init
+  (elfeed-goodies/setup)
+)
+
+;;functions to support syncing .elfeed between machines
+;;makes sure elfeed reads index from disk before launching
+(defun bjm/elfeed-load-db-and-open ()
+  "Wrapper to load the elfeed db from disk before opening"
+  (interactive)
+  (elfeed-db-load)
+  (elfeed)
+  (elfeed-search-update--force))
+
+;;write to disk when quiting
+(defun bjm/elfeed-save-db-and-bury ()
+  "Wrapper to save the elfeed db to disk before burying buffer"
+  (interactive)
+  (elfeed-db-save)
+  (quit-window))
+
+(use-package elfeed
+  :ensure t
+  :bind (:map elfeed-search-mode-map
+              ("A" . bjm/elfeed-show-all)
+              ("E" . bjm/elfeed-show-emacs)
+              ("D" . bjm/elfeed-show-daily)
+              ("q" . bjm/elfeed-save-db-and-bury)))
 
 (message "Loaded Elfeed customisations")
 
@@ -1176,21 +1373,38 @@ org-files and bookmarks"
                    helm-source-bookmarks
                    helm-source-bookmark-set)))
 
+(require 'scimax-elfeed)
+
 (setq nb-notebook-directory "~/my_projects/")
 
 (global-set-key (kbd "M-s n") 'nb-open)
 
+(require 'scimax-org-babel-python)
+(require 'ob-ipython)
+(require 'scimax-ob)
+(require 'scimax-org-babel-ipython-upstream)
+(setq ob-ipython-exception-results nil)
 (scimax-ob-ipython-turn-on-eldoc)
 
-(require 'ox-word)
+(setq python-indent-guess-indent-offset nil)
 
 (defun sr/dotemacs-export()
   (interactive)
-  "Exporting to org file and lisp"
-  (org-hugo-export-to-md)
-  (copy-file "~/scimax/user/sr-config.org" "~/my_projects/dotemacs/README.org" "OK-IF-ALREADY-EXISTS")
-  ;; (find-file-existing "~/my_projects/dotemacs/README.org")
-  (org-babel-tangle-file  "~/my_projects/dotemacs/README.org" "~/my_projects/dotemacs/config.el"))
+  "If directories exist - exporting Org config to Hugo blog, and to Github repository org file and lisp"
+
+  (if (file-directory-p "~/my_projects/dotemacs")
+      (progn
+        (copy-file "~/scimax/user/sr-config.org" "~/my_projects/dotemacs/README.org" "OK-IF-ALREADY-EXISTS")
+        (copy-file "~/scimax/user/sr-config.el" "~/my_projects/dotemacs/config.el" "OK-IF-ALREADY-EXISTS")
+        ;; (org-babel-tangle-file  "~/my_projects/dotemacs/README.org" "~/my_projects/dotemacs/config.el")
+        )
+    )
+  (if (file-directory-p "~/my_gits/hugo-sr")
+      (progn
+        (org-hugo-export-to-md)
+        )
+    )
+  )
 
 (if (system-type-is-darwin)
     (progn

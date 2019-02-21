@@ -2,22 +2,17 @@
 #+hugo_base_dir: ~/my_gits/hugo-sr/
 #+hugo_section: docs
 #+hugo_auto_set_lastmod: t
-#+hugo_weight: auto
-#+hugo_base_dir: ../
-#+hugo_section: ./
-#+hugo_weight: 2001
-#+date: 2017-09-10
 #+author: Shreyas Ragavan
-#+hugo_tags: Emacs org
+#+hugo_tags: Emacs
 #+hugo_categories: Emacs
 #+hugo_menu: :menu "docs" :weight 2001
-#+hugo_custom_front_matter: :linktitle Dotemacs :parent Emacs :toc true :alpha 1 :beta "two words" :gamma 10
+#+hugo_custom_front_matter: :linktitle Dotemacs :parent Emacs :toc true
 #+hugo_draft: false
-#+TITLE: My Emacs configuration
+#+TITLE: My Emacs / Scimax configuration.
 
 * Introduction
 
-This is my literate, Org-mode based configuration for Emacs, which are essentially customisations built on top of the starter-kit Scimax. View a nicely rendered version with easy navigation on my website: https://shrysr.github.io/docs/sr-config/
+This is my literate, Org-mode based configuration for Emacs, which are essentially customisations built on top of the starter-kit Scimax. View a nicely rendered version with easy navigation [[https://shrysr.github.io/docs/sr-config/][on my website]], or if you prefer: [[https://github.com/shrysr/dotemacs][on github]].
 
 #+BEGIN_QUOTE
 Scimax - Awesome editing for scientists and engineers. Scimax is an Emacs starterkit for scientists and engineers. It provides a comprehensive configuration of Emacs for scientific programming and publishing.
@@ -29,9 +24,13 @@ Scimax specific variables have their own heading to make it 'easier' to experime
 
 The style of documentation is particularly influenced by the [[https://github.com/angrybacon/dotemacs/blob/master/dotemacs.org][dotemacs config]] of [[https://github.com/angrybacon][Mathieu Marques]], which I found very engaging to read.
 
+#+BEGIN_QUOTE
+Note: The configuration posted on my website and github repo are updated from time to time, and may be older than the version I am using everyday.
+#+END_QUOTE
+
 * This configuration
 
-Scimax's init calls the =user.el= script placed in the user folder. The following snippet is placed in =user.el= to load this org file and then my encrypted personal configuration.
+Scimax's init calls the =user.el= script placed in the user folder. The following snippet is placed in =user.el= to load this org file and then my encrypted personal configuration. This org file and the tangled emacs-lisp script is also available in a [[https://github.com/shrysr/dotemacs][github repo]].
 
 #+BEGIN_SRC emacs-lisp :tangle no
 ;; Adding some external packages like reveal for presentations
@@ -46,13 +45,14 @@ Scimax's init calls the =user.el= script placed in the user folder. The followin
 (garbage-collect)
 #+END_SRC
 
-To use this config:
-1. Clone Scimax
-2. Add the above snippet to =user.el= in the user directory
-3. Place this org file the user directory.
-4. Run the provided script for installing the packages needed for Scimax. Once that is done, =user.el= will call this org file.
+*** TODO Using this configuration
+You may need to set =:tangle no= in the headers for the code snippets that you do not need, and set the location of directories for org files, org agenda etc.
 
-You may need to set :tangle no in the headers for the code snippets that you do not need, and set the location of directories for org files, org agenda etc.
+**** Method 1
+1. Clone Scimax
+2. Add the above snippet to =user.el= in the user directory. Update the file name and paths as required.
+3. Place this org file in the user directory.
+4. Run the provided script for installing the packages needed for Scimax. Once that is done, =user.el= will call this org file.
 
 * Other literate Emacs configs
 These references were used for exploration and inspiration.
@@ -60,6 +60,42 @@ These references were used for exploration and inspiration.
 1. [[https://karl-voit.at/2017/06/03/emacs-org/][Karl Voit]]
 2. [[https://github.com/angrybacon/dotemacs/blob/master/dotemacs.org][Mathieu Marques]]
 3. [[https://writequit.org/org/][Lee Hinman]]
+4. [[http://pages.sachachua.com/.emacs.d/Sacha.html][Sacha Chua]]
+* TODO Tangle org mode config on save
+- Note taken on [2019-02-14 Thu 13:14] \\
+  Need to add a condition of check: tangle if the file does not exist.
+
+Source: https://thewanderingcoder.com/2015/02/literate-emacs-configuration/
+
+This is a nice code snippet to automate the tangling on saving the config. This saves time while starting up Emacs...
+
+#+BEGIN_SRC emacs-lisp
+(defun sr/tangle-on-save-emacs-config-org-file()
+  (interactive)
+  (if (string= buffer-file-name (file-truename "~/scimax/user/sr-config.org"))
+      (org-babel-tangle-file  "~/scimax/user/sr-config.org" "~/scimax/user/sr-config.el")
+    )
+  )
+
+(defun sr/tangle-if-file-absent ()
+  (interactive)
+  (if nil  (file-exists-p "~/scimax/user/sr-config.el")
+    (org-babel-tangle-file  "~/scimax/user/sr-config.org" "~/scimax/user/sr-config.el")
+    )
+  )
+;; (add-hook 'after-save-hook 'sr/dotemacs-export)
+(add-hook 'after-save-hook
+          'sr/tangle-on-save-emacs-config-org-file)
+
+
+
+
+
+#+END_SRC
+
+#+RESULTS:
+| git-gutter | flycheck-handle-save | t | sr/tangle-on-save-emacs-config-org-file |
+
 * OS Level variables [0/0]
 Since I switch between a Linux machine and a Mac frequently, it is better to define variables that can be used to set other variables depending on the OS.
 
@@ -93,6 +129,31 @@ Since I switch between a Linux machine and a Mac frequently, it is better to def
   )
 (message "Completed OS Level variables load")
 #+end_src
+
+* PDF Tools
+- Note taken on [2019-02-18 Mon 14:30] \\
+  Install epdfinfo via 'brew install pdf-tools' and then install the
+  pdf-tools elisp via the use-package below. To upgrade the epdfinfo
+  server, use 'brew upgrade pdf-tools' prior to upgrading to newest
+  pdf-tools package using Emacs package system. If things get messed up,
+  just do 'brew uninstall pdf-tools', wipe out the elpa pdf-tools
+  package and reinstall both as at the start.  source:
+  https://emacs.stackexchange.com/questions/13314/install-pdf-tools-on-emacs-macosx
+
+#+BEGIN_SRC emacs-lisp
+(use-package pdf-tools
+  :ensure t
+  :config
+  (custom-set-variables
+   '(pdf-tools-handle-upgrades nil)) ; Use brew upgrade pdf-tools instead in the mac
+  (setq pdf-info-epdfinfo-program "/usr/local/bin/epdfinfo")
+  (pdf-tools-install)
+)
+
+#+END_SRC
+
+#+RESULTS:
+: t
 
 * Better defaults
 I need to explore the changed made by this package. For now, it is loaded right in the beginning so that it does not overwrite other customisations down the line.
@@ -128,6 +189,18 @@ I need to explore the changed made by this package. For now, it is loaded right 
 ** github token access
 Source: https://emacs.stackexchange.com/questions/40994/using-auth-source-with-magit-and-bitbucket
 
+Fill the out the following details before executing the script. Machine can be found be executing 'hostname' in shell.
+
+#+BEGIN_SRC sh :tangle no
+cat > ~/.gh.authinfo << EOF
+machine shrysr@github.com password ABCD
+EOF
+#+END_SRC
+
+#+RESULTS:
+
+=M-x epa-encrypt-file= and point towards the above file and choose your key. This will generate the .gpg file.
+
 #+begin_src emacs-lisp
 (setq auth-sources '((:source "~/.gh.authinfo.gpg")))
 (setq magit-process-find-password-functions '(magit-process-password-auth-source))
@@ -148,17 +221,15 @@ Source: https://emacs.stackexchange.com/questions/40994/using-auth-source-with-m
 
 ** Package installation
 *** Package list
-Though the use-package approach is a lot more elegant, I also like to have a list of all my installed packages. In any case, this is more in line with my earlier configurations. As things evolve, I willprobabyl shift fully to the use-package method.
+Though the use-package approach is a lot more elegant, I also like to have a list of all my installed packages. In any case, this is more in line with my earlier configurations. As things evolve, I will probably shift to the use-package method.
 
 #+begin_src emacs-lisp
 (setq package-list '(diminish
-                     org-journal
                      ztree
                      org-gcal
                      w3m
                      org-trello
                      org-web-tools
-                     ox-hugo
                      auto-indent-mode
                      ob-sql-mode
                      dash
@@ -199,10 +270,12 @@ Though the use-package approach is a lot more elegant, I also like to have a lis
                      org-projectile
                      bash-completion
                      elmacro
-                     org-noter
                      helm-org-rifle
                      sx define-word))
 #+end_src
+
+#+RESULTS:
+| diminish | org-journal | ztree | org-gcal | w3m | org-trello | org-web-tools | auto-indent-mode | ob-sql-mode | dash | org-super-agenda | workgroups2 | switch-window | ess | ess-R-data-view | interleave | deft | org-bookmark-heading | writeroom-mode | evil | evil-leader | polymode | poly-R | helm-ag | writegood-mode | artbollocks-mode | multiple-cursors | ox-reveal | better-defaults | jedi | jedi-core | ag | ein | ein-mumamo | ido-vertical-mode | company-jedi | conda | spacemacs-theme | elfeed-goodies | helpful | browse-kill-ring | ivy-yasnippet | speed-type | clojure-mode | cider | helm-dash | org-projectile | bash-completion | elmacro | helm-org-rifle | sx | define-word |
 
 *** Fetch and install missing packages
 
@@ -259,15 +332,6 @@ Source: https://superuser.com/questions/131538/can-i-create-directories-that-don
     (let ((dir (file-name-directory filename)))
       (unless (file-exists-p dir)
         (make-directory dir)))))
-#+end_src
-
-** Markdown config
-
-Setting pandoc as the markdown command for live previews. The default command is =markdown=, which could be installed as a separate package.
-
-#+begin_src emacs-lisp
-
-(setq markdown-command "pandoc")
 #+end_src
 
 ** Shorcuts and registers
@@ -335,71 +399,54 @@ Setting pandoc as the markdown command for live previews. The default command is
 
 #+BEGIN_SRC emacs-lisp
 (require 'ox-org)
+(require 'ox-word)
+(require 'ox-md)
 #+END_SRC
+
+#+RESULTS:
+: ox-md
+
+** Markdown config
+
+Setting pandoc as the markdown command for live previews. The default command is =markdown=, which could be installed as a separate package.
+
+#+begin_src emacs-lisp
+(setq markdown-command "pandoc")
+#+end_src
+
+#+RESULTS:
+: pandoc
+
+** TEST Export async
+- Note taken on [2019-02-14 Thu 16:03] \\
+  This requires a separate init file to be setup that enables Emacs to launch a separate process to export large files. It would be better as a vanilla emacs file.
+
+#+BEGIN_SRC emacs-lisp :tangle no
+(setq org-export-async-init-file
+      (expand-file-name "async-export.el" user-emacs-directory)
+      )
+#+END_SRC
+
+#+RESULTS:
+: /Users/shreyas/scimax/user/async-export.el
+
+** TEST Ob-async
+- Note taken on [2019-02-14 Thu 16:02] \\
+  This should enable evaluating code in org babel source blocks asynchronously. The header in the source block should have the async enabled.
+
+#+BEGIN_SRC emacs-lisp
+(use-package ob-async
+  :ensure t
+  )
+#+END_SRC
+
+#+RESULTS:
 
 ** Completed loading message
 
 #+BEGIN_SRC emacs-lisp
 (message "Loaded Emacs general config")
 #+END_SRC
-
-* Python [0/2]
-** TODO  setup virtual environment approach
-:PROPERTIES:
-:CREATED:  <2019-02-07 Thu 16:47>
-:END:
-
-** TODO  setup conda, especially for auto complete
-:PROPERTIES:
-:CREATED:  <2019-02-07 Thu 16:47>
-:END:
-** General config
-#+BEGIN_SRC emacs-lisp
-(setq python-indent-guess-indent-offset nil)
-(elpy-enable)
-#+END_SRC
-
-#+RESULTS:
-| elpy-shell--enable-output-filter | #[0 \302\300!\210\303\304"\302\301!\210\305\211\207 [company-transformers company-minimum-prefix-length make-local-variable remove company-sort-by-occurrence 2] 3] |
-
-** Set python interpreter to be Jupyter
-
-#+BEGIN_SRC emacs-lisp
-(setq python-shell-interpreter "jupyter"
-      python-shell-interpreter-args "console --simple-prompt"
-      python-shell-prompt-detect-failure-warning nil)
-
-(add-to-list 'python-shell-completion-native-disabled-interpreters
-             "jupyter")
-#+END_SRC
-
-#+RESULTS:
-| jupyter | pypy | ipython |
-
-** Auto pep8
-Adding hook to enable py-autopep8 with elpy mode.
-
-#+BEGIN_SRC emacs-lisp
-(use-package py-autopep8
-  :ensure t
-  :defer t
-  :config
-  (require 'py-autopep8)
-  (add-hook 'elpy-mode-hook 'py-autopep8-enable-on-save)
-  )
-#+END_SRC
-
-#+RESULTS:
-
-** Autocomplete for python blocks
-
-#+BEGIN_SRC emacs-lisp
-(add-to-list 'company-backends 'company-ob-ipython)
-(company-mode)
-#+END_SRC
-
-#+RESULTS:
-: t
 
 * TODO Crux  - basic movement
 
@@ -430,7 +477,7 @@ Source: https://github.com/angrybacon/dotemacs/blob/master/dotemacs.org
         (forward-line 2)
         (sort-regexp-fields t "^.*$" "[ ]*." (point) (point-max)))
       (set-buffer-modified-p nil)))
-  :hook (dired-mode . dired-hide-details-mode)
+  ;:hook ;(dired-mode . dired-hide-details-mode)
   :config
   (advice-add 'dired-readin :after #'me/dired-directories-first)
   (setq-default
@@ -453,7 +500,7 @@ Source: https://github.com/angrybacon/dotemacs/blob/master/dotemacs.org
 #+END_SRC
 
 #+RESULTS:
-: t
+: Loaded Dired customisation
 
 * Swiper
 :PROPERTIES:
@@ -550,6 +597,9 @@ The goal is to enable a customised zen writing mode, especially facilitating blo
 
 * ESS configuration [/]
 
+- Note taken on [2019-02-09 Sat 12:36] \\
+  Set this up with use-package and explore further customisations. As of now, I use yasnippet to insert commonly used operators like the assign and pipe operators.
+
 #+begin_src emacs-lisp
 ;; Setting up emacs ess and polymode
 (require 'ess)
@@ -559,24 +609,42 @@ The goal is to enable a customised zen writing mode, especially facilitating blo
 (require 'ess-rutils)
 (setq ess-rutils-keys +1)
 (setq ess-eval-visibly 'nowait)
+(setq ess-use-flymake nil)
+(setq ess-use-eldoc t)
 
 (use-package ess-view
   :ensure t
   :config
   (if (system-type-is-darwin)
       (setq ess-view--spreadsheet-program "/Applications/Tad.app/Contents/MacOS/Tad")
-    ))
+    )
+  )
 
 (message "Loaded ESS configuration")
             #+end_src
 
 	    #+RESULTS:
-	    : Loaded ESS configuration
+            : Loaded ESS configuration
 
 ** TODO Set condition and path for TAD on Linux
 :PROPERTIES:
 :CREATED:  <2019-02-07 Thu 14:27>
 :END:
+
+* TODO lintr
+- Note taken on [2019-02-11 Mon 07:21] \\
+  It appears there is no package called lintr. This needs further investigation.
+
+This package is deemed necessary to enable flymake in ESS. Without it, there is significantly more lag while the suggestions / corrections are generated in ESS modes.
+
+#+BEGIN_SRC emacs-lisp :tangle no
+(use-package lintr
+  :ensure nil
+)
+#+END_SRC
+
+#+RESULTS:
+: t
 
 * Polymode
 
@@ -616,6 +684,7 @@ The goal is to enable a customised zen writing mode, especially facilitating blo
 #+begin_src emacs-lisp
 (use-package ox-reveal
   :ensure ox-reveal
+  :defer t
   :config
   (setq org-reveal-root "http://cdn.jsdelivr.net/reveal.js/3.0.0/")
   (setq org-reveal-mathjax t)
@@ -636,6 +705,15 @@ The goal is to enable a customised zen writing mode, especially facilitating blo
  org-agenda-files '("~/my_org/")
  )
  #+end_src
+
+** Org-notes into log drawer
+
+I've been inserting org notes into the body of the text, since I do not make extensive use of the log book in the agenda and prefer active time stamped notes and the org-journal and org-projectile to take down 'linked' log notes. However, I would like the notes to be inserted after any properties drawers.
+
+#+BEGIN_SRC emacs-lisp
+(setq org-log-state-notes-insert-after-drawers t)
+(setq org-log-redeadline 'time)
+#+END_SRC
 
 ** TODO Enabling org capture and org protocol
 - Note taken on [2019-02-07 Thu 08:55]  \\
@@ -724,6 +802,22 @@ Using the org id for reference to headings ensures that even if the heading chan
 (setq org-id-method (quote uuidgen))
 #+end_src
 
+** TODO Setting custom keywords with fast access
+- Note taken on [2019-02-12 Tue 12:19] \\
+  This requires a complete reload of org to come in effect.
+
+#+BEGIN_SRC emacs-lisp
+(setq org-todo-keywords
+      '((sequence "TODO(t)" "NEXT(n)" "CANCEL(c)" "POSTPONED(p)" "|" "DONE(d)" "STABLE(s)")
+        (sequence "TEST(T)" "BUG(b)" "KNOWNCAUSE(k)" "|" "FIXED(f)")
+        (sequence "|" )))
+#+END_SRC
+
+#+RESULTS:
+| sequence | TODO(t) | NEXT(n) | CANCEL(c)     | POSTPONED(p) |   |          | DONE(d) | STABLE(s) |
+| sequence | TEST(T) | BUG(b)  | KNOWNCAUSE(k) |              |   | FIXED(f) |         |           |
+| sequence |         |         |               |              |   |          |         |           |
+
 ** Cosmetics for org
 *** TODO Basic cosmetics. Review & Convert to use-package style
 - Note taken on [2019-02-07 Thu 08:20]  \\
@@ -776,6 +870,32 @@ source: Sacha Chua
    ((((class color) (min-colors 16) (background dark))
      (:foreground "LightSalmon" :strike-through t)))))
 #+end_src
+
+*** Formatting keywords as boxes with inverted colors
+
+Source : SO [[https://stackoverflow.com/questions/12707492/add-custom-markers-to-emacs-org-mode][link]] ,
+
+#+BEGIN_SRC emacs-lisp
+(set-face-attribute 'org-todo nil
+                    :box '(:line-width 2
+                           :color "black"
+                           :style released-button)
+                    :inverse-video t
+                    )
+(set-face-attribute 'org-done nil
+                    :box '(:line-width 2
+                           :color "black"
+                           :style released-button)
+                    :inverse-video t
+                    )
+(set-face-attribute 'org-priority nil
+                    :inherit font-lock-keyword-face
+                    :inverse-video t
+                    :box '(:line-width 2
+                           :color "black"
+                           :style released-button)
+                    )
+#+END_SRC
 
 ** Refiling settings
 *** Refile target level for search
@@ -878,17 +998,22 @@ Experimenting with this setting.
 (setq org-agenda-sticky t)
 #+end_src
 
-*** TODO org-habit
+*** DONE org-habit
+CLOSED: [2019-02-12 Tue 13:21]
+- Note taken on [2019-02-12 Tue 13:20] \\
+  Adding a require has brought org-habit back on track.
 - Note taken on [2019-02-07 Thu 09:50] \\
   Appears the use-package config for org-habit is not correct and there is some issue in downloading it as a package.
 
 I want to shift the org habit graph in the agenda further out right so as to leave enough room for the headings to be visible.
 
 #+begin_src emacs-lisp
+(require 'org-habit)
 (setq org-habit-graph-column 90)
 #+end_src
 
 #+RESULTS:
+: 90
 
 ** TODO Capture mechanics
 - Note taken on [2019-02-07 Thu 08:24]  \\
@@ -991,8 +1116,15 @@ Org-noter’s purpose is to let you create notes that are kept in sync when you 
 #+END_QUOTE
 
 #+begin_src emacs-lisp
-(setq org-noter-set-auto-save-last-location t)
+(use-package org-noter
+  :ensure t
+  :defer t
+  :config
+  (setq org-noter-set-auto-save-last-location t)
+  )
 #+end_src
+
+#+RESULTS:
 
 ** TODO Persp-projectile
 :PROPERTIES:
@@ -1188,6 +1320,8 @@ I prefer using Helm for specific functions like M-x, find files and bookmarks an
 #+end_src
 
 ** TODO Setting sources for helm
+- Note taken on [2019-02-12 Tue 14:55] \\
+  This is still causing issues: the recentf list has to be cleared via helm-mini first.
 - Note taken on [2019-02-07 Thu 16:28] \\
   This was needed as it seems helm was not sourcing from recentf file lists. With this source list defined, it provides options to choose from recent files, bookmarks, open buffers.
 
@@ -1195,14 +1329,19 @@ I prefer using Helm for specific functions like M-x, find files and bookmarks an
 (setq helm-mini-default-sources '(helm-source-buffers-list
                                   helm-source-recentf
                                   helm-source-bookmarks
+                                  helm-source-bookmark-set
                                   helm-source-buffer-not-found))
 
 (setq helm-buffers-list-default-sources '(helm-source-buffers-list
                                           helm-source-recentf
                                           helm-source-bookmarks
+                                          helm-source-bookmark-set
                                           helm-source-buffer-not-found))
 
 #+END_SRC
+
+#+RESULTS:
+| helm-source-buffers-list | helm-source-recentf | helm-source-bookmarks | helm-source-bookmark-set | helm-source-buffer-not-found |
 
 ** helm-ag and helm-org-rifle
 
@@ -1254,8 +1393,10 @@ Source: https://writequit.org/org/#orgheadline92
 Source: https://writequit.org/org/
 
 ** Basic config
+- Note taken on [2019-02-09 Sat 11:51] \\
+  disabling flycheck for the moment and enabling flymake
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
 (use-package flycheck
   :defer 5
   :bind (("M-g M-n" . flycheck-next-error)
@@ -1265,7 +1406,7 @@ Source: https://writequit.org/org/
   :diminish flycheck-mode
   :config
   (progn
-    (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc json-jsonlint json-python-json))
+    (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc json-jsonlint json-python-json ess iess))
     (use-package flycheck-pos-tip
       :init (flycheck-pos-tip-mode))
     (use-package helm-flycheck
@@ -1274,7 +1415,10 @@ Source: https://writequit.org/org/
       :init (add-hook 'flycheck-mode-hook #'flycheck-haskell-setup))))
 #+END_SRC
 
-** Replacing flymake with flycheck
+#+RESULTS:
+: flycheck-list-errors
+
+** Replacing flycheck with flymake
 This is especially for python modules at the moment.
 
 #+BEGIN_SRC emacs-lisp
@@ -1282,6 +1426,9 @@ This is especially for python modules at the moment.
   (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
   (add-hook 'elpy-mode-hook 'flycheck-mode))
 #+END_SRC
+
+#+RESULTS:
+| flymake-mode | poly-r-mode-setup | ess-S-mouse-me-menu-commands | ess-r-setup-flymake |
 
 * Scheme setup
 - References
@@ -1294,7 +1441,7 @@ This is especially for python modules at the moment.
 (message "Loaded scheme setup")
 #+end_src
 
-* Hydras
+* Hydras and some custom functions
 ** Refiling
 :PROPERTIES:
 :ID:       a7ceeb6d-2085-4380-909f-78f5ee698ad7
@@ -1399,6 +1546,79 @@ KEYANDHEADLINE should be a list of cons cells of the form (\"key\" . \"headline\
 
 (global-set-key (kbd "<f8> r") 'josh/org-refile-hydra/body)
 #+end_src
+
+** Window manipulation
+
+Source : Hydra documentation
+#+BEGIN_SRC emacs-lisp
+
+;;  Hydras for window configuration. Using the deluxe
+(defhydra hydra-window ()
+  "
+Movement^^        ^Split^         ^Switch^		^Resize^
+----------------------------------------------------------------
+_h_ ←       	_v_ertical    	_b_uffer		_q_ X←
+_j_ ↓        	_x_ horizontal	_f_ind files	_w_ X↓
+_k_ ↑        	_z_ undo      	_a_ce 1		_e_ X↑
+_l_ →        	_Z_ reset      	_s_wap		_r_ X→
+_F_ollow		_D_lt Other   	_S_ave		max_i_mize
+_SPC_ cancel	_o_nly this   	_d_elete
+"
+  ("h" windmove-left )
+  ("j" windmove-down )
+  ("k" windmove-up )
+  ("l" windmove-right )
+  ("q" hydra-move-splitter-left)
+  ("w" hydra-move-splitter-down)
+  ("e" hydra-move-splitter-up)
+  ("r" hydra-move-splitter-right)
+  ("b" helm-mini)
+  ("f" helm-find-files)
+  ("F" follow-mode)
+  ("a" (lambda ()
+         (interactive)
+         (ace-window 1)
+         (add-hook 'ace-window-end-once-hook
+                   'hydra-window/body))
+   )
+  ("v" (lambda ()
+         (interactive)
+         (split-window-right)
+         (windmove-right))
+   )
+  ("x" (lambda ()
+         (interactive)
+         (split-window-below)
+         (windmove-down))
+   )
+  ("s" (lambda ()
+         (interactive)
+         (ace-window 4)
+         (add-hook 'ace-window-end-once-hook
+                   'hydra-window/body)))
+  ("S" save-buffer)
+  ("d" delete-window)
+  ("D" (lambda ()
+         (interactive)
+         (ace-window 16)
+         (add-hook 'ace-window-end-once-hook
+                   'hydra-window/body))
+   )
+  ("o" delete-other-windows)
+  ("i" ace-maximize-window)
+  ("z" (progn
+         (winner-undo)
+         (setq this-command 'winner-undo))
+   )
+  ("Z" winner-redo)
+  ("SPC" nil)
+  )
+
+(global-set-key (kbd "<f8> w") 'hydra-window/body)
+#+END_SRC
+
+#+RESULTS:
+: hydra-window/body
 
 ** helm-do-ag in specific locations
 
@@ -1519,7 +1739,9 @@ j:        journal search
   )
 #+end_src
 
-*** Project: Switch and windows
+*** TODO Project: Switch and windows
+- Note taken on [2019-02-10 Sun 07:09] \\
+  Experiment with helm-swoop functions to target only top level headings
 
 #+begin_src emacs-lisp
 (defun sr/windows-projects ()
@@ -1566,9 +1788,89 @@ SPC     exit
 #+END_SRC
 
 * Elfeed customisation
+** Elfeed Basic + Customisations
+Source: http://heikkil.github.io/blog/2015/05/09/notes-from-elfeed-entries/
 
-** Elfeed-org setup [/]
+#+BEGIN_SRC emacs-lisp
+;; Elfeed configuration source :
+(use-package elfeed
+  :bind ("C-c f" . elfeed)
+  :init
+  (setq my/default-elfeed-search-filter "@1-month-ago +unread !sport ")
+  (setq-default elfeed-search-filter my/default-elfeed-search-filter)
+  (setq elfeed-db-direcory "~/scimax/user/elfeeddb")
+  :config
+  (elfeed-org)
 
+  ;;
+  ;; linking and capturing
+  ;;
+
+  (defun elfeed-link-title (entry)
+    "Copy the entry title and URL as org link to the clipboard."
+    (interactive)
+    (let* ((link (elfeed-entry-link entry))
+           (title (elfeed-entry-title entry))
+           (titlelink (concat "[[" link "][" title "]]")))
+      (when titlelink
+        (kill-new titlelink)
+        (x-set-selection 'PRIMARY titlelink)
+        (message "Yanked: %s" titlelink))))
+
+  ;; show mode
+
+  (defun elfeed-show-link-title ()
+    "Copy the current entry title and URL as org link to the clipboard."
+    (interactive)
+    (elfeed-link-title elfeed-show-entry))
+
+  (defun elfeed-show-quick-url-note ()
+    "Fastest way to capture entry link to org agenda from elfeed show mode"
+    (interactive)
+    (elfeed-link-title elfeed-show-entry)
+    (org-capture nil "n")
+    (yank)
+    (org-capture-finalize))
+
+  (bind-keys :map elfeed-show-mode-map
+             ("l" . elfeed-show-link-title)
+             ("v" . elfeed-show-quick-url-note))
+
+  ;; search mode
+
+  (defun elfeed-search-link-title ()
+    "Copy the current entry title and URL as org link to the clipboard."
+    (interactive)
+    (let ((entries (elfeed-search-selected)))
+      (cl-loop for entry in entries
+               when (elfeed-entry-link entry)
+               do (elfeed-link-title entry))))
+
+  (defun elfeed-search-quick-url-note ()
+    "In search mode, capture the title and link for the selected
+     entry or entries in org aganda."
+    (interactive)
+    (let ((entries (elfeed-search-selected)))
+      (cl-loop for entry in entries
+               do (elfeed-untag entry 'unread)
+               when (elfeed-entry-link entry)
+               do (elfeed-link-title entry)
+               do (org-capture nil "n")
+               do (yank)
+               do (org-capture-finalize)
+               (mapc #'elfeed-search-update-entry entries))
+      (unless (use-region-p) (forward-line))))
+
+  (bind-keys :map elfeed-search-mode-map
+             ("l" . elfeed-search-link-title)
+             ("v" . elfeed-search-quick-url-note)))
+
+#+END_SRC
+
+#+RESULTS:
+: elfeed
+
+** Elfeed-org and elfeed-goodies setup [/]
 Using an org source is the easiest way to organise my RSS feeds for reading with Elfeed.
 
 #+begin_src emacs-lisp
@@ -1576,13 +1878,50 @@ Using an org source is the easiest way to organise my RSS feeds for reading with
 (use-package elfeed-org
   :ensure t
   :config
-  (elfeed-org)
   (setq rmh-elfeed-org-files (list "~/my_org/elfeed.org"))
   )
+
+(use-package elfeed-goodies
+  :ensure t
+  :init
+  (elfeed-goodies/setup)
+)
+
 #+end_src
 
-** TODO Consider storing the Feed sources here in org format
+#+RESULTS:
 
+** Functions to support syncing
+
+#+BEGIN_SRC emacs-lisp
+;;functions to support syncing .elfeed between machines
+;;makes sure elfeed reads index from disk before launching
+(defun bjm/elfeed-load-db-and-open ()
+  "Wrapper to load the elfeed db from disk before opening"
+  (interactive)
+  (elfeed-db-load)
+  (elfeed)
+  (elfeed-search-update--force))
+
+;;write to disk when quiting
+(defun bjm/elfeed-save-db-and-bury ()
+  "Wrapper to save the elfeed db to disk before burying buffer"
+  (interactive)
+  (elfeed-db-save)
+  (quit-window))
+
+(use-package elfeed
+  :ensure t
+  :bind (:map elfeed-search-mode-map
+              ("A" . bjm/elfeed-show-all)
+              ("E" . bjm/elfeed-show-emacs)
+              ("D" . bjm/elfeed-show-daily)
+              ("q" . bjm/elfeed-save-db-and-bury)))
+#+END_SRC
+
+** TODO Consider storing the Feed sources here in org format
+- Note taken on [2019-02-17 Sun 18:11] \\
+  This will need an export to a source org file per the settings.
 ** Loading completed
 
 #+BEGIN_SRC emacs-lisp
@@ -1863,7 +2202,7 @@ Returns the property name if the property has been created, otherwise nil."
 
 These are settings which custmise scimax specific variables. These are separated out here so that it becomes easier to try out Emacs configurations that are outside scimax.
 
-** Defining Hotspots
+** Scimax Hotspots
 
 #+begin_src emacs-lisp
 (defun hotspots ()
@@ -1910,23 +2249,35 @@ org-files and bookmarks"
 #+RESULTS:
 : hotspots
 
-** Notebook directory
+** Scimax Elfeed
+
+#+BEGIN_SRC emacs-lisp
+(require 'scimax-elfeed)
+#+END_SRC
+
+** Scimax Notebook directory
 
 #+begin_src emacs-lisp
 (setq nb-notebook-directory "~/my_projects/")
 #+end_src
 
-** scimax notebook
+** Scimax notebook
 #+begin_src emacs-lisp
 (global-set-key (kbd "M-s n") 'nb-open)
 #+end_src
 
-** Python
+** TODO Scimax Python
 
 #+BEGIN_SRC emacs-lisp
+(require 'scimax-org-babel-python)
+(require 'ob-ipython)
+(require 'scimax-ob)
+(require 'scimax-org-babel-ipython-upstream)
+(setq ob-ipython-exception-results nil)
 (scimax-ob-ipython-turn-on-eldoc)
-
 #+END_SRC
+
+#+RESULTS:
 
 ** TODO Bibliography settings and customisation
 
@@ -1955,14 +2306,60 @@ org-files and bookmarks"
       helm-bibtex-notes-path "~/my_org/references/research_notes.org")
  #+END_SRC
 
-** Export
+* Python [0/4]
+
+** Using miniconda
+** NEXT setup virtual environment approach
+:PROPERTIES:
+:CREATED:  <2019-02-07 Thu 16:47>
+:END:
+** NEXT setup conda, especially for auto complete
+:PROPERTIES:
+:CREATED:  <2019-02-07 Thu 16:47>
+:END:
+** General config
+- Note taken on [2019-02-12 Tue 14:52] \\
+  This is to take care of the annoying indentation message that always pops up.
 
 #+BEGIN_SRC emacs-lisp
-(require 'ox-word)
+(setq python-indent-guess-indent-offset nil)
+#+END_SRC
+
+** NEXT Autocomplete for python blocks
+
+#+BEGIN_SRC emacs-lisp :tangle no
+(add-to-list 'company-backends 'company-ob-ipython)
+(company-mode)
 #+END_SRC
 
 #+RESULTS:
-: ox-word
+: t
+
+** POSTPONED Emacs-jupyter
+
+- Note taken on [2019-02-12 Tue 14:48] \\
+  Since I am more familiar with ob-ipython and there are a bunch of interesting features already implemented in it like the automatic setting of a kernel and file names for graphic outputs and so on - I will explore jupyter-emacs at a later date.
+#+BEGIN_SRC emacs-lisp :tangle no
+(use-package jupyter
+  :ensure t
+  :defer t
+  :config
+  (org-babel-load-languages '(jupyter .t))
+  (setq org-babel-default-header-args:jupyter-python '((:async . "yes")
+                                                       (:session . "jipython")
+                                                       (:kernel . "python3")))
+  )
+#+END_SRC
+
+#+RESULTS:
+
+*** Test for jupyter-python
+
+#+BEGIN_SRC python
+import pandas as pd
+#+END_SRC
+
+#+RESULTS:
 
 * TODO Project publishing setup [0/2]
 
@@ -2001,7 +2398,13 @@ This is under construction and was initially started with the idea of having cus
 | md                        | :base-directory | ./               | :base-extension | org | :publishing-directory | ./export/                          | :recursive      | t          | :publishing-function | org-md-export-to-markdown |                      |                          |
 | Documentation - html + md | :components     | (html-static md) |                 |     |                       |                                    |                 |            |                      |                           |                      |                          |
 
-** TODO Function for exporting dotemacs config
+** TODO Function for exporting dotemacs config [1/3]
+- [ ] Note taken on [2019-02-14 Thu 14:05] \\
+  Save the filename as variables.
+- [X]  Note taken on [2019-02-14 Thu 13:30] \\
+  Add a condition to check if the directory exists.
+- [ ] Note taken on [2019-02-10 Sun 07:16] \\
+  Add a line to revert target export files if they are open. Prefer exporting the org file rather than copying.
 
 This is the beginning of a function to perform 3 exports:
 1. Export to my hugo website as a part of my documentation (ox-hugo)
@@ -2015,17 +2418,29 @@ As of now, I'm calling this function from my Emacs config file, and need to impr
 #+BEGIN_SRC emacs-lisp
 (defun sr/dotemacs-export()
   (interactive)
-  "Exporting to org file and lisp"
-  (org-hugo-export-to-md)
-  (copy-file "~/scimax/user/sr-config.org" "~/my_projects/dotemacs/README.org" "OK-IF-ALREADY-EXISTS")
-  ;; (find-file-existing "~/my_projects/dotemacs/README.org")
-  (org-babel-tangle-file  "~/my_projects/dotemacs/README.org" "~/my_projects/dotemacs/config.el"))
+  "If directories exist - exporting Org config to Hugo blog, and to Github repository org file and lisp"
+
+  (if (file-directory-p "~/my_projects/dotemacs")
+      (progn
+        (copy-file "~/scimax/user/sr-config.org" "~/my_projects/dotemacs/README.org" "OK-IF-ALREADY-EXISTS")
+        (copy-file "~/scimax/user/sr-config.el" "~/my_projects/dotemacs/config.el" "OK-IF-ALREADY-EXISTS")
+        ;; (org-babel-tangle-file  "~/my_projects/dotemacs/README.org" "~/my_projects/dotemacs/config.el")
+        )
+    )
+  (if (file-directory-p "~/my_gits/hugo-sr")
+      (progn
+        (org-hugo-export-to-md)
+        )
+    )
+  )
 #+END_SRC
 
 #+RESULTS:
 : sr/dotemacs-export
 
 * TODO mu4e
+- Note taken on [2019-02-12 Tue 14:53] \\
+  The use-package documentation specifies a method to do this via use-package itself, without enclosing the whole snippet within a if clause.
 - Note taken on [2019-02-07 Thu 20:43] \\
   The mu4e config has to be broken down and the send email with htmlize has to be evaluated.
 - Note taken on [2019-02-07 Thu 09:04] \\
