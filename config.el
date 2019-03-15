@@ -185,7 +185,7 @@
 
 (global-set-key (kbd "M-s g") 'google-this-mode-submap)
 
-(global-set-key (kbd "M-i") 'ivy-yasnippet)
+(global-set-key (kbd "M-s i") 'ivy-yasnippet)
 
 (global-set-key (kbd "M-s u") 'mu4e-update-mail-and-index)
 (global-set-key (kbd "M-s m") 'mu4e~headers-jump-to-maildir)
@@ -195,6 +195,9 @@
 (global-set-key (kbd "C-c d") 'org-time-stamp)
 (global-set-key (kbd "M-s s") 'org-save-all-org-buffers)
 (global-set-key (kbd "M-s j") 'org-journal-new-entry)
+
+(global-set-key (kbd "C-<f9>") 'sr/punch-in)
+(global-set-key (kbd "M-<f9>") 'sr/punch-out)
 
 (defun my/yank-more ()
   (interactive)
@@ -206,12 +209,38 @@
 (require 'ox-org)
 (require 'ox-word)
 (require 'ox-md)
+(load "~/scimax/ox-ipynb/ox-ipynb.el")
 
 (setq markdown-command "pandoc")
+
+(use-package org-bookmark-heading
+  :ensure t
+  :defer t
+  :config
+  (require 'org-bookmark-heading)
+)
 
 (use-package ob-async
   :ensure t
   )
+
+(defun push-mark-no-activate ()
+  "Pushes `point' to `mark-ring' and does not activate the region
+   Equivalent to \\[set-mark-command] when \\[transient-mark-mode] is disabled"
+  (interactive)
+  (push-mark (point) t nil)
+  (message "Pushed mark to ring"))
+
+(global-set-key (kbd "C-`") 'push-mark-no-activate)
+
+(defun jump-to-mark ()
+  "Jumps to the local mark, respecting the `mark-ring' order.
+  This is the same as using \\[set-mark-command] with the prefix argument."
+  (interactive)
+  (set-mark-command 1))
+(global-set-key (kbd "M-`") 'jump-to-mark)
+
+(semantic-mode 1)
 
 (message "Loaded Emacs general config")
 
@@ -296,26 +325,65 @@
 
 (message "Loaded writeroom customisations")
 
-;; Setting up emacs ess and polymode
-(require 'ess)
+(use-package ess
+  :ensure t
+  :defer t
+  :config
+  (require 'ess)
+  (setq ess-describe-at-point-method nil)
+  (setq ess-switch-to-end-of-proc-buffer t)
+  (setq ess-rutils-keys +1)
+  (setq ess-eval-visibly 'nil)
+  (setq ess-use-flymake +1)
+  (setq ess-use-company t)
+  (setq ess-history-file "~/.Rhistory")
+  (setq ess-use-ido t)
+  (setq ess-roxy-hide-show-p t)
+  (speedbar-add-supported-extension ".R")
+  (setq comint-scroll-to-bottom-on-input t)
+  (setq comint-scroll-to-bottom-on-output t)
+  (setq comint-move-point-for-output t)
+  )
+
 (require 'ess-R-data-view)
-(setq ess-describe-at-point-method 'tooltip)
-(setq ess-switch-to-end-of-proc-buffer t)
 (require 'ess-rutils)
-(setq ess-rutils-keys +1)
-(setq ess-eval-visibly 'nowait)
-(setq ess-use-flymake nil)
-(setq ess-use-eldoc t)
 
 (use-package ess-view
   :ensure t
+  :defer t
   :config
   (if (system-type-is-darwin)
-      (setq ess-view--spreadsheet-program "/Applications/Tad.app/Contents/MacOS/Tad")
+      (setq ess-view--spreadsheet-program
+            "/Applications/Tad.app/Contents/MacOS/Tad"
+            )
+    )
+  (if (system-type-is-gnu)
+      (setq ess-view--spreadsheet-program
+            "tabview"
+            )
     )
   )
 
+
 (message "Loaded ESS configuration")
+
+(setq display-buffer-alist
+      `(("*R Dired"
+         (display-buffer-reuse-window display-buffer-in-side-window)
+         (side . right)
+         (slot . -1)
+         (window-width . 0.33)
+         (reusable-frames . nil))
+        ("*R"
+         (display-buffer-reuse-window display-buffer-at-bottom)
+         (window-width . 0.35)
+         (reusable-frames . nil))
+        ("*Help"
+         (display-buffer-reuse-window display-buffer-in-side-window)
+         (side . right)
+         (slot . 1)
+         (window-width . 0.33)
+         (reusable-frames . nil))))
 
 (require 'poly-markdown)
 (require 'poly-R)
@@ -410,6 +478,17 @@
   ;; (org-journal-enable-encryption 't)
   )
 
+(defun org-journal-find-location ()
+  ;; Open today's journal, but specify a non-nil prefix argument in order to
+  ;; inhibit inserting the heading; org-capture will insert the heading.
+  (org-journal-new-entry t)
+  ;; Position point on the journal's top-level heading so that org-capture
+  ;; will add the new entry as a child entry.
+  (goto-char (point-min)))
+
+;; (setq org-capture-templates '(("j" "Journal entry" entry (function org-journal-find-location)
+;;                                "* %(format-time-string org-journal-time-format)\n%i%?")))
+
 (setq org-id-method (quote uuidgen))
 
 (setq org-todo-keywords
@@ -430,12 +509,12 @@
 ;; Setting up clean indenting below respective headlines at startup. - from the org mode website
 (setq org-startup-indented t)
 
-;; use org bullets from emacsist
-(use-package org-bullets
-  :ensure t
-  :init
-  :config
-  (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
+;; ;; use org bullets from emacsist
+;; (use-package org-bullets
+;;   :ensure t
+;;   :init
+;;   :config
+;;   (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
 
 (custom-set-faces
  '(org-level-1 ((t (:inherit outline-1 :height 1.5))))
@@ -530,47 +609,48 @@
 
 (setq org-capture-templates
       '(("t" "Task entry")
-        ("tt" "Todo - Fast" entry (file+headline "~/my_org/todo-global.org" "--Inbox")
+        ("tt" "Todo - Fast" entry (file+headline "~/my_org/todo-global.org" "@Inbox")
 	 "** TODO %?")
         ("tb" "Todo -BGR" entry (file+headline "~/my_org/bgr.org" "#BGR #Inbox")
 	 "** TODO %?")
-        ("te" "Todo - Emacs" entry (file+headline "~/my_org/todo-global.org" ";Emacs stuff")
-	 "** TODO %?")
-	("tm" "Mail Link Todo" entry (file+headline "~/my_org/todo-global.org" "--Inbox")
+        ("te" "Todo - Emacs" entry (file+headline "~/my_org/todo-global.org" "@Emacs notes and tasks")
+         "** TODO %?")
+        ("td" "Datascience inbox" entry (file+headline "~/my_org/datascience.org" "@Datascience @Inbox")
+         "** TODO %?")
+	("tm" "Mail Link Todo" entry (file+headline "~/my_org/todo-global.org" "@Inbox")
 	 "** TODO Mail: %a ")
         ("l" "Link/Snippet" entry (file+headline "~/my_org/link_database.org" ".UL Unfiled Links")
          "** %? %a ")
         ("e" "Protocol info" entry ;; 'w' for 'org-protocol'
          (file+headline "~/my_org/link_database.org" ".UL Unfiled Links")
-         "*** %a, %T\n %:initial")
+         "*** %a, \n %:initial")
         ("n" "Notes")
-        ("ne" "Emacs note" entry (file+headline "~/my_org/todo-global.org" ";Emacs stuff")
-         "** %?")
-        ("nn" "General note" entry (file+headline "~/my_org/notes.org" ".NOTES")
-         "** %?")
-        ("n" "Note" entry (file+headline "~/my_org/notes.org" ".NOTES")
+        ("ne" "Emacs note" entry (file+headline "~/my_org/todo-global.org" "@Emacs notes and tasks")
+         "** %?\n:PROPERTY:\n:CREATED: [%<%Y-%m-%d %a %H:%M>]\n:END:")
+        ("nn" "General note" entry (file+headline "~/my_org/notes.org" "@NOTES")
+         "** %?\n:PROPERTY:\n:CREATED: [%<%Y-%m-%d %a %H:%M>]\n:END:")
+        ("nd" "Datascience note" entry (file+headline "~/my_org/datascience.org" "@Datascience @Notes")
          "** %?")
         ("b" "BGR stuff")
         ("bi" "Inventory project")
         ("bil" "Daily log" entry (file+olp+datetree "~/my_org/bgr.org" "Inventory management Project") "** %? %i")
         ("C" "Commandment" entry (file+datetree "~/my_org/lifebook.org" "")
-         "** %? %i %T :commandment:")
-        ("c" "canjs" entry (file+headline "~/my_org/mrps_canjs.org" "MRPS #CANJS")
-         "** TODO %? %i %T")
+         "** %? %i :commandment:")
+        ("J" "Job search" entry (file+headline "~/my_org/mrps_canjs.org" "MRPS #CANJS")
+         "** TODO %? %i ")
         ("r" "Self Reflection" entry (file+datetree "~/my_org/lifebook.org" "")
-         "b** %? %i %T :self_reflection:")
+         "b** %? %i :self_reflection:")
         ("w" "Website" plain
          (function org-website-clipper)
          "* %a %T\n" :immediate-finish t)
-        ("j" "Journal Note"  plain (function get-journal-file-today) "* Event: %?\n\n  %i\n\n  " :empty-lines 1)
+        ("j" "Journal entry" entry (function org-journal-find-location)
+         "* %(format-time-string org-journal-time-format) %?")
         ("i" "Whole article capture" entry
          (file+headline "~/my_org/full_article_archive.org" "" :empty-lines 1)
          "** %a, %T\n %:initial" :empty-lines 1)
-        ("d" "Datascience stuff")
-        ("dt" "Datascience inbox" entry (file+headline "~/my_org/datascience.org" "@Datascience @Inbox")
-         "** TODO %? %T")
-        ("dn" "Datascience note" entry (file+headline "~/my_org/datascience.org" "@Datascience @Notes")
-         "** %? %T")
+        ("c" "Clocking capture")
+        ("ct" "Clock TODO" entry (clock) "** TODO %?")
+        ("cn" "Clock Note" entry (clock) "** %?\n:PROPERTY:\n:CREATED: [%<%Y-%m-%d %a %H:%M>]\n:END:")
         ))
 
 (defadvice org-capture
@@ -582,8 +662,7 @@
 (defadvice org-capture-finalize
     (after delete-capture-frame activate)
   "Advise capture-finalize to close the frame"
-  (if (equal "emacs-capture" (frame-parameter nil 'name))
-      (delete-frame)))
+  (if (equal "emacs-capture" (frame-parameter nil 'name))))
 
 (setq delete-old-versions -1)
 (setq version-control t)
@@ -600,51 +679,65 @@
   (setq org-noter-set-auto-save-last-location t)
   )
 
-(require 'org-projectile)
+(use-package org-projectile
+  :bind (("C-c n p" . org-projectile-project-todo-completing-read)
+         ("C-c c" . org-capture))
+  :config
+  (progn
+    (setq org-projectile-projects-file
+          "~/my_org/project-tasks.org")
+    (setq org-agenda-files (append org-agenda-files (org-projectile-todo-files)))
+    (push (org-projectile-project-todo-entry) org-capture-templates))
+  :ensure t)
 
-(setq org-projectile-projects-file
-      "~/my_org/project-tasks.org")
-(push (org-projectile-project-todo-entry) org-capture-templates)
+(defun sr/log-todo-creation-date (&rest ignore)
+  "Log TODO creation time in the property drawer under the key 'CREATED'."
+  (when (and (org-get-todo-state)
+             (not (org-entry-get nil "CREATED")))
+    (org-entry-put nil "CREATED" (format-time-string "[%Y-%m-%d %a]"))
+    (org-entry-put nil "PLANNED" (format-time-string (cdr org-time-stamp-formats)))
+    ))
 
-;; (setq org-agenda-files (append org-agenda-files (org-projectile-todo-files)))
-;; Excluding the above since the entire my_org directory is already included in the agenda
+(advice-add 'org-insert-todo-heading :after #'sr/log-todo-creation-date)
+(advice-add 'org-insert-todo-heading-respect-content :after #'sr/log-todo-creation-date)
+(advice-add 'org-insert-todo-subheading :after #'sr/log-todo-creation-date)
+(advice-add 'org-capture :after #'sr/log-todo-creation-date)
+(advice-add 'org-projectile-project-todo-completing-read :after #'sr/log-todo-creation-date)
 
-(global-set-key (kbd "C-c n p") 'org-projectile-project-todo-completing-read)
+;; (require 'org-expiry)
+;; ;; Configure it a bit to my liking
+;; (setq
+;;  org-expiry-created-property-name "CREATED" ; Name of property when an item is created
+;;  org-expiry-inactive-timestamps   nil         ; Don't have everything in the agenda view
+;;  )
 
-(require 'org-expiry)
-;; Configure it a bit to my liking
-(setq
- org-expiry-created-property-name "CREATED" ; Name of property when an item is created
- org-expiry-inactive-timestamps   nil         ; Don't have everything in the agenda view
- )
+;; (defun mrb/insert-created-timestamp()
+;;   "Insert a CREATED property using org-expiry.el for TODO entries"
+;;   (org-expiry-insert-created)
+;;   (org-back-to-heading)
+;;   (org-end-of-line)
+;;   (insert " ")
+;;   )
 
-(defun mrb/insert-created-timestamp()
-  "Insert a CREATED property using org-expiry.el for TODO entries"
-  (org-expiry-insert-created)
-  (org-back-to-heading)
-  (org-end-of-line)
-  (insert " ")
-  )
+;; ;; Whenever a TODO entry is created, I want a timestamp
+;; ;; Advice org-insert-todo-heading to insert a created timestamp using org-expiry
+;; (defadvice org-insert-todo-heading (after mrb/created-timestamp-advice activate)
+;;   "Insert a CREATED property using org-expiry.el for TODO entries"
+;;   (mrb/insert-created-timestamp)
+;;   )
+;; ;; Make it active
+;; (ad-activate 'org-insert-todo-heading)
 
-;; Whenever a TODO entry is created, I want a timestamp
-;; Advice org-insert-todo-heading to insert a created timestamp using org-expiry
-(defadvice org-insert-todo-heading (after mrb/created-timestamp-advice activate)
-  "Insert a CREATED property using org-expiry.el for TODO entries"
-  (mrb/insert-created-timestamp)
-  )
-;; Make it active
-(ad-activate 'org-insert-todo-heading)
+;; (require 'org-capture)
 
-(require 'org-capture)
-
-(defadvice org-capture (after mrb/created-timestamp-advice activate)
-  "Insert a CREATED property using org-expiry.el for TODO entries"
-   					; Test if the captured entry is a TODO, if so insert the created
-   					; timestamp property, otherwise ignore
-  (mrb/insert-created-timestamp))
-;;  (when (member (org-get-todo-state) org-todo-keywords-1)
-;;    (mrb/insert-created-timestamp)))
-  (ad-activate 'org-capture)
+;; (defadvice org-capture (after mrb/created-timestamp-advice activate)
+;;   "Insert a CREATED property using org-expiry.el for TODO entries"
+;;    					; Test if the captured entry is a TODO, if so insert the created
+;;    					; timestamp property, otherwise ignore
+;;   (mrb/insert-created-timestamp))
+;; ;;  (when (member (org-get-todo-state) org-todo-keywords-1)
+;; ;;    (mrb/insert-created-timestamp)))
+;;   (ad-activate 'org-capture)
 
 ;; Add feature to allow easy adding of tags in a capture window
 (defun mrb/add-tags-in-capture()
@@ -709,22 +802,86 @@
 (org-babel-do-load-languages
  'org-babel-load-languages
  '((clojure . t)
-   (scheme . t))
+   (scheme . t)
+   (sqlite . t)
+   (R . t)
+   )
  )
 
 (require 'cider)
 (setq org-babel-clojure-backend 'cider)
 
+(defvar sr/organization-task-id "a8712a47-a648-477f-bdbf-d6004a0cc70b")
+
+(defun sr/clock-in-organization-task-as-default ()
+  (interactive)
+  (org-with-point-at (org-id-find sr/organization-task-id 'marker)
+    (org-clock-in '(16))))
+
+(defun sr/punch-in (arg)
+    (interactive "p")
+  (setq sr/keep-clock-running t)
+  (sr/clock-in-organization-task-as-default))
+
+(defun sr/punch-out ()
+  (interactive)
+  (setq sr/keep-clock-running nil)
+  (when (org-clock-is-active)
+    (org-clock-out))
+  )
+
+(defun sr/clock-out-maybe ()
+  (when (and sr/keep-clock-running
+             (not org-clock-clocking-in)
+             (marker-buffer org-clock-default-task)
+             (not org-clock-resolving-clocks-due-to-idleness))
+    (sr/clock-in-organization-task-as-default)))
+
+(add-hook 'org-clock-out-hook 'sr/clock-out-maybe 'append)
+
+(use-package org-mru-clock
+  :ensure t
+  :bind (("C-c C-x i" . org-mru-clock-in)
+          ("C-c C-x C-j" . org-mru-clock-select-recent-task))
+  :init
+  (setq org-mru-clock-how-many 100
+        org-mru-clock-completing-read #'ivy-completing-read))
+
+(setq org-clock-out-remove-zero-time-clocks t)
+
+;; setting idle timer to 15 minutes
+(setq org-clock-idle-time 15)
+
+;; Show lot of clocking history so it's easy to pick items off the `C-c I` list
+(setq org-clock-history-length 23)
+
+(defun eos/org-clock-in ()
+  (interactive)
+  (org-clock-in '(4)))
+
+(global-set-key (kbd "C-c I") #'eos/org-clock-in)
+(global-set-key (kbd "C-c O") #'org-clock-out)
+
 (message "Loaded org customisations")
 
-;; Setting Helm as preferred package to use
-(global-set-key (kbd "M-x") #'helm-M-x)
+(use-package helm-ext
+  :ensure t
+  :config
+  (helm-ext-ff-enable-skipping-dots t)
+  ;; Testing the auto path expansion
+  ;;(helm-ff-ext-enable-auto-path-expansion t)
+  )
+
+(global-set-key (kbd "M-x") 'helm-M-x)
+;; Enable fuzzy match for helm-M-x
+(setq helm-M-x-fuzzy-match t)
+
 (global-set-key (kbd "C-x r b") #'helm-filtered-bookmarks)
 (global-set-key (kbd "C-x C-f") #'helm-find-files)
 (global-set-key (kbd "C-x b") #'helm-mini)
 
-(custom-set-variables
- '(helm-follow-mode-persistent t))
+(require 'helm-config)
+(helm-mode 1)
 
 (setq helm-mini-default-sources '(helm-source-buffers-list
                                   helm-source-recentf
@@ -738,8 +895,15 @@
                                           helm-source-bookmark-set
                                           helm-source-buffer-not-found))
 
+(setq helm-semantic-fuzzy-match t
+      helm-imenu-fuzzy-match t)
+
+(custom-set-variables
+ '(helm-follow-mode-persistent t))
+
 (require 'helm-ag)
 (require 'helm-org-rifle)
+(global-set-key (kbd "C-c C-w") #'helm-org-rifle--refile)
 
 (use-package helm-swoop
   :ensure t
@@ -1040,13 +1204,18 @@ SPC     exit
 
 ;; Elfeed configuration source :
 (use-package elfeed
-  :bind ("C-c f" . elfeed)
+  :bind (:map elfeed-search-mode-map
+              ("A" . bjm/elfeed-show-all)
+              ("E" . bjm/elfeed-show-emacs)
+              ("D" . bjm/elfeed-show-daily)
+              ("q" . bjm/elfeed-save-db-and-bury))
   :init
   (setq my/default-elfeed-search-filter "@1-month-ago +unread !sport ")
   (setq-default elfeed-search-filter my/default-elfeed-search-filter)
   (setq elfeed-db-direcory "~/scimax/user/elfeeddb")
   :config
   (elfeed-org)
+  (elfeed-goodies/setup)
 
   ;;
   ;; linking and capturing
@@ -1109,7 +1278,24 @@ SPC     exit
 
   (bind-keys :map elfeed-search-mode-map
              ("l" . elfeed-search-link-title)
-             ("v" . elfeed-search-quick-url-note)))
+             ("v" . elfeed-search-quick-url-note))
+
+   ;;functions to support syncing .elfeed between machines
+  ;;makes sure elfeed reads index from disk before launching
+  (defun bjm/elfeed-load-db-and-open ()
+    "Wrapper to load the elfeed db from disk before opening"
+    (interactive)
+    (elfeed-db-load)
+    (elfeed)
+    (elfeed-search-update--force))
+
+  ;;write to disk when quiting
+  (defun bjm/elfeed-save-db-and-bury ()
+    "Wrapper to save the elfeed db to disk before burying buffer"
+    (interactive)
+    (elfeed-db-save)
+    (quit-window))
+  )
 
 ;; use an org file to organise feeds
 (use-package elfeed-org
@@ -1124,34 +1310,7 @@ SPC     exit
   (elfeed-goodies/setup)
 )
 
-;;functions to support syncing .elfeed between machines
-;;makes sure elfeed reads index from disk before launching
-(defun bjm/elfeed-load-db-and-open ()
-  "Wrapper to load the elfeed db from disk before opening"
-  (interactive)
-  (elfeed-db-load)
-  (elfeed)
-  (elfeed-search-update--force))
-
-;;write to disk when quiting
-(defun bjm/elfeed-save-db-and-bury ()
-  "Wrapper to save the elfeed db to disk before burying buffer"
-  (interactive)
-  (elfeed-db-save)
-  (quit-window))
-
-(use-package elfeed
-  :ensure t
-  :bind (:map elfeed-search-mode-map
-              ("A" . bjm/elfeed-show-all)
-              ("E" . bjm/elfeed-show-emacs)
-              ("D" . bjm/elfeed-show-daily)
-              ("q" . bjm/elfeed-save-db-and-bury)))
-
 (message "Loaded Elfeed customisations")
-
-(setq browse-url-browser-function 'w3m-goto-url-new-session)
-(setq w3m-default-display-inline-images t)
 
 ;;when I want to enter the web address all by hand
 (defun w3m-open-site (site)
@@ -1167,21 +1326,21 @@ SPC     exit
      (define-key w3m-mode-map "w" 'w3m-next-buffer)
      (define-key w3m-mode-map "x" 'w3m-close-window)))
 
-(defun wicked/w3m-open-current-page-in-firefox ()
+(defun wicked/w3m-open-current-page-in-default-browser ()
   "Open the current URL in Mozilla Firefox."
   (interactive)
-  (browse-url-default-macosx-browser w3m-current-url)) ;; (1)
+  (browse-url-default-browser w3m-current-url)) ;; (1)
 
-(defun wicked/w3m-open-link-or-image-in-firefox ()
+(defun wicked/w3m-open-link-or-image-in-default-browser ()
   "Open the current link or image in Firefox."
   (interactive)
-  (browse-url-default-macosx-browser (or (w3m-anchor) ;; (2)
+  (browse-url-default-browser (or (w3m-anchor) ;; (2)
                                          (w3m-image)))) ;; (3)
 
 (eval-after-load 'w3m
   '(progn
-     (define-key w3m-mode-map "o" 'wicked/w3m-open-current-page-in-firefox)
-     (define-key w3m-mode-map "O" 'wicked/w3m-open-link-or-image-in-firefox)))
+     (define-key w3m-mode-map "o" 'wicked/w3m-open-current-page-in-default-browser)
+     (define-key w3m-mode-map "O" 'wicked/w3m-open-link-or-image-in-default-browser)))
 
 (defun wikipedia-search (search-term)
   "Search for SEARCH-TERM on wikipedia"
@@ -1227,13 +1386,15 @@ SPC     exit
 (add-hook 'ediff-unselect-hook 'f-ediff-org-fold-tree)
 
 (setq default-frame-alist
-      '((background-color . "light grey")
+      '((background-color . "whitesmoke")
         (foreground-color . "black")
         (fullscreen . maximized)
         ))
 
 (setq custom-safe-themes t)
-(set-background-color "light gray")
+(set-background-color "whitesmoke")
+;;(disable-theme 'leuven)
+;;(load-theme 'spacemacs-dark t)
 
 ;; For Linux
 (if (system-type-is-gnu)
@@ -1242,6 +1403,17 @@ SPC     exit
 ;; For Mac OS
 (if (system-type-is-darwin)
     (set-face-attribute 'default nil :family "Iosevka Type" :height 150))
+
+(use-package spaceline
+  :demand t
+  :init
+  (setq powerline-default-separator 'arrow-fade)
+  :config
+  (disable-theme 'smart-mode-line-light)
+  (require 'spaceline-config)
+  (spaceline-emacs-theme)
+  (spaceline-toggle-buffer-position-off)
+  )
 
 (setq
  global-visual-line-mode 1
@@ -1333,45 +1505,49 @@ Returns the property name if the property has been created, otherwise nil."
   (org-hugo--tag-processing-fn-replace-with-hyphens-maybe t)
   )
 
-(defun hotspots ()
-  "helm interface to my hotspots, which includes my locations,
-org-files and bookmarks"
-  (interactive)
-  (helm :sources `(((name . "Mail and News")
-                    (candidates . (("Agenda All" . (lambda () (org-agenda "" "a")))
-                                   ("Agenda Office" . (lambda () (org-agenda "" "o")))
-				   ("Mail" . (lambda ()
-                                               (if (get-buffer "*mu4e-headers*")
-                                                   (progn
-                                                     (switch-to-buffer "*mu4e-headers*")
-                                                     (delete-other-windows))
-                                                 (mu4e))))
-                                   ("Calendar" .
-                                    (lambda ()
-                                      (browse-url
-                                       "https://www.google.com/calendar/render")))
-                                   ("RSS" . elfeed)))
-                    (action . (("Open" . (lambda (x) (funcall x))))))
-                   ((name . "My Locations")
-                    (candidates . (("CV Org" . "~/org_cv/CV_Shreyas_Ragavan.org")
-                                   ("scd - scimax dir" . "~/scimax/" )
-                                   ("scu - scimax user dir" . "~/scimax/user/")
-                                   ( "sco - scimax org conf". "~/scimax/user/sr-config.org")
-                                   ("blog" . "~/my_org/blog-book.org")
-				   ("github" . "~/my_gits/")
-                                   ("project" . "~/my_projects/")
-                                   ("cheatsheet" . "~/my_cheatsheets/")
-                                   ("passwords" . "~/my_org/secrets.org.gpg")
-                                   ("references" . "~/Dropbox/bibliography/references.bib")
-                                   ))
-                    (action . (("Open" . (lambda (x) (find-file x))))))
+(org-babel-lob-ingest "~/my_projects/sr-snip-lob/README.org")
 
-                   ((name . "My org files")
-                    (candidates . ,(f-entries "~/my_org"))
-                    (action . (("Open" . (lambda (x) (find-file x))))))
-                   helm-source-recentf
-                   helm-source-bookmarks
-                   helm-source-bookmark-set)))
+(use-package emacsql-sqlite
+  :ensure t
+  :config
+  (require 'org-db)
+)
+
+(add-hook 'org-mode-hook 'scimax-autoformat-mode)
+(scimax-toggle-abbrevs 'scimax-month-abbreviations +1)
+(scimax-toggle-abbrevs 'scimax-transposition-abbreviations +1)
+(scimax-toggle-abbrevs 'scimax-misc-abbreviations +1)
+(scimax-toggle-abbrevs 'scimax-weekday-abbreviations +1)
+(global-set-key (kbd "s-q") 'org-latex-math-region-or-point)
+
+(setq scimax-user-hotspot-commands
+      '(("Agenda All" . (lambda () (org-agenda "" "a")))
+        ("Agenda Office" . (lambda () (org-agenda "" "o")))
+	("Mail" . (lambda ()
+                    (if (get-buffer "*mu4e-headers*")
+                        (progn
+                          (switch-to-buffer "*mu4e-headers*")
+                          (delete-other-windows))
+                      (mu4e))))
+        ("Bookmarks" . (lambda () (helm-source-bookmarks)))
+        ("Reload Scimax babel" . (lambda () (org-babel-load-file (expand-file-name "sr-config.org" user-emacs-directory))))
+        )
+      )
+
+(setq scimax-user-hotspot-locations
+      '(
+        ("CV Org" . "~/org_cv/CV_Shreyas_Ragavan.org")
+        ("scd - scimax dir" . "~/scimax/" )
+        ("scu - scimax user dir" . "~/scimax/user/")
+        ( "sco - scimax org conf" . "~/scimax/user/sr-config.org")
+        ("blog" . "~/my_org/blog-book.org")
+	("github" . "~/my_gits/")
+        ("project" . "~/my_projects/")
+        ("cheatsheet" . "~/my_cheatsheets/")
+        ("passwords" . "~/my_org/secrets.org.gpg")
+        ("references" . "~/Dropbox/bibliography/references.bib")
+        )
+      )
 
 (require 'scimax-elfeed)
 
@@ -1387,6 +1563,27 @@ org-files and bookmarks"
 (scimax-ob-ipython-turn-on-eldoc)
 
 (setq python-indent-guess-indent-offset nil)
+
+(if (system-type-is-darwin)
+    (progn
+      ;;; Code:
+      (defun make-orgcapture-frame ()
+        "Create a new frame and run org-capture."
+        (interactive)
+        (make-frame '((name . "remember") (width . 80) (height . 16)
+                      (top . 400) (left . 300)
+                      (font . "-apple-Monaco-medium-normal-normal-*-13-*-*-*-m-0-iso10646-1")
+                      ))
+        (select-frame-by-name "remember")
+        (org-capture))
+      )
+  )
+
+(use-package ox-tufte
+  :defer t
+  :config
+  (require 'ox-tufte)
+  )
 
 (defun sr/dotemacs-export()
   (interactive)
