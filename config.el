@@ -72,9 +72,6 @@
 
 (message "Loaded crypto setup")
 
-(setq auth-sources '((:source "~/.gh.authinfo.gpg")))
-(setq magit-process-find-password-functions '(magit-process-password-auth-source))
-
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 
 (setq ivy-initial-inputs-alist nil)
@@ -339,7 +336,7 @@
   (setq ess-history-file "~/.Rhistory")
   (setq ess-use-ido t)
   (setq ess-roxy-hide-show-p t)
-  (speedbar-add-supported-extension ".R")
+  ;;(speedbar-add-supported-extension ".R")
   (setq comint-scroll-to-bottom-on-input t)
   (setq comint-scroll-to-bottom-on-output t)
   (setq comint-move-point-for-output t)
@@ -466,30 +463,8 @@
         (while (org-up-heading-safe))
         (org-set-tags-to tags)))))
 
-(use-package org-journal
-  :ensure t
-  :defer t
-  :custom
-  (org-journal-dir "~/my_org/journal/")
-  (org-journal-file-format "%Y%m%d")
-  (org-journal-enable-agenda-integration t)
-  (add-to-list 'auto-mode-alist '(".*/[0-9]*$" . org-mode))
-  ;; (org-journal-date-format "%A, %d %B %Y")
-  ;; (org-journal-enable-encryption 't)
-  )
-
-(defun org-journal-find-location ()
-  ;; Open today's journal, but specify a non-nil prefix argument in order to
-  ;; inhibit inserting the heading; org-capture will insert the heading.
-  (org-journal-new-entry t)
-  ;; Position point on the journal's top-level heading so that org-capture
-  ;; will add the new entry as a child entry.
-  (goto-char (point-min)))
-
-;; (setq org-capture-templates '(("j" "Journal entry" entry (function org-journal-find-location)
-;;                                "* %(format-time-string org-journal-time-format)\n%i%?")))
-
 (setq org-id-method (quote uuidgen))
+(add-hook 'org-capture-prepare-finalize-hook 'org-id-get-create)
 
 (setq org-todo-keywords
       '((sequence "TODO(t)" "NEXT(n)" "CANCEL(c)" "POSTPONED(p)" "|" "DONE(d)" "STABLE(s)")
@@ -515,14 +490,6 @@
 ;;   :init
 ;;   :config
 ;;   (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
-
-(custom-set-faces
- '(org-level-1 ((t (:inherit outline-1 :height 1.5))))
- '(org-level-2 ((t (:inherit outline-2 :height 1.1))))
- '(org-level-3 ((t (:inherit outline-3 :height 1.0))))
- '(org-level-4 ((t (:inherit outline-4 :height 1.0))))
- '(org-level-5 ((t (:inherit outline-5 :height 1.0))))
- )
 
 (setq org-fontify-done-headline t)
 (custom-set-faces
@@ -591,14 +558,21 @@
 	)
       )
 
+;; (unless (string-match-p "\\.gpg" org-agenda-file-regexp)
+;;   (setq org-agenda-file-regexp
+;;         (replace-regexp-in-string "\\\\\\.org" "\\\\.org\\\\(\\\\.gpg\\\\)?"
+;;                                   org-agenda-file-regexp)))
+
+(setq org-agenda-file-regexp "\\`\\\([^.].*\\.org\\\|[0-9]\\\{8\\\}\\\(\\.gpg\\\)?\\\)\\'")
+
+(setq org-agenda-text-search-extra-files '(agenda-archives))
+
 (setq org-agenda-text-search-extra-files (apply 'append
 						(mapcar
 						 (lambda (directory)
 						   (directory-files-recursively
 						    directory org-agenda-file-regexp))
-						 '("~/my_org/journal/" "~/my_org/zeeco_archive/" "~/my_projects/" ))))
-
-(setq org-agenda-text-search-extra-files '(agenda-archives))
+						 '("~/my_projects/" "~/my_brain/"))))
 
 (setq org-agenda-search-view-always-boolean t)
 
@@ -626,20 +600,18 @@
          "*** %a, \n %:initial")
         ("n" "Notes")
         ("ne" "Emacs note" entry (file+headline "~/my_org/todo-global.org" "@Emacs notes and tasks")
-         "** %?\n:PROPERTY:\n:CREATED: [%<%Y-%m-%d %a %H:%M>]\n:END:")
+         "** %?\n:PROPERTIES:\n:CREATED: [%<%Y-%m-%d %a %H:%M>]\n:END:")
         ("nn" "General note" entry (file+headline "~/my_org/notes.org" "@NOTES")
-         "** %?\n:PROPERTY:\n:CREATED: [%<%Y-%m-%d %a %H:%M>]\n:END:")
+         "** %?\n:PROPERTIES:\n:CREATED: [%<%Y-%m-%d %a %H:%M>]\n:END:")
         ("nd" "Datascience note" entry (file+headline "~/my_org/datascience.org" "@Datascience @Notes")
-         "** %?")
-        ("b" "BGR stuff")
-        ("bi" "Inventory project")
-        ("bil" "Daily log" entry (file+olp+datetree "~/my_org/bgr.org" "Inventory management Project") "** %? %i")
+         "** %?\n:PROPERTIES:\n:CREATED: [%<%Y-%m-%d %a %H:%M>]\n:END:")
+        ("g" "BGR stuff")
+        ("gi" "Inventory project")
+        ("gil" "Daily log" entry (file+olp+datetree "~/my_org/bgr.org" "Inventory management Project") "** %? %i")
         ("C" "Commandment" entry (file+datetree "~/my_org/lifebook.org" "")
          "** %? %i :commandment:")
         ("J" "Job search" entry (file+headline "~/my_org/mrps_canjs.org" "MRPS #CANJS")
          "** TODO %? %i ")
-        ("r" "Self Reflection" entry (file+datetree "~/my_org/lifebook.org" "")
-         "b** %? %i :self_reflection:")
         ("w" "Website" plain
          (function org-website-clipper)
          "* %a %T\n" :immediate-finish t)
@@ -650,8 +622,10 @@
          "** %a, %T\n %:initial" :empty-lines 1)
         ("c" "Clocking capture")
         ("ct" "Clock TODO" entry (clock) "** TODO %?")
-        ("cn" "Clock Note" entry (clock) "** %?\n:PROPERTY:\n:CREATED: [%<%Y-%m-%d %a %H:%M>]\n:END:")
-        ))
+        ("cn" "Clock Note" entry (clock) "** %?\n:PROPERTIES:\n:CREATED: [%<%Y-%m-%d %a %H:%M>]\n:END:")
+        ("r" "Review note" entry (file+weektree "~/my_org/lifebook.org" "#Personal #Reviews")
+         "** %?\n:PROPERTIES:\n:CREATED: [%<%Y-%m-%d %a %H:%M>]\n:END:")
+         ))
 
 (defadvice org-capture
     (after make-full-window-frame activate)
@@ -667,11 +641,6 @@
 (setq delete-old-versions -1)
 (setq version-control t)
 
-(unless (string-match-p "\\.gpg" org-agenda-file-regexp)
-  (setq org-agenda-file-regexp
-        (replace-regexp-in-string "\\\\\\.org" "\\\\.org\\\\(\\\\.gpg\\\\)?"
-                                  org-agenda-file-regexp)))
-
 (use-package org-noter
   :ensure t
   :defer t
@@ -680,15 +649,15 @@
   )
 
 (use-package org-projectile
+  :ensure t
   :bind (("C-c n p" . org-projectile-project-todo-completing-read)
          ("C-c c" . org-capture))
   :config
-  (progn
-    (setq org-projectile-projects-file
-          "~/my_org/project-tasks.org")
-    (setq org-agenda-files (append org-agenda-files (org-projectile-todo-files)))
-    (push (org-projectile-project-todo-entry) org-capture-templates))
-  :ensure t)
+  (setq org-projectile-projects-file
+        "~/my_org/project-tasks.org")
+  ;; (setq org-agenda-files (append org-agenda-files (org-projectile-todo-files))) ;; Not necessary as my task projects are a part of the main org folder
+  (push (org-projectile-project-todo-entry) org-capture-templates)
+  )
 
 (defun sr/log-todo-creation-date (&rest ignore)
   "Log TODO creation time in the property drawer under the key 'CREATED'."
@@ -841,7 +810,7 @@
 
 (use-package org-mru-clock
   :ensure t
-  :bind (("C-c C-x i" . org-mru-clock-in)
+  :bind (("M-s 1" . org-mru-clock-in)
           ("C-c C-x C-j" . org-mru-clock-select-recent-task))
   :init
   (setq org-mru-clock-how-many 100
@@ -862,7 +831,71 @@
 (global-set-key (kbd "C-c I") #'eos/org-clock-in)
 (global-set-key (kbd "C-c O") #'org-clock-out)
 
+(use-package org-brain
+  :ensure t
+  :init
+  (setq org-brain-path "~/my_org/brain/")
+  ;; ;; For Evil users
+  ;; (with-eval-after-load 'evil
+  ;;   (evil-set-initial-state 'org-brain-visualize-mode 'emacs))
+  :config
+  (setq org-id-track-globally t)
+  (setq org-id-locations-file "~/scimax/user/.org-id-locations")
+  (push '("b" "Brain" plain (function org-brain-goto-end)
+          "* %i%?\n:PROPERTIES:\n:CREATED: [%<%Y-%m-%d %a %H:%M>]\n:END:" :empty-lines 1)
+        org-capture-templates)
+  (setq org-brain-visualize-default-choices 'all)
+  (setq org-brain-title-max-length 12))
+
+(defun org-brain-deft ()
+  "Use `deft' for files in `org-brain-path'."
+  (interactive)
+  (let ((deft-directory org-brain-path)
+        (deft-recursive t)
+        (deft-extensions '("org")))
+    (deft)))
+
+(use-package org-journal
+  :ensure t
+  :defer t
+  :custom
+  (org-journal-dir "~/my_org/journal/")
+  (org-journal-file-format "%Y%m%d")
+  (org-journal-enable-agenda-integration t))
+  ;; :config
+  ;;(setq org-agenda-file-regexp "\\`\\\([^.].*\\.org\\\|[0-9]\\\{8\\\}\\\(\\.gpg\\\)?\\\)\\'")
+  ;;(add-to-list 'org-agenda-files org-journal-dir))
+
+;; (use-package org-journal
+;;   :ensure t
+;;   :defer t
+;;   :custom
+;;   (org-journal-dir "~/my_org/journal/")
+;;   (org-journal-file-format "%Y%m%d")
+;;   (org-journal-enable-agenda-integration t)
+;;   (add-to-list 'auto-mode-alist '(".*/journal/[0-9]*$" . org-mode))
+;;   (org-journal-update-auto-mode-alist)
+;;   ;; (org-journal-date-format "%A, %d %B %Y")
+;;   ;; (org-journal-enable-encryption 't)
+;;   )
+
+(defun org-journal-find-location ()
+  ;; Open today's journal, but specify a non-nil prefix argument in order to
+  ;; inhibit inserting the heading; org-capture will insert the heading.
+  (org-journal-new-entry t)
+  ;; Position point on the journal's top-level heading so that org-capture
+  ;; will add the new entry as a child entry.
+  (goto-char (point-min)))
+
 (message "Loaded org customisations")
+
+(use-package deft
+  :bind ("<f8> d" . deft)
+  :commands (deft)
+  :config (setq deft-directory "~/my_brain/"
+                deft-extensions '("md" "org" "txt")
+                deft-recursive t
+                ))
 
 (use-package helm-ext
   :ensure t
@@ -1385,40 +1418,6 @@ SPC     exit
 (add-hook 'ediff-select-hook 'f-ediff-org-unfold-tree-element)
 (add-hook 'ediff-unselect-hook 'f-ediff-org-fold-tree)
 
-(setq default-frame-alist
-      '((background-color . "whitesmoke")
-        (foreground-color . "black")
-        (fullscreen . maximized)
-        ))
-
-(setq custom-safe-themes t)
-(set-background-color "whitesmoke")
-;;(disable-theme 'leuven)
-;;(load-theme 'spacemacs-dark t)
-
-;; For Linux
-(if (system-type-is-gnu)
-    (set-face-attribute 'default nil :family "ttf-iosevka" :height 140))
-
-;; For Mac OS
-(if (system-type-is-darwin)
-    (set-face-attribute 'default nil :family "Iosevka Type" :height 150))
-
-(use-package spaceline
-  :demand t
-  :init
-  (setq powerline-default-separator 'arrow-fade)
-  :config
-  (disable-theme 'smart-mode-line-light)
-  (require 'spaceline-config)
-  (spaceline-emacs-theme)
-  (spaceline-toggle-buffer-position-off)
-  )
-
-(setq
- global-visual-line-mode 1
- fill-column 80)
-
 (defvar hugo-content-dir "~/my_gits/hugo-sr/content/post/"
   "Path to Hugo's content directory")
 
@@ -1507,16 +1506,12 @@ Returns the property name if the property has been created, otherwise nil."
 
 (org-babel-lob-ingest "~/my_projects/sr-snip-lob/README.org")
 
-(use-package emacsql-sqlite
-  :ensure t
-  :config
-  (require 'org-db)
-)
+(setq python-indent-guess-indent-offset nil)
 
 (add-hook 'org-mode-hook 'scimax-autoformat-mode)
 (scimax-toggle-abbrevs 'scimax-month-abbreviations +1)
 (scimax-toggle-abbrevs 'scimax-transposition-abbreviations +1)
-(scimax-toggle-abbrevs 'scimax-misc-abbreviations +1)
+(scimax-toggle-abbrevs 'scimax-misc-abbreviations nil)
 (scimax-toggle-abbrevs 'scimax-weekday-abbreviations +1)
 (global-set-key (kbd "s-q") 'org-latex-math-region-or-point)
 
@@ -1561,8 +1556,6 @@ Returns the property name if the property has been created, otherwise nil."
 (require 'scimax-org-babel-ipython-upstream)
 (setq ob-ipython-exception-results nil)
 (scimax-ob-ipython-turn-on-eldoc)
-
-(setq python-indent-guess-indent-offset nil)
 
 (if (system-type-is-darwin)
     (progn
@@ -1687,4 +1680,73 @@ Returns the property name if the property has been created, otherwise nil."
       ;; namely the htmlize-and-send, above.
       (add-hook 'org-ctrl-c-ctrl-c-hook 'htmlize-and-send t)
       )
+  )
+
+(setq default-frame-alist
+      '(;; (background-color . "whitesmoke")
+        ;; (foreground-color . "black")
+        (fullscreen . maximized)
+        ))
+
+(setq custom-safe-themes t)
+
+(use-package zenburn-theme
+  :ensure t
+  :config
+  (setq zenburn-use-variable-pitch t)
+
+  ;; scale headings in org-mode
+  (setq zenburn-scale-org-headlines t)
+
+  ;; scale headings in outline-mode
+  (setq zenburn-scale-outline-headlines t)
+  )
+
+;;(load-theme 'spacemacs-dark t)
+(load-theme 'zenburn t)
+;; use variable-pitch fonts for some headings and titles
+
+;; For Linux
+(if (system-type-is-gnu)
+    (set-face-attribute 'default nil :family "ttf-iosevka" :height 140))
+
+;; For Mac OS
+(if (system-type-is-darwin)
+    (set-face-attribute 'default nil :family "Iosevka Type" :height 170))
+
+(defface org-block-begin-line
+  '((t (:underline "#A7A6AA" :foreground "#008ED1" :background "#EAEAFF")))
+  "Face used for the line delimiting the begin of source blocks.")
+
+(defface org-block-background
+  '((t (:background "#FFFFEA")))
+  "Face used for the source block background.")
+
+(defface org-block-end-line
+  '((t (:overline "#A7A6AA" :foreground "#008ED1" :background "#EAEAFF")))
+  "Face used for the line delimiting the end of source blocks.")
+
+(with-eval-after-load org)
+
+(use-package spaceline
+  :demand t
+  :init
+  (setq powerline-default-separator 'arrow-fade)
+  :config
+  (disable-theme 'smart-mode-line-light)
+  (require 'spaceline-config)
+  (spaceline-emacs-theme)
+  (spaceline-toggle-buffer-position-off)
+  )
+
+(use-package visual-fill-column
+  :ensure t
+  :config
+  (global-visual-fill-column-mode)
+  (setq-default fill-column 80)
+  (setq-default visual-fill-column-center-text t)
+  (setq split-window-preferred-function
+        'visual-fill-column-split-window-sensibly)
+  (add-hook 'visual-fill-column-mode-hook #'visual-line-mode)
+  (add-hook 'org-mode-hook 'turn-on-visual-fill-column-mode)
   )
