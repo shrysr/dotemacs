@@ -1,3 +1,6 @@
+(let ((default-directory  "~/scimax/user/external_packages/"))
+  (normal-top-level-add-subdirs-to-load-path))
+
 (defun sr/tangle-on-save-emacs-config-org-file()
   (interactive)
   (if (string= buffer-file-name (file-truename "~/scimax/user/sr-config.org"))
@@ -196,6 +199,10 @@
 (global-set-key (kbd "C-<f9>") 'sr/punch-in)
 (global-set-key (kbd "M-<f9>") 'sr/punch-out)
 
+(global-set-key (kbd "M-s t") 'treemacs-switch-workspace)
+
+(global-set-key (kbd "M-s f") 'frog-jump-buffer)
+
 (defun my/yank-more ()
   (interactive)
   (insert "[[")
@@ -342,8 +349,8 @@
   (setq comint-move-point-for-output t)
   )
 
-(require 'ess-R-data-view)
-(require 'ess-rutils)
+;;(require 'ess-R-data-view)
+;;(require 'ess-rutils)
 
 (use-package ess-view
   :ensure t
@@ -381,20 +388,6 @@
          (slot . 1)
          (window-width . 0.33)
          (reusable-frames . nil))))
-
-(require 'poly-markdown)
-(require 'poly-R)
-
-;; MARKDOWN
-(add-to-list 'auto-mode-alist '("\\.md" . poly-markdown-mode))
-
-
-;; R modes
-(add-to-list 'auto-mode-alist '("\\.Snw" . poly-noweb+r-mode))
-(add-to-list 'auto-mode-alist '("\\.Rnw" . poly-noweb+r-mode))
-(add-to-list 'auto-mode-alist '("\\.Rmd" . poly-markdown+r-mode))
-
-(message "Loaded polymode configuration")
 
 (use-package multiple-cursors
   :ensure t
@@ -470,55 +463,6 @@
       '((sequence "TODO(t)" "NEXT(n)" "CANCEL(c)" "POSTPONED(p)" "|" "DONE(d)" "STABLE(s)")
         (sequence "TEST(T)" "BUG(b)" "KNOWNCAUSE(k)" "|" "FIXED(f)")
         (sequence "|" )))
-
-(setq org-hide-leading-stars t)
-;;(setq org-alphabetical-lists t)
-(setq org-src-fontify-natively t)  ;; you want this to activate coloring in blocks
-(setq org-src-tab-acts-natively t) ;; you want this to have completion in blocks
-(setq org-hide-emphasis-markers t) ;; to hide the *,=, or / markers
-(setq org-pretty-entities t)       ;; to have \alpha, \to and others display as utf8 http://orgmode.org/manual/Special-symbols.html
-
-;; Highlighting lines in the agenda, where the cursor is placed.
-(add-hook 'org-agenda-mode-hook (lambda () (hl-line-mode 1)))
-
-;; Setting up clean indenting below respective headlines at startup. - from the org mode website
-(setq org-startup-indented t)
-
-;; ;; use org bullets from emacsist
-;; (use-package org-bullets
-;;   :ensure t
-;;   :init
-;;   :config
-;;   (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
-
-(setq org-fontify-done-headline t)
-(custom-set-faces
- '(org-done ((t (:foreground "PaleGreen"
-			     :weight normal
-			     :strike-through t))))
- '(org-headline-done
-   ((((class color) (min-colors 16) (background dark))
-     (:foreground "LightSalmon" :strike-through t)))))
-
-(set-face-attribute 'org-todo nil
-                    :box '(:line-width 2
-                           :color "black"
-                           :style released-button)
-                    :inverse-video t
-                    )
-(set-face-attribute 'org-done nil
-                    :box '(:line-width 2
-                           :color "black"
-                           :style released-button)
-                    :inverse-video t
-                    )
-(set-face-attribute 'org-priority nil
-                    :inherit font-lock-keyword-face
-                    :inverse-video t
-                    :box '(:line-width 2
-                           :color "black"
-                           :style released-button)
-                    )
 
 (setq org-refile-targets
       '((nil :maxlevel . 4)
@@ -774,6 +718,7 @@
    (scheme . t)
    (sqlite . t)
    (R . t)
+   ;(jupyter . t)
    )
  )
 
@@ -845,7 +790,9 @@
           "* %i%?\n:PROPERTIES:\n:CREATED: [%<%Y-%m-%d %a %H:%M>]\n:END:" :empty-lines 1)
         org-capture-templates)
   (setq org-brain-visualize-default-choices 'all)
-  (setq org-brain-title-max-length 12))
+  (setq org-brain-title-max-length 12)
+  (add-hook 'org-brain-refile 'org-id-get-create)
+  )
 
 (defun org-brain-deft ()
   "Use `deft' for files in `org-brain-path'."
@@ -861,23 +808,8 @@
   :custom
   (org-journal-dir "~/my_org/journal/")
   (org-journal-file-format "%Y%m%d")
-  (org-journal-enable-agenda-integration t))
-  ;; :config
-  ;;(setq org-agenda-file-regexp "\\`\\\([^.].*\\.org\\\|[0-9]\\\{8\\\}\\\(\\.gpg\\\)?\\\)\\'")
-  ;;(add-to-list 'org-agenda-files org-journal-dir))
-
-;; (use-package org-journal
-;;   :ensure t
-;;   :defer t
-;;   :custom
-;;   (org-journal-dir "~/my_org/journal/")
-;;   (org-journal-file-format "%Y%m%d")
-;;   (org-journal-enable-agenda-integration t)
-;;   (add-to-list 'auto-mode-alist '(".*/journal/[0-9]*$" . org-mode))
-;;   (org-journal-update-auto-mode-alist)
-;;   ;; (org-journal-date-format "%A, %d %B %Y")
-;;   ;; (org-journal-enable-encryption 't)
-;;   )
+  (org-journal-enable-agenda-integration t)
+  )
 
 (defun org-journal-find-location ()
   ;; Open today's journal, but specify a non-nil prefix argument in order to
@@ -887,7 +819,98 @@
   ;; will add the new entry as a child entry.
   (goto-char (point-min)))
 
-(message "Loaded org customisations")
+(use-package org-sticky-header
+  :ensure t
+  :config
+  (org-sticky-header-mode)
+  )
+
+(use-package treemacs
+  :ensure t
+  :defer t
+  :init
+  (with-eval-after-load 'winum
+    (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
+  :config
+  (progn
+    (setq treemacs-collapse-dirs
+          (if (executable-find "python3") 3 0)
+          treemacs-deferred-git-apply-delay      0.5
+          treemacs-display-in-side-window        t
+          treemacs-eldoc-display                 t
+          treemacs-file-event-delay              5000
+          treemacs-file-follow-delay             0.2
+          treemacs-follow-after-init             t
+          treemacs-git-command-pipe              ""
+          treemacs-goto-tag-strategy             'refetch-index
+          treemacs-indentation                   2
+          treemacs-indentation-string            " "
+          treemacs-is-never-other-window         nil
+          treemacs-max-git-entries               5000
+          treemacs-no-png-images                 nil
+          treemacs-no-delete-other-windows       t
+          treemacs-project-follow-cleanup        nil
+          treemacs-persist-file                  (expand-file-name ".cache/treemacs-persist" user-emacs-directory)
+          treemacs-recenter-distance             0.1
+          treemacs-recenter-after-file-follow    nil
+          treemacs-recenter-after-tag-follow     nil
+          treemacs-recenter-after-project-jump   'always
+          treemacs-recenter-after-project-expand 'on-distance
+          treemacs-show-cursor                   nil
+          treemacs-show-hidden-files             t
+          treemacs-silent-filewatch              nil
+          treemacs-silent-refresh                nil
+          treemacs-sorting                       'alphabetic-desc
+          treemacs-space-between-root-nodes      t
+          treemacs-tag-follow-cleanup            t
+          treemacs-tag-follow-delay              1.5
+          treemacs-width                         35)
+
+    ;; The default width and height of the icons is 22 pixels. If you are
+    ;; using a Hi-DPI display, uncomment this to double the icon size.
+    ;;(treemacs-resize-icons 44)
+
+    (treemacs-follow-mode t)
+    (treemacs-filewatch-mode t)
+    (treemacs-fringe-indicator-mode t)
+    (pcase (cons (not (null (executable-find "git")))
+                 (not (null (executable-find "python3"))))
+      (`(t . t)
+       (treemacs-git-mode 'deferred))
+      (`(t . _)
+       (treemacs-git-mode 'simple))))
+  :bind
+  (:map global-map
+        ("M-0"       . treemacs-select-window)
+        ("C-x t 1"   . treemacs-delete-other-windows)
+        ("C-x t t"   . treemacs)
+        ("C-x t B"   . treemacs-bookmark)
+        ("C-x t C-t" . treemacs-find-file)
+        ("C-x t M-t" . treemacs-find-tag)))
+
+;; (use-package treemacs-evil
+;;   :after treemacs evil
+;;   :ensure t)
+
+(use-package treemacs-projectile
+  :after treemacs projectile
+  :ensure t)
+
+(use-package treemacs-icons-dired
+  :after treemacs dired
+  :ensure t
+  :config (treemacs-icons-dired-mode))
+
+(use-package treemacs-magit
+  :after treemacs magit
+  :ensure t)
+
+(use-package sauron
+  :ensure t
+  :config
+  (require 'sauron)
+  (setq sauron-modules '(sauron-org sauron-notifications))
+  )
 
 (use-package deft
   :bind ("<f8> d" . deft)
@@ -1500,13 +1523,12 @@ Returns the property name if the property has been created, otherwise nil."
 (use-package ox-hugo
   :ensure t
   :defer t
+  :after ox
   :custom
   (org-hugo--tag-processing-fn-replace-with-hyphens-maybe t)
   )
 
 (org-babel-lob-ingest "~/my_projects/sr-snip-lob/README.org")
-
-(setq python-indent-guess-indent-offset nil)
 
 (add-hook 'org-mode-hook 'scimax-autoformat-mode)
 (scimax-toggle-abbrevs 'scimax-month-abbreviations +1)
@@ -1550,12 +1572,16 @@ Returns the property name if the property has been created, otherwise nil."
 
 (global-set-key (kbd "M-s n") 'nb-open)
 
+(require 'scimax-statistics)
+
 (require 'scimax-org-babel-python)
 (require 'ob-ipython)
 (require 'scimax-ob)
 (require 'scimax-org-babel-ipython-upstream)
 (setq ob-ipython-exception-results nil)
 (scimax-ob-ipython-turn-on-eldoc)
+
+(setq python-indent-guess-indent-offset nil)
 
 (if (system-type-is-darwin)
     (progn
@@ -1596,90 +1622,102 @@ Returns the property name if the property has been created, otherwise nil."
     )
   )
 
-(if (system-type-is-darwin)
-    (progn
-      (use-package mu4e
-        :ensure nil
-        :config
-        (require 'mu4e)
-        (require 'mu4e-contrib)
-        (require 'org-mu4e)
+(add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e")
+(require 'mu4e)
+(require 'mu4e-contrib)
+(require 'org-mu4e)
 
-        (setq
-         mue4e-headers-skip-duplicates  t
-         mu4e-view-show-images t
-         mu4e-view-show-addresses 't
-         mu4e-compose-format-flowed nil
-         mu4e-update-interval 200
-         message-ignored-cited-headers 'nil
-         mu4e-date-format "%y/%m/%d"
-         mu4e-headers-date-format "%Y/%m/%d"
-         mu4e-change-filenames-when-moving t
-         mu4e-attachments-dir "~/Downloads/Mail-Attachments/"
-         mu4e-maildir (expand-file-name "~/my_mail/fmail")
-         )
+(setq
+ mue4e-headers-skip-duplicates  t
+ mu4e-view-show-images t
+ mu4e-view-show-addresses 't
+ mu4e-compose-format-flowed nil
+ mu4e-update-interval 200
+ message-ignored-cited-headers 'nil
+ mu4e-date-format "%y/%m/%d"
+ mu4e-headers-date-format "%Y/%m/%d"
+ mu4e-change-filenames-when-moving t
+ mu4e-attachments-dir "~/Downloads/Mail-Attachments/"
+ mu4e-maildir (expand-file-name "~/my_mail/fmail")
+ )
 
-        ;; mu4e email refiling loations
-        (setq
-         mu4e-refile-folder "/Archive"
-         mu4e-trash-folder  "/Trash"
-         mu4e-sent-folder   "/Sent"
-         mu4e-drafts-folder "/Drafts"
-         )
+;; mu4e email refiling loations
+(setq
+ mu4e-refile-folder "/Archive"
+ mu4e-trash-folder  "/Trash"
+ mu4e-sent-folder   "/Sent"
+ mu4e-drafts-folder "/Drafts"
+ )
 
-        ;; setup some handy shortcuts
-        (setq mu4e-maildir-shortcuts
-              '(("/INBOX"   . ?i)
-	        ("/Sent"    . ?s)
-	        ("/Archive" . ?a)
-	        ("/Trash"   . ?t)))
+;; setup some handy shortcuts
+(setq mu4e-maildir-shortcuts
+      '(("/INBOX"   . ?i)
+	("/Sent"    . ?s)
+	("/Archive" . ?a)
+	("/Trash"   . ?t)))
 
-        ;;store link to message if in header view, not to header query
-        (setq org-mu4e-link-query-in-headers-mode nil
-              org-mu4e-convert-to-html t) ;; org -> html
+;;store link to message if in header view, not to header query
+(setq org-mu4e-link-query-in-headers-mode nil
+      org-mu4e-convert-to-html t) ;; org -> html
 
-        ;; Enabling view in browser for HTML heavy emails that don't render well
-        (add-to-list 'mu4e-view-actions
-	             '("ViewInBrowser" . mu4e-action-view-in-browser) t)
+;; Enabling view in browser for HTML heavy emails that don't render well
+(add-to-list 'mu4e-view-actions
+	     '("ViewInBrowser" . mu4e-action-view-in-browser) t)
 
-        (autoload 'mu4e "mu4e" "mu for Emacs." t)
+(autoload 'mu4e "mu4e" "mu for Emacs." t)
 
-        ;; Config for sending email
-        (setq
-         message-send-mail-function 'message-send-mail-with-sendmail
-         send-mail-function 'sendmail-send-it
-         message-kill-buffer-on-exit t
-         )
+;; Config for sending email
+(setq
+ message-send-mail-function 'message-send-mail-with-sendmail
+ send-mail-function 'sendmail-send-it
+ message-kill-buffer-on-exit t
+ )
 
-        ;; allow for updating mail using 'U' in the main view:
-        (setq mu4e-get-mail-command  "mbsync -a -q")
+;; allow for updating mail using 'U' in the main view:
+(setq mu4e-get-mail-command  "mbsync -a -q")
 
-        ;; Don't keep asking for confirmation for every action
-        (defun my-mu4e-mark-execute-all-no-confirm ()
-          "Execute all marks without confirmation."
-          (interactive)
-          (mu4e-mark-execute-all 'no-confirm))
-        ;; mapping x to above function
-        (define-key mu4e-headers-mode-map "x" #'my-mu4e-mark-execute-all-no-confirm)
-        )
-      ;; source: http://matt.hackinghistory.ca/2016/11/18/sending-html-mail-with-mu4e/
+;; Don't keep asking for confirmation for every action
+(defun my-mu4e-mark-execute-all-no-confirm ()
+  "Execute all marks without confirmation."
+  (interactive)
+  (mu4e-mark-execute-all 'no-confirm))
+;; mapping x to above function
+(define-key mu4e-headers-mode-map "x" #'my-mu4e-mark-execute-all-no-confirm)
 
-      ;; this is stolen from John but it didn't work for me until I
-      ;; made those changes to mu4e-compose.el
-      (defun htmlize-and-send ()
-        "When in an org-mu4e-compose-org-mode message, htmlize and send it."
-        (interactive)
-        (when
-            (member 'org~mu4e-mime-switch-headers-or-body post-command-hook)
-          (org-mime-htmlize)
-          (org-mu4e-compose-org-mode)
-          (mu4e-compose-mode)
-          (message-send-and-exit)))
+;; source: http://matt.hackinghistory.ca/2016/11/18/sending-html-mail-with-mu4e/
 
-      ;; This overloads the amazing C-c C-c commands in org-mode with one more function
-      ;; namely the htmlize-and-send, above.
-      (add-hook 'org-ctrl-c-ctrl-c-hook 'htmlize-and-send t)
-      )
+;; this is stolen from John but it didn't work for me until I
+;; made those changes to mu4e-compose.el
+(defun htmlize-and-send ()
+  "When in an org-mu4e-compose-org-mode message, htmlize and send it."
+  (interactive)
+  (when
+      (member 'org~mu4e-mime-switch-headers-or-body post-command-hook)
+    (org-mime-htmlize)
+    (org-mu4e-compose-org-mode)
+    (mu4e-compose-mode)
+    (message-send-and-exit)))
+
+;; This overloads the amazing C-c C-c commands in org-mode with one more function
+;; namely the htmlize-and-send, above.
+(add-hook 'org-ctrl-c-ctrl-c-hook 'htmlize-and-send t)
+
+(use-package pocket-reader
+  :ensure t
+  :config
+  (require 'pocket-reader)
+)
+
+(use-package frog-menu
+  :ensure t
+  :config
+  :defer t
+)
+(load "frog-jump-buffer")
+
+(use-package easy-kill
+  :config
+  (global-set-key [remap kill-ring-save] 'easy-kill)
   )
 
 (setq default-frame-alist
@@ -1689,22 +1727,20 @@ Returns the property name if the property has been created, otherwise nil."
         ))
 
 (setq custom-safe-themes t)
+;; (set-background-color "whitesmoke")
 
-(use-package zenburn-theme
-  :ensure t
-  :config
-  (setq zenburn-use-variable-pitch t)
-
-  ;; scale headings in org-mode
-  (setq zenburn-scale-org-headlines t)
-
-  ;; scale headings in outline-mode
-  (setq zenburn-scale-outline-headlines t)
-  )
-
+(disable-theme 'leuven)
 ;;(load-theme 'spacemacs-dark t)
 (load-theme 'zenburn t)
+
 ;; use variable-pitch fonts for some headings and titles
+(setq zenburn-use-variable-pitch t)
+
+;; scale headings in org-mode
+(setq zenburn-scale-org-headlines t)
+
+;; scale headings in outline-mode
+(setq zenburn-scale-outline-headlines t)
 
 ;; For Linux
 (if (system-type-is-gnu)
@@ -1712,21 +1748,15 @@ Returns the property name if the property has been created, otherwise nil."
 
 ;; For Mac OS
 (if (system-type-is-darwin)
-    (set-face-attribute 'default nil :family "Iosevka Type" :height 170))
+    (set-face-attribute 'default nil :family "Iosevka Type" :height 160 ))
 
-(defface org-block-begin-line
-  '((t (:underline "#A7A6AA" :foreground "#008ED1" :background "#EAEAFF")))
-  "Face used for the line delimiting the begin of source blocks.")
-
-(defface org-block-background
-  '((t (:background "#FFFFEA")))
-  "Face used for the source block background.")
-
-(defface org-block-end-line
-  '((t (:overline "#A7A6AA" :foreground "#008ED1" :background "#EAEAFF")))
-  "Face used for the line delimiting the end of source blocks.")
-
-(with-eval-after-load org)
+(custom-set-faces
+ '(org-level-1 ((t (:inherit outline-1 :height 1.2))))
+ '(org-level-2 ((t (:inherit outline-2 :height 1.1))))
+ '(org-level-3 ((t (:inherit outline-3 :height 1.05))))
+ '(org-level-4 ((t (:inherit outline-4 :height 1.00))))
+ '(org-level-5 ((t (:inherit outline-5 :height .95))))
+ )
 
 (use-package spaceline
   :demand t
@@ -1738,6 +1768,58 @@ Returns the property name if the property has been created, otherwise nil."
   (spaceline-emacs-theme)
   (spaceline-toggle-buffer-position-off)
   )
+
+(setq org-hide-leading-stars t)
+;;(setq org-alphabetical-lists t)
+(setq org-src-fontify-natively t)  ;; you want this to activate coloring in blocks
+(setq org-src-tab-acts-natively t) ;; you want this to have completion in blocks
+(setq org-hide-emphasis-markers t) ;; to hide the *,=, or / markers
+(setq org-pretty-entities t)       ;; to have \alpha, \to and others display as utf8 http://orgmode.org/manual/Special-symbols.html
+
+;; Highlighting lines in the agenda, where the cursor is placed.
+(add-hook 'org-agenda-mode-hook (lambda () (hl-line-mode 1)))
+
+;; Setting up clean indenting below respective headlines at startup. - from the org mode website
+(setq org-startup-indented t)
+
+;; ;; use org bullets from emacsist
+;; (use-package org-bullets
+;;   :ensure t
+;;   :init
+;;   :config
+;;   (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
+
+(setq org-fontify-done-headline t)
+(custom-set-faces
+ '(org-done ((t (:foreground "PaleGreen"
+			     :weight normal
+			     :strike-through t))))
+ '(org-headline-done
+   ((((class color) (min-colors 16) (background dark))
+     (:foreground "LightSalmon" :strike-through t)))))
+
+(set-face-attribute 'org-todo nil
+                    :box '(:line-width 2
+                           :color "black"
+                           :style released-button)
+                    :inverse-video t
+                    )
+(set-face-attribute 'org-done nil
+                    :box '(:line-width 2
+                           :color "black"
+                           :style released-button)
+                    :inverse-video t
+                    )
+(set-face-attribute 'org-priority nil
+                    :inherit font-lock-keyword-face
+                    :inverse-video t
+                    :box '(:line-width 2
+                           :color "black"
+                           :style released-button)
+                    )
+
+;;(set-face-background 'org-block-emacs-lisp "black")
+(set-face-background 'org-block "black")
 
 (use-package visual-fill-column
   :ensure t
