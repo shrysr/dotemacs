@@ -34,7 +34,7 @@ Scimax's init calls the =user.el= script placed in the user folder. The followin
 
 Loading external packages:  there are some packages which are not avaialble on MELPA and have to be loaded via cloning their git Repositories. This is especially relevant to new packages.
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle yes
 (let ((default-directory  "~/scimax/user/external_packages/"))
   (normal-top-level-add-subdirs-to-load-path))
 #+END_SRC
@@ -52,9 +52,10 @@ Loading external packages:  there are some packages which are not avaialble on M
 #+END_SRC
 
 *** TODO Using this configuration
-You may need to set =:tangle no= in the headers for the code snippets that you do not need, and set the location of directories for org files, org agenda etc.
 
-A bunch these scripts are not tangled and kept for testing or reference purposes. The tangled =config.el= contains the actual configuration that I use.
+While using the Org file - you may need to set =:tangle no= in the headers for the code snippets that you do not need, and set the location of directories for org files, org agenda etc.
+
+A bunch these scripts are not tangled and kept for testing or reference purposes. The tangled =config.el= contains the actual configuration that is used.
 
 **** Method 1
 
@@ -67,8 +68,18 @@ A bunch these scripts are not tangled and kept for testing or reference purposes
 
 Pick up snippets that you like from the =config.el= file, which is tangled from this org file, and only includes the snippets that I actually use.
 
+*** TODO Overall Tasks and Areas of Improvement [0/5]
+:PROPERTIES:
+:CREATED:  [2019-07-04 Thu]
+:PLANNED:  <2019-07-04 Thu 08:34>
+:END:
+- [ ] Remove packages that are no longer used
+- [ ] Switch to the use-package approach everywhere.
+- [ ] Improve the documentation to make it more user friendly.
+- [ ] Improve instructions to use this configuration
+- [ ] Figure out how external packages can be installed.
 * Other literate Emacs configs
-These references were used for exploration and inspiration.
+These references were used for exploration and inspiration. Other resources and references are included with the code.
 
 1. [[https://karl-voit.at/2017/06/03/emacs-org/][Karl Voit]]
 2. [[https://github.com/angrybacon/dotemacs/blob/master/dotemacs.org][Mathieu Marques]]
