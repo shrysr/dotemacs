@@ -568,13 +568,26 @@ For some reason, the default bookmark behavior in org mode is that the bookmark 
 
 #+RESULTS:
 
+** TEST Auto saving all org files by the hour
+- Note taken on [2019-07-05 Fri 11:49] \\
+  On the mac, this seems to be saving for each house since the time specified ? This behavior needs to be checked out.
+
+This is adopted from [[http://doc.norang.ca/org-mode.html][Bernt Hansen's]] configuration. Essentially, all the org buffers are saved 1 minute before the hour, every hour.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(run-at-time "00:59" 3600 'org-save-all-org-buffers)
+#+END_SRC
+
+#+RESULTS:
+: [nil 23835 180 0 3600 org-save-all-org-buffers nil nil 0]
+
 ** TEST Marking
 
 I want a way to efficiently mark a location in a long script and jump around these locations (forward and backwards). The =transient-mark-mode= and the different mark-rings need to be leveraged to do accomplish this. First step is to set a mark using =C-spc C-spc=.
 
 Adopting the approach described at [[https://masteringemacs.org/article/fixing-mark-commands-transient-mark-mode][Mastering Emacs]]. This enables a single key for a mark to activate and then deactivate, thus creating a mark.
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle yes
 (defun push-mark-no-activate ()
   "Pushes `point' to `mark-ring' and does not activate the region
    Equivalent to \\[set-mark-command] when \\[transient-mark-mode] is disabled"
