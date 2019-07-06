@@ -230,16 +230,57 @@ EOF
 #+RESULTS:
 | magit-process-password-auth-source |
 
+* Dired
+
+Source: https://github.com/angrybacon/dotemacs/blob/master/dotemacs.org
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package dired
+  :ensure nil
+  :delight dired-mode "Dired"
+  :preface
+  (defun me/dired-directories-first ()
+    "Sort dired listings with directories first before adding marks."
+    (save-excursion
+      (let (buffer-read-only)
+        (forward-line 2)
+        (sort-regexp-fields t "^.*$" "[ ]*." (point) (point-max)))
+      (set-buffer-modified-p nil)))
+  ;:hook ;(dired-mode . dired-hide-details-mode)
+  :config
+  (advice-add 'dired-readin :after #'me/dired-directories-first)
+  (setq-default
+   dired-auto-revert-buffer t
+   dired-dwim-target t
+   dired-hide-details-hide-symlink-targets nil
+   dired-listing-switches "-alh"
+   dired-ls-F-marks-symlinks nil
+   dired-recursive-copies 'always))
+
+(use-package dired-x
+  :ensure nil
+  :preface
+  (defun me/dired-revert-after-command (command &optional output error)
+    (revert-buffer))
+  :config
+  (advice-add 'dired-smart-shell-command :after #'me/dired-revert-after-command))
+
+(message "Loaded Dired customisation")
+#+END_SRC
+
+#+RESULTS:
+: Loaded Dired customisation
+
 * Emacs General config
 ** Remove trailing whitespace at the end of lines
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle yes
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 #+end_src
 
 ** Remove '^' at the start of ivy commands
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle yes
 (setq ivy-initial-inputs-alist nil)
 #+end_src
 
