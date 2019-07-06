@@ -75,6 +75,38 @@
 
 (message "Loaded crypto setup")
 
+(use-package dired
+  :ensure nil
+  :delight dired-mode "Dired"
+  :preface
+  (defun me/dired-directories-first ()
+    "Sort dired listings with directories first before adding marks."
+    (save-excursion
+      (let (buffer-read-only)
+        (forward-line 2)
+        (sort-regexp-fields t "^.*$" "[ ]*." (point) (point-max)))
+      (set-buffer-modified-p nil)))
+  ;:hook ;(dired-mode . dired-hide-details-mode)
+  :config
+  (advice-add 'dired-readin :after #'me/dired-directories-first)
+  (setq-default
+   dired-auto-revert-buffer t
+   dired-dwim-target t
+   dired-hide-details-hide-symlink-targets nil
+   dired-listing-switches "-alh"
+   dired-ls-F-marks-symlinks nil
+   dired-recursive-copies 'always))
+
+(use-package dired-x
+  :ensure nil
+  :preface
+  (defun me/dired-revert-after-command (command &optional output error)
+    (revert-buffer))
+  :config
+  (advice-add 'dired-smart-shell-command :after #'me/dired-revert-after-command))
+
+(message "Loaded Dired customisation")
+
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 
 (setq ivy-initial-inputs-alist nil)
@@ -163,6 +195,8 @@
   (setq switch-window-minibuffer-shortcut ?z)
   )
 
+(windmove-default-keybindings 'meta)
+
 (defadvice find-file (before make-directory-maybe (filename &optional wildcards) activate)
   "Create parent directory if not exists while visiting file."
   (unless (file-exists-p filename)
@@ -199,8 +233,6 @@
 (global-set-key (kbd "C-<f9>") 'sr/punch-in)
 (global-set-key (kbd "M-<f9>") 'sr/punch-out)
 
-(global-set-key (kbd "M-s t") 'treemacs-switch-workspace)
-
 (global-set-key (kbd "M-s f") 'frog-jump-buffer)
 
 (defun my/yank-more ()
@@ -219,7 +251,6 @@
 
 (use-package org-bookmark-heading
   :ensure t
-  :defer t
   :config
   (require 'org-bookmark-heading)
 )
@@ -227,6 +258,8 @@
 (use-package ob-async
   :ensure t
   )
+
+(run-at-time "00:59" 3600 'org-save-all-org-buffers)
 
 (defun push-mark-no-activate ()
   "Pushes `point' to `mark-ring' and does not activate the region
@@ -251,38 +284,6 @@
 (use-package crux
   :ensure t
   :bind (("C-a" . crux-move-beginning-of-line)))
-
-(use-package dired
-  :ensure nil
-  :delight dired-mode "Dired"
-  :preface
-  (defun me/dired-directories-first ()
-    "Sort dired listings with directories first before adding marks."
-    (save-excursion
-      (let (buffer-read-only)
-        (forward-line 2)
-        (sort-regexp-fields t "^.*$" "[ ]*." (point) (point-max)))
-      (set-buffer-modified-p nil)))
-  ;:hook ;(dired-mode . dired-hide-details-mode)
-  :config
-  (advice-add 'dired-readin :after #'me/dired-directories-first)
-  (setq-default
-   dired-auto-revert-buffer t
-   dired-dwim-target t
-   dired-hide-details-hide-symlink-targets nil
-   dired-listing-switches "-alh"
-   dired-ls-F-marks-symlinks nil
-   dired-recursive-copies 'always))
-
-(use-package dired-x
-  :ensure nil
-  :preface
-  (defun me/dired-revert-after-command (command &optional output error)
-    (revert-buffer))
-  :config
-  (advice-add 'dired-smart-shell-command :after #'me/dired-revert-after-command))
-
-(message "Loaded Dired customisation")
 
 (global-set-key (kbd "C-s") 'swiper)
 (setq ivy-display-style 'fancy)
@@ -334,6 +335,7 @@
   :defer t
   :config
   (require 'ess)
+
   (setq ess-describe-at-point-method nil)
   (setq ess-switch-to-end-of-proc-buffer t)
   (setq ess-rutils-keys +1)
@@ -363,7 +365,7 @@
     )
   (if (system-type-is-gnu)
       (setq ess-view--spreadsheet-program
-            "tabview"
+            "tad"
             )
     )
   )
@@ -516,7 +518,9 @@
 						 (lambda (directory)
 						   (directory-files-recursively
 						    directory org-agenda-file-regexp))
-						 '("~/my_projects/" "~/my_brain/"))))
+						 '("~/my_projects/" "~/my_org/brain/"))))
+
+(setq org-agenda-text-search-extra-files '(agenda-archives))
 
 (setq org-agenda-search-view-always-boolean t)
 
@@ -592,238 +596,10 @@
   (setq org-noter-set-auto-save-last-location t)
   )
 
-(use-package org-projectile
-  :ensure t
-  :bind (("C-c n p" . org-projectile-project-todo-completing-read)
-         ("C-c c" . org-capture))
-  :config
-  (setq org-projectile-projects-file
-        "~/my_org/project-tasks.org")
-  ;; (setq org-agenda-files (append org-agenda-files (org-projectile-todo-files))) ;; Not necessary as my task projects are a part of the main org folder
-  (push (org-projectile-project-todo-entry) org-capture-templates)
-  )
+(setq projectile-sort-order 'recently-active)
 
-(defun sr/log-todo-creation-date (&rest ignore)
-  "Log TODO creation time in the property drawer under the key 'CREATED'."
-  (when (and (org-get-todo-state)
-             (not (org-entry-get nil "CREATED")))
-    (org-entry-put nil "CREATED" (format-time-string "[%Y-%m-%d %a]"))
-    (org-entry-put nil "PLANNED" (format-time-string (cdr org-time-stamp-formats)))
-    ))
-
-(advice-add 'org-insert-todo-heading :after #'sr/log-todo-creation-date)
-(advice-add 'org-insert-todo-heading-respect-content :after #'sr/log-todo-creation-date)
-(advice-add 'org-insert-todo-subheading :after #'sr/log-todo-creation-date)
-(advice-add 'org-capture :after #'sr/log-todo-creation-date)
-(advice-add 'org-projectile-project-todo-completing-read :after #'sr/log-todo-creation-date)
-
-;; (require 'org-expiry)
-;; ;; Configure it a bit to my liking
-;; (setq
-;;  org-expiry-created-property-name "CREATED" ; Name of property when an item is created
-;;  org-expiry-inactive-timestamps   nil         ; Don't have everything in the agenda view
-;;  )
-
-;; (defun mrb/insert-created-timestamp()
-;;   "Insert a CREATED property using org-expiry.el for TODO entries"
-;;   (org-expiry-insert-created)
-;;   (org-back-to-heading)
-;;   (org-end-of-line)
-;;   (insert " ")
-;;   )
-
-;; ;; Whenever a TODO entry is created, I want a timestamp
-;; ;; Advice org-insert-todo-heading to insert a created timestamp using org-expiry
-;; (defadvice org-insert-todo-heading (after mrb/created-timestamp-advice activate)
-;;   "Insert a CREATED property using org-expiry.el for TODO entries"
-;;   (mrb/insert-created-timestamp)
-;;   )
-;; ;; Make it active
-;; (ad-activate 'org-insert-todo-heading)
-
-;; (require 'org-capture)
-
-;; (defadvice org-capture (after mrb/created-timestamp-advice activate)
-;;   "Insert a CREATED property using org-expiry.el for TODO entries"
-;;    					; Test if the captured entry is a TODO, if so insert the created
-;;    					; timestamp property, otherwise ignore
-;;   (mrb/insert-created-timestamp))
-;; ;;  (when (member (org-get-todo-state) org-todo-keywords-1)
-;; ;;    (mrb/insert-created-timestamp)))
-;;   (ad-activate 'org-capture)
-
-;; Add feature to allow easy adding of tags in a capture window
-(defun mrb/add-tags-in-capture()
-  (interactive)
-  "Insert tags in a capture window without losing the point"
-  (save-excursion
-    (org-back-to-heading)
-    (org-set-tags)))
-;; Bind this to a reasonable key
-(define-key org-capture-mode-map "\C-c\C-t" 'mrb/add-tags-in-capture)
-
-;; org-eww and org-w3m should be in your org distribution, but see
-;; note below on patch level of org-eww.
-(require 'org-eww)
-(require 'org-w3m)
-(defvar org-website-page-archive-file "~/my_org/full_article_archive.org")
-(defun org-website-clipper ()
-  "When capturing a website page, go to the right place in capture file,
-   but do sneaky things. Because it's a w3m or eww page, we go
-   ahead and insert the fixed-up page content, as I don't see a
-   good way to do that from an org-capture template alone. Requires
-   Emacs 25 and the 2017-02-12 or later patched version of org-eww.el."
-  (interactive)
-
-  ;; Check for acceptable major mode (w3m or eww) and set up a couple of
-  ;; browser specific values. Error if unknown mode.
-
-  (cond
-   ((eq major-mode 'w3m-mode)
-    (org-w3m-copy-for-org-mode))
-   ((eq major-mode 'eww-mode)
-    (org-eww-copy-for-org-mode))
-   (t
-    (error "Not valid -- must be in w3m or eww mode")))
-
-  ;; Check if we have a full path to the archive file.
-  ;; Create any missing directories.
-
-  (unless (file-exists-p org-website-page-archive-file)
-    (let ((dir (file-name-directory org-website-page-archive-file)))
-      (unless (file-exists-p dir)
-        (make-directory dir))))
-
-  ;; Open the archive file and yank in the content.
-  ;; Headers are fixed up later by org-capture.
-
-  (find-file org-website-page-archive-file)
-  (goto-char (point-max))
-  ;; Leave a blank line for org-capture to fill in
-  ;; with a timestamp, URL, etc.
-  (insert "\n\n")
-  ;; Insert the web content but keep our place.
-  (save-excursion (yank))
-  ;; Don't keep the page info on the kill ring.
-  ;; Also fix the yank pointer.
-  (setq kill-ring (cdr kill-ring))
-  (setq kill-ring-yank-pointer kill-ring)
-  ;; Final repositioning.
-  (forward-line -1)
-  )
-
-(org-babel-do-load-languages
- 'org-babel-load-languages
- '((clojure . t)
-   (scheme . t)
-   (sqlite . t)
-   (R . t)
-   ;(jupyter . t)
-   )
- )
-
-(require 'cider)
-(setq org-babel-clojure-backend 'cider)
-
-(defvar sr/organization-task-id "a8712a47-a648-477f-bdbf-d6004a0cc70b")
-
-(defun sr/clock-in-organization-task-as-default ()
-  (interactive)
-  (org-with-point-at (org-id-find sr/organization-task-id 'marker)
-    (org-clock-in '(16))))
-
-(defun sr/punch-in (arg)
-    (interactive "p")
-  (setq sr/keep-clock-running t)
-  (sr/clock-in-organization-task-as-default))
-
-(defun sr/punch-out ()
-  (interactive)
-  (setq sr/keep-clock-running nil)
-  (when (org-clock-is-active)
-    (org-clock-out))
-  )
-
-(defun sr/clock-out-maybe ()
-  (when (and sr/keep-clock-running
-             (not org-clock-clocking-in)
-             (marker-buffer org-clock-default-task)
-             (not org-clock-resolving-clocks-due-to-idleness))
-    (sr/clock-in-organization-task-as-default)))
-
-(add-hook 'org-clock-out-hook 'sr/clock-out-maybe 'append)
-
-(use-package org-mru-clock
-  :ensure t
-  :bind (("M-s 1" . org-mru-clock-in)
-          ("C-c C-x C-j" . org-mru-clock-select-recent-task))
-  :init
-  (setq org-mru-clock-how-many 100
-        org-mru-clock-completing-read #'ivy-completing-read))
-
-(setq org-clock-out-remove-zero-time-clocks t)
-
-;; setting idle timer to 15 minutes
-(setq org-clock-idle-time 15)
-
-;; Show lot of clocking history so it's easy to pick items off the `C-c I` list
-(setq org-clock-history-length 23)
-
-(defun eos/org-clock-in ()
-  (interactive)
-  (org-clock-in '(4)))
-
-(global-set-key (kbd "C-c I") #'eos/org-clock-in)
-(global-set-key (kbd "C-c O") #'org-clock-out)
-
-(use-package org-brain
-  :ensure t
-  :init
-  (setq org-brain-path "~/my_org/brain/")
-  ;; ;; For Evil users
-  ;; (with-eval-after-load 'evil
-  ;;   (evil-set-initial-state 'org-brain-visualize-mode 'emacs))
-  :config
-  (setq org-id-track-globally t)
-  (setq org-id-locations-file "~/scimax/user/.org-id-locations")
-  (push '("b" "Brain" plain (function org-brain-goto-end)
-          "* %i%?\n:PROPERTIES:\n:CREATED: [%<%Y-%m-%d %a %H:%M>]\n:END:" :empty-lines 1)
-        org-capture-templates)
-  (setq org-brain-visualize-default-choices 'all)
-  (setq org-brain-title-max-length 12)
-  (add-hook 'org-brain-refile 'org-id-get-create)
-  )
-
-(defun org-brain-deft ()
-  "Use `deft' for files in `org-brain-path'."
-  (interactive)
-  (let ((deft-directory org-brain-path)
-        (deft-recursive t)
-        (deft-extensions '("org")))
-    (deft)))
-
-(use-package org-journal
-  :ensure t
-  :defer t
-  :custom
-  (org-journal-dir "~/my_org/journal/")
-  (org-journal-file-format "%Y%m%d")
-  (org-journal-enable-agenda-integration t)
-  )
-
-(defun org-journal-find-location ()
-  ;; Open today's journal, but specify a non-nil prefix argument in order to
-  ;; inhibit inserting the heading; org-capture will insert the heading.
-  (org-journal-new-entry t)
-  ;; Position point on the journal's top-level heading so that org-capture
-  ;; will add the new entry as a child entry.
-  (goto-char (point-min)))
-
-(use-package org-sticky-header
-  :ensure t
-  :config
-  (org-sticky-header-mode)
-  )
+;; Change cache file location
+(setq projectile-cache-file "~/my_org/emacs_meta/.projectile-cache")
 
 (use-package treemacs
   :ensure t
@@ -847,10 +623,10 @@
           treemacs-indentation-string            " "
           treemacs-is-never-other-window         nil
           treemacs-max-git-entries               5000
-          treemacs-no-png-images                 nil
+ttt          treemacs-no-png-images                 nil
           treemacs-no-delete-other-windows       t
           treemacs-project-follow-cleanup        nil
-          treemacs-persist-file                  (expand-file-name ".cache/treemacs-persist" user-emacs-directory)
+          treemacs-persist-file                  "~/my_org/emacs_meta/.treemacs-persist"
           treemacs-recenter-distance             0.1
           treemacs-recenter-after-file-follow    nil
           treemacs-recenter-after-tag-follow     nil
@@ -882,11 +658,15 @@
   :bind
   (:map global-map
         ("M-0"       . treemacs-select-window)
-        ("C-x t 1"   . treemacs-delete-other-windows)
-        ("C-x t t"   . treemacs)
-        ("C-x t B"   . treemacs-bookmark)
-        ("C-x t C-t" . treemacs-find-file)
-        ("C-x t M-t" . treemacs-find-tag)))
+        ("M-s t t" . treemacs)
+        ("M-s t w" . treemacs-switch-workspace)
+        ;; ("C-x t 1"   . treemacs-delete-other-windows)
+        ;; ("C-x t t"   . treemacs)
+        ;; ("C-x t B"   . treemacs-bookmark)
+        ;; ("C-x t C-t" . treemacs-find-file)
+        ;; ("C-x t M-t" . treemacs-find-tag)
+        )
+  )
 
 ;; (use-package treemacs-evil
 ;;   :after treemacs evil
@@ -915,29 +695,27 @@
 (use-package deft
   :bind ("<f8> d" . deft)
   :commands (deft)
-  :config (setq deft-directory "~/my_brain/"
+  :config (setq deft-directory "~/my_org/brain/"
                 deft-extensions '("md" "org" "txt")
                 deft-recursive t
                 ))
-
-(use-package helm-ext
-  :ensure t
-  :config
-  (helm-ext-ff-enable-skipping-dots t)
-  ;; Testing the auto path expansion
-  ;;(helm-ff-ext-enable-auto-path-expansion t)
-  )
 
 (global-set-key (kbd "M-x") 'helm-M-x)
 ;; Enable fuzzy match for helm-M-x
 (setq helm-M-x-fuzzy-match t)
 
-(global-set-key (kbd "C-x r b") #'helm-filtered-bookmarks)
 (global-set-key (kbd "C-x C-f") #'helm-find-files)
 (global-set-key (kbd "C-x b") #'helm-mini)
 
 (require 'helm-config)
+(require 'helm-for-files)
 (helm-mode 1)
+
+(setq bookmark-default-file "~/my_org/emacs_meta/bookmarks")
+
+(global-set-key (kbd "C-x r b") #'helm-filtered-bookmarks)
+(global-set-key (kbd "C-x r l") #'helm-bookmarks)
+(setq helm-bookmark-show-location t)
 
 (setq helm-mini-default-sources '(helm-source-buffers-list
                                   helm-source-recentf
@@ -953,9 +731,6 @@
 
 (setq helm-semantic-fuzzy-match t
       helm-imenu-fuzzy-match t)
-
-(custom-set-variables
- '(helm-follow-mode-persistent t))
 
 (require 'helm-ag)
 (require 'helm-org-rifle)
@@ -981,6 +756,12 @@
         helm-swoop-speed-or-color nil))
 
 (message "Loaded Helm customisations")
+
+(use-package flyspell
+  :hook (
+           (prog-mode . flyspell-prog-mode)
+           (text-mode . flyspell-mode))
+)
 
 (when (require 'flycheck nil t)
   (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
@@ -1528,15 +1309,6 @@ Returns the property name if the property has been created, otherwise nil."
   (org-hugo--tag-processing-fn-replace-with-hyphens-maybe t)
   )
 
-(org-babel-lob-ingest "~/my_projects/sr-snip-lob/README.org")
-
-(add-hook 'org-mode-hook 'scimax-autoformat-mode)
-(scimax-toggle-abbrevs 'scimax-month-abbreviations +1)
-(scimax-toggle-abbrevs 'scimax-transposition-abbreviations +1)
-(scimax-toggle-abbrevs 'scimax-misc-abbreviations nil)
-(scimax-toggle-abbrevs 'scimax-weekday-abbreviations +1)
-(global-set-key (kbd "s-q") 'org-latex-math-region-or-point)
-
 (setq scimax-user-hotspot-commands
       '(("Agenda All" . (lambda () (org-agenda "" "a")))
         ("Agenda Office" . (lambda () (org-agenda "" "o")))
@@ -1560,7 +1332,7 @@ Returns the property name if the property has been created, otherwise nil."
         ("blog" . "~/my_org/blog-book.org")
 	("github" . "~/my_gits/")
         ("project" . "~/my_projects/")
-        ("cheatsheet" . "~/my_cheatsheets/")
+        ("cheatsheet" . "~/my_projects/ds_cheatsheets/")
         ("passwords" . "~/my_org/secrets.org.gpg")
         ("references" . "~/Dropbox/bibliography/references.bib")
         )
@@ -1581,27 +1353,18 @@ Returns the property name if the property has been created, otherwise nil."
 (setq ob-ipython-exception-results nil)
 (scimax-ob-ipython-turn-on-eldoc)
 
+(message "Loaded scimax customisations")
+
 (setq python-indent-guess-indent-offset nil)
 
-(if (system-type-is-darwin)
-    (progn
-      ;;; Code:
-      (defun make-orgcapture-frame ()
-        "Create a new frame and run org-capture."
-        (interactive)
-        (make-frame '((name . "remember") (width . 80) (height . 16)
-                      (top . 400) (left . 300)
-                      (font . "-apple-Monaco-medium-normal-normal-*-13-*-*-*-m-0-iso10646-1")
-                      ))
-        (select-frame-by-name "remember")
-        (org-capture))
-      )
-  )
-
-(use-package ox-tufte
+(use-package jupyter
+  :ensure t
   :defer t
   :config
-  (require 'ox-tufte)
+  ;(org-babel-load-languages '(jupyter .t))
+  (setq org-babel-default-header-args:jupyter-python '((:async . "yes")
+                                                       (:session . "jipython")
+                                                       (:kernel . "python3")))
   )
 
 (defun sr/dotemacs-export()
@@ -1702,22 +1465,16 @@ Returns the property name if the property has been created, otherwise nil."
 ;; namely the htmlize-and-send, above.
 (add-hook 'org-ctrl-c-ctrl-c-hook 'htmlize-and-send t)
 
-(use-package pocket-reader
+(use-package frog-jump-buffer
   :ensure t
-  :config
-  (require 'pocket-reader)
-)
-
-(use-package frog-menu
-  :ensure t
-  :config
   :defer t
+  :config
 )
-(load "frog-jump-buffer")
 
 (use-package easy-kill
   :config
   (global-set-key [remap kill-ring-save] 'easy-kill)
+  (global-set-key [remap mark-sexp] 'easy-mark)
   )
 
 (setq default-frame-alist
@@ -1767,7 +1524,7 @@ Returns the property name if the property has been created, otherwise nil."
   (require 'spaceline-config)
   (spaceline-emacs-theme)
   (spaceline-toggle-buffer-position-off)
-  )
+)
 
 (setq org-hide-leading-stars t)
 ;;(setq org-alphabetical-lists t)
@@ -1831,4 +1588,4 @@ Returns the property name if the property has been created, otherwise nil."
         'visual-fill-column-split-window-sensibly)
   (add-hook 'visual-fill-column-mode-hook #'visual-line-mode)
   (add-hook 'org-mode-hook 'turn-on-visual-fill-column-mode)
-  )
+)
