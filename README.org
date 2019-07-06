@@ -466,15 +466,6 @@ Source: https://superuser.com/questions/131538/can-i-create-directories-that-don
 #+RESULTS:
 : sr/punch-out
 
-*** Treemacs
-
-#+BEGIN_SRC emacs-lisp
-(global-set-key (kbd "M-s t") 'treemacs-switch-workspace)
-#+END_SRC
-
-#+RESULTS:
-: treemacs-switch-workspace
-
 *** TODO Setting the super and hyper Key
 
 #+BEGIN_SRC emacs-lisp :tangle no
