@@ -387,10 +387,18 @@ Source link: https://github.com/dimitri/switch-window
   )
 #+end_src
 
+** TEST Activating windmove to facilitate Hydras
+
+Super would actually be a good option. However, this interferes with default configurations in MS Windows, especially while using virtualbox. Using Meta for now.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(windmove-default-keybindings 'meta)
+#+END_SRC
+
 ** Create intermediate directories while saving files
 Source: https://superuser.com/questions/131538/can-i-create-directories-that-dont-exist-while-creating-a-new-file-in-emacs
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle yes
 (defadvice find-file (before make-directory-maybe (filename &optional wildcards) activate)
   "Create parent directory if not exists while visiting file."
   (unless (file-exists-p filename)
