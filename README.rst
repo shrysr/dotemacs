@@ -1,6 +1,6 @@
-=================================
- My Emacs + Scimax configuration
-=================================
+===============================
+My Emacs + Scimax configuration
+===============================
 
 :Author: Shreyas Ragavan
 
@@ -49,12 +49,12 @@ Loading external packages: there are some packages which are not
 avaialble on MELPA and have to be loaded via cloning their git
 Repositories. This is especially relevant to new packages.
 
-.. code:: lisp
+.. code:: commonlisp
 
    (let ((default-directory  "~/scimax/user/external_packages/"))
      (normal-top-level-add-subdirs-to-load-path))
 
-.. code:: lisp
+.. code:: commonlisp
 
    ;; Loading this file that you are viewing, which I name sr-config.org
    (org-babel-load-file (expand-file-name "sr-config.org" user-emacs-directory))
@@ -131,7 +131,7 @@ https://thewanderingcoder.com/2015/02/literate-emacs-configuration/
 This is a nice code snippet to automate the tangling on saving the
 config. This saves time while starting up Emacs…
 
-.. code:: lisp
+.. code:: commonlisp
 
    (defun sr/tangle-on-save-emacs-config-org-file()
      (interactive)
@@ -157,7 +157,7 @@ Since I switch between a Linux machine and a Mac frequently, it is
 better to define variables that can be used to set other variables
 depending on the OS.
 
-.. code:: lisp
+.. code:: commonlisp
 
    ;; Get current system's name
    (defun insert-system-name()
@@ -200,7 +200,7 @@ PDF Tools
    package and reinstall both as at the start. source:
    https://emacs.stackexchange.com/questions/13314/install-pdf-tools-on-emacs-macosx
 
-.. code:: lisp
+.. code:: commonlisp
 
    (use-package pdf-tools
      :ensure t
@@ -218,7 +218,7 @@ I need to explore the changed made by this package. For now, it is
 loaded right in the beginning so that it does not overwrite other
 customisations down the line.
 
-.. code:: lisp
+.. code:: commonlisp
 
    (use-package better-defaults
      :ensure t
@@ -229,7 +229,7 @@ customisations down the line.
 Crypto setup
 ============
 
-.. code:: lisp
+.. code:: commonlisp
 
    (setq epa-file-encrypt-to '("shreyas@fastmail.com"))
    (require 'org-crypt)
@@ -262,7 +262,7 @@ can be found be executing 'hostname' in shell.
 ``M-x epa-encrypt-file`` and point towards the above file and choose
 your key. This will generate the .gpg file.
 
-.. code:: lisp
+.. code:: commonlisp
 
    (setq auth-sources '((:source "~/.my.authinfo.gpg")))
    (setq magit-process-find-password-functions '(magit-process-password-auth-source))
@@ -272,7 +272,7 @@ Dired
 
 Source: https://github.com/angrybacon/dotemacs/blob/master/dotemacs.org
 
-.. code:: lisp
+.. code:: commonlisp
 
    (use-package dired
      :ensure nil
@@ -312,14 +312,14 @@ Emacs General config
 Remove trailing whitespace at the end of lines
 ----------------------------------------------
 
-.. code:: lisp
+.. code:: commonlisp
 
    (add-hook 'before-save-hook 'delete-trailing-whitespace)
 
 Remove '^' at the start of ivy commands
 ---------------------------------------
 
-.. code:: lisp
+.. code:: commonlisp
 
    (setq ivy-initial-inputs-alist nil)
 
@@ -334,7 +334,7 @@ have a list of all my installed packages. In any case, this is more in
 line with my earlier configurations. As things evolve, I will probably
 shift completely to the use-package method.
 
-.. code:: lisp
+.. code:: commonlisp
 
    (setq package-list '(diminish
                         ztree
@@ -388,7 +388,7 @@ shift completely to the use-package method.
 Fetch and install missing packages
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code:: lisp
+.. code:: commonlisp
 
    ;;fetch the list of packages available
    (unless package-archive-contents
@@ -404,7 +404,7 @@ Switch-window configuration
 
 Source link: https://github.com/dimitri/switch-window
 
-.. code:: lisp
+.. code:: commonlisp
 
    (use-package switch-window
      :config
@@ -439,7 +439,7 @@ Super would actually be a good option. However, this interferes with
 default configurations in MS Windows, especially while using virtualbox.
 Using Meta for now.
 
-.. code:: lisp
+.. code:: commonlisp
 
    (windmove-default-keybindings 'meta)
 
@@ -449,7 +449,7 @@ Create intermediate directories while saving files
 Source:
 https://superuser.com/questions/131538/can-i-create-directories-that-dont-exist-while-creating-a-new-file-in-emacs
 
-.. code:: lisp
+.. code:: commonlisp
 
    (defadvice find-file (before make-directory-maybe (filename &optional wildcards) activate)
      "Create parent directory if not exists while visiting file."
@@ -464,7 +464,7 @@ Shortcuts and registers
 Registers
 ~~~~~~~~~
 
-.. code:: lisp
+.. code:: commonlisp
 
    (set-register ?n (cons 'file "~/my_org/notes.org"))
    (set-register ?l (cons 'file "~/application_letters/letter.md"))
@@ -482,21 +482,21 @@ Registers
 Google this
 ~~~~~~~~~~~
 
-.. code:: lisp
+.. code:: commonlisp
 
    (global-set-key (kbd "M-s g") 'google-this-mode-submap)
 
 ivy-yasnippet
 ~~~~~~~~~~~~~
 
-.. code:: lisp
+.. code:: commonlisp
 
    (global-set-key (kbd "M-s i") 'ivy-yasnippet)
 
 Mu4e related
 ~~~~~~~~~~~~
 
-.. code:: lisp
+.. code:: commonlisp
 
    (global-set-key (kbd "M-s u") 'mu4e-update-mail-and-index)
    (global-set-key (kbd "M-s m") 'mu4e~headers-jump-to-maildir)
@@ -505,7 +505,7 @@ Mu4e related
 Org related
 ~~~~~~~~~~~
 
-.. code:: lisp
+.. code:: commonlisp
 
    (global-set-key (kbd "C-x t") 'org-insert-todo-heading)
    (global-set-key (kbd "C-c d") 'org-time-stamp)
@@ -515,7 +515,7 @@ Org related
 Shortcuts for punching in and Out
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code:: lisp
+.. code:: commonlisp
 
    (global-set-key (kbd "C-<f9>") 'sr/punch-in)
    (global-set-key (kbd "M-<f9>") 'sr/punch-out)
@@ -525,7 +525,7 @@ Shortcuts for punching in and Out
 TODO Setting the super and hyper Key
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code:: lisp
+.. code:: commonlisp
 
    (if system-name-is-darwin
        (progn
@@ -543,7 +543,7 @@ TODO Setting the super and hyper Key
 Shortcut for frog-jump-Buffer
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code:: lisp
+.. code:: commonlisp
 
    (global-set-key (kbd "M-s f") 'frog-jump-buffer)
 
@@ -562,7 +562,7 @@ Enables inserting a URL into an org document as '[<URL>][link]' by
 tapping F6 after copying the URL. This is useful to reduce clutter with
 long links, and even include links in headings.
 
-.. code:: lisp
+.. code:: commonlisp
 
    (defun my/yank-more ()
      (interactive)
@@ -574,7 +574,7 @@ long links, and even include links in headings.
 Export setup
 ------------
 
-.. code:: lisp
+.. code:: commonlisp
 
    (require 'ox-org)
    (require 'ox-word)
@@ -587,7 +587,7 @@ Markdown config
 Setting pandoc as the markdown command for live previews. The default
 command is ``markdown``, which could be installed as a separate package.
 
-.. code:: lisp
+.. code:: commonlisp
 
    (setq markdown-command "pandoc")
 
@@ -599,7 +599,7 @@ bookmark is not linked to the org-id. This means that if the heading is
 shifted somewhere, the bookmark becomes useless! The remedy seems to be
 using the package org-bookmark-Heading
 
-.. code:: lisp
+.. code:: commonlisp
 
    (use-package org-bookmark-heading
      :ensure t
@@ -615,7 +615,7 @@ TEST Export async
    launch a separate process to export large files. It would be better
    as a vanilla emacs file.
 
-.. code:: lisp
+.. code:: commonlisp
 
    (setq org-export-async-init-file
          (expand-file-name "async-export.el" user-emacs-directory)
@@ -629,7 +629,7 @@ TEST Ob-async
    asynchronously. The header in the source block should have the async
    enabled.
 
-.. code:: lisp
+.. code:: commonlisp
 
    (use-package ob-async
      :ensure t
@@ -647,7 +647,7 @@ Hansen's <http://doc.norang.ca/org-mode.html>`__ configuration.
 Essentially, all the org buffers are saved 1 minute before the hour,
 every hour.
 
-.. code:: lisp
+.. code:: commonlisp
 
    (run-at-time "00:59" 3600 'org-save-all-org-buffers)
 
@@ -665,7 +665,7 @@ Emacs <https://masteringemacs.org/article/fixing-mark-commands-transient-mark-mo
 This enables a single key for a mark to activate and then deactivate,
 thus creating a mark.
 
-.. code:: lisp
+.. code:: commonlisp
 
    (defun push-mark-no-activate ()
      "Pushes `point' to `mark-ring' and does not activate the region
@@ -679,7 +679,7 @@ thus creating a mark.
 The ``tmm-menu`` command's shortcut :literal:`M-\`` is much better
 served by ``M-x counsel-tmm`` where search is possible.
 
-.. code:: lisp
+.. code:: commonlisp
 
    (defun jump-to-mark ()
      "Jumps to the local mark, respecting the `mark-ring' order.
@@ -697,14 +697,14 @@ TEST Semantic Mode
 
    https://tuhdo.github.io/helm-intro.html
 
-.. code:: lisp
+.. code:: commonlisp
 
    (semantic-mode 1)
 
 Completed loading message
 -------------------------
 
-.. code:: lisp
+.. code:: commonlisp
 
    (message "Loaded Emacs general config")
 
@@ -719,7 +719,7 @@ functions from Prelude. I should check this out in more detail.
 Set C-a to move to the first non-whitespace character on a line, and
 then to toggle between that and the beginning of the line.
 
-.. code:: lisp
+.. code:: commonlisp
 
    (use-package crux
      :ensure t
@@ -732,7 +732,7 @@ Swiper
    I use swiper for a general search. However
    `helm-swoop <id:3F1BAD63-98A3-4BF0-B5DD-67ED63D0AFEB>`__ is awesome.
 
-.. code:: lisp
+.. code:: commonlisp
 
    (global-set-key (kbd "C-s") 'swiper)
    (setq ivy-display-style 'fancy)
@@ -757,7 +757,7 @@ TODO Expand region
 -  Note taken on [2019-02-07 Thu 09:27]
    Explore how this works
 
-.. code:: lisp
+.. code:: commonlisp
 
    (use-package expand-region
      :ensure t
@@ -779,7 +779,7 @@ TODO Git gutter
    the changes at that location. I need to learn more about using this
    tool effectively.
 
-.. code:: lisp
+.. code:: commonlisp
 
    (use-package git-gutter
      :ensure t
@@ -790,7 +790,7 @@ TODO Git gutter
 magit settings
 --------------
 
-.. code:: lisp
+.. code:: commonlisp
 
    (setq magit-revert-buffers 'silent)
 
@@ -807,7 +807,7 @@ TODO Time machine for git
    Need to evaluate this. The purpose is for stepping through the
    history of a file recorded in git. This should be very interesting.
 
-.. code:: lisp
+.. code:: commonlisp
 
    (use-package git-timemachine
      :ensure t)
@@ -817,7 +817,7 @@ TODO Time machine for git
 Completed loading message
 -------------------------
 
-.. code:: lisp
+.. code:: commonlisp
 
    (message "Loaded git related config")
 
@@ -829,7 +829,7 @@ facilitating blog posts and other longer forms of writing. As of now,
 there are customisations for the width, and calling the art-bollocks
 mode when writeroom mode is enabled.
 
-.. code:: lisp
+.. code:: commonlisp
 
    (with-eval-after-load 'writeroom-mode
      (define-key writeroom-mode-map (kbd "C-s-,") #'writeroom-decrease-width)
@@ -865,7 +865,7 @@ Note: I use the TAD application to view CSV files. It is a cross
 platform application that is a lot faster than launching a spreadsheet
 based program.
 
-.. code:: lisp
+.. code:: commonlisp
 
    (use-package ess
      :ensure t
@@ -916,7 +916,7 @@ ESS Buffer display Config
 Setting buffer display setting for ESS, similar to Rstudio. This is
 taken from the ESS Manual. This seems most convenient as of now.
 
-.. code:: lisp
+.. code:: commonlisp
 
 
    (setq display-buffer-alist
@@ -952,7 +952,7 @@ TEST Icicles
    install script draws files from the Emacs wiki, which at times may be
    down. As such icicles can be switched off by using ``M-x icy-mode``.
 
-.. code:: lisp
+.. code:: commonlisp
 
    (load "~/scimax/user/external_packages/icicles-install.el")
    (setq icicle-download-dir "~/scimax/user/external_packages/icicle_packages/")
@@ -973,7 +973,7 @@ This package is deemed necessary to enable flymake in ESS. Without it,
 there is significantly more lag while the suggestions / corrections are
 generated in ESS modes.
 
-.. code:: lisp
+.. code:: commonlisp
 
    (use-package lintr
      :ensure nil
@@ -982,7 +982,7 @@ generated in ESS modes.
 Multiple Cursors
 ================
 
-.. code:: lisp
+.. code:: commonlisp
 
    (use-package multiple-cursors
      :ensure t
@@ -998,7 +998,7 @@ Multiple Cursors
 ox-reveal - presentations
 =========================
 
-.. code:: lisp
+.. code:: commonlisp
 
    (use-package ox-reveal
      :ensure ox-reveal
@@ -1019,7 +1019,7 @@ Org-mode related
 Default org directory and setting it as the agenda file directory
 -----------------------------------------------------------------
 
-.. code:: lisp
+.. code:: commonlisp
 
    (setq
     org-directory "~/my_org/"
@@ -1035,7 +1035,7 @@ stamped notes and the org-journal and org-projectile to take down
 'linked' log notes. However, I would like the notes to be inserted after
 any properties drawers.
 
-.. code:: lisp
+.. code:: commonlisp
 
    (setq org-log-state-notes-insert-after-drawers t)
    (setq org-log-redeadline 'time)
@@ -1051,7 +1051,7 @@ TODO Enabling org capture and org protocol
 
 Source: http://www.diegoberrocal.com/blog/2015/08/19/org-protocol/
 
-.. code:: lisp
+.. code:: commonlisp
 
    (require 'org-capture)
    (require 'org-protocol)
@@ -1064,7 +1064,7 @@ TODO Ensuring archive files are also in org mode
 -  Note taken on [2019-02-07 Thu 08:31]
    check whether the add-to-list function is sufficient.
 
-.. code:: lisp
+.. code:: commonlisp
 
    (add-hook 'find-file-hooks
              (lambda ()
@@ -1080,7 +1080,7 @@ Archiving mechanics
 Archive organised by Top level headings in the original file and with
 Tag preservation
 
-.. code:: lisp
+.. code:: commonlisp
 
 
    (defun my-org-inherited-no-file-tags ()
@@ -1117,7 +1117,7 @@ In addition, I would like an org id to be created every time the capture
 is used. This facilitates using packages like org-brain which rely
 extensively on org-id's.
 
-.. code:: lisp
+.. code:: commonlisp
 
    (setq org-id-method (quote uuidgen))
    (add-hook 'org-capture-prepare-finalize-hook 'org-id-get-create)
@@ -1130,7 +1130,7 @@ TODO Setting custom keywords with fast access
 -  Note taken on [2019-02-12 Tue 12:19]
    This requires a complete reload of org to come in effect.
 
-.. code:: lisp
+.. code:: commonlisp
 
    (setq org-todo-keywords
          '((sequence "TODO(t)" "NEXT(n)" "CANCEL(c)" "POSTPONED(p)" "|" "DONE(d)" "STABLE(s)")
@@ -1146,7 +1146,7 @@ Refiling settings
 Refile target level for search
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code:: lisp
+.. code:: commonlisp
 
    (setq org-refile-targets
          '((nil :maxlevel . 4)
@@ -1160,7 +1160,7 @@ TODO General refile settings
 -  Note taken on [2019-02-07 Thu 08:33]
    Needs further review and optimisation
 
-.. code:: lisp
+.. code:: commonlisp
 
    (setq org-refile-use-outline-path 'file)
    (setq org-outline-path-complete-in-steps nil)
@@ -1176,14 +1176,14 @@ Agenda mechanics
 Weekday starts on Monday
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code:: lisp
+.. code:: commonlisp
 
    (setq org-agenda-start-on-weekday 1)
 
 Display heading tags farther to the right
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code:: lisp
+.. code:: commonlisp
 
    (setq org-agenda-tags-column -150)
 
@@ -1197,7 +1197,7 @@ TODO Agenda customisation
    journal files. Archive and some external directories are included,
    since they are explictly in org mode.
 
-.. code:: lisp
+.. code:: commonlisp
 
 
    (setq org-agenda-custom-commands
@@ -1231,7 +1231,7 @@ Include gpg files in agenda generation
 Source:
 https://emacs.stackexchange.com/questions/36542/include-org-gpg-files-in-org-agenda
 
-.. code:: lisp
+.. code:: commonlisp
 
    ;; (unless (string-match-p "\\.gpg" org-agenda-file-regexp)
    ;;   (setq org-agenda-file-regexp
@@ -1249,7 +1249,7 @@ full text search is now limited to the project directory and the
 org-brain directory. The snippet below enables searching recursively
 within folders.
 
-.. code:: lisp
+.. code:: commonlisp
 
    (setq org-agenda-text-search-extra-files '(agenda-archives))
 
@@ -1265,14 +1265,14 @@ within folders.
 TODO Adding org archive for text search. Optimise this
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code:: lisp
+.. code:: commonlisp
 
    (setq org-agenda-text-search-extra-files '(agenda-archives))
 
 Enable default fuzzy search like in google
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code:: lisp
+.. code:: commonlisp
 
    (setq org-agenda-search-view-always-boolean t)
 
@@ -1281,7 +1281,7 @@ Enable sticky agenda
 
 Experimenting with this setting.
 
-.. code:: lisp
+.. code:: commonlisp
 
    (setq org-agenda-sticky t)
 
@@ -1299,7 +1299,7 @@ DONE org-habit
 I want to shift the org habit graph in the agenda further out right so
 as to leave enough room for the headings to be visible.
 
-.. code:: lisp
+.. code:: commonlisp
 
    (require 'org-habit)
    (setq org-habit-graph-column 90)
@@ -1315,7 +1315,7 @@ TODO Capture mechanics
 Capture templates
 ~~~~~~~~~~~~~~~~~
 
-.. code:: lisp
+.. code:: commonlisp
 
    (setq org-capture-templates
          '(("t" "Task entry")
@@ -1374,7 +1374,7 @@ TEST Closing org-capture frame on abort
 Source:
 http://stackoverflow.com/questions/23517372/hook-or-advice-when-aborting-org-capture-before-template-selection
 
-.. code:: lisp
+.. code:: commonlisp
 
    (defadvice org-capture
        (after make-full-window-frame activate)
@@ -1405,7 +1405,7 @@ https://stackoverflow.com/questions/54192239/open-org-capture-buffer-in-specific
 ,which partially resolves the issue by enabling just a single capture
 buffer.
 
-.. code:: lisp
+.. code:: commonlisp
 
 
    (defun my-org-capture-place-template-dont-delete-windows (oldfun args)
@@ -1424,7 +1424,7 @@ TODO version control and backup of files
    Need to check out how this works and whether this is still necessary,
    since I am using Git.
 
-.. code:: lisp
+.. code:: commonlisp
 
    (setq delete-old-versions -1)
    (setq version-control t)
@@ -1442,7 +1442,7 @@ org-noter
 
    `Gonçalo Santos <https://github.com/weirdNox>`__
 
-.. code:: lisp
+.. code:: commonlisp
 
    (use-package org-noter
      :ensure t
@@ -1463,7 +1463,7 @@ to setup a test.
 TEST Projectile behavior
 ========================
 
-.. code:: lisp
+.. code:: commonlisp
 
    (setq projectile-sort-order 'recently-active)
 
@@ -1473,7 +1473,7 @@ TEST Projectile behavior
 TEST Treemacs Setup
 ===================
 
-.. code:: lisp
+.. code:: commonlisp
 
    (use-package treemacs
      :ensure t
@@ -1542,7 +1542,7 @@ TEST Treemacs Setup
            )
      )
 
-.. code:: lisp
+.. code:: commonlisp
 
    ;; (use-package treemacs-evil
    ;;   :after treemacs evil
@@ -1564,7 +1564,7 @@ TEST Treemacs Setup
 TEST Sauron
 ===========
 
-.. code:: lisp
+.. code:: commonlisp
 
    (use-package sauron
      :ensure t
@@ -1585,7 +1585,7 @@ Deft
 
    `Deft project <https://jblevins.org/projects/deft/>`__
 
-.. code:: lisp
+.. code:: commonlisp
 
    (use-package deft
      :bind ("<f8> d" . deft)
@@ -1611,7 +1611,7 @@ TEST helm-ext
 
    https://github.com/cute-jumper/helm-ext
 
-.. code:: lisp
+.. code:: commonlisp
 
    (use-package helm-ext
      :ensure t
@@ -1640,7 +1640,7 @@ Enabling Helm mode and activation for basic functions
 I prefer using Helm for specific functions like M-x, find files and
 bookmarks and switching buffers.
 
-.. code:: lisp
+.. code:: commonlisp
 
    (global-set-key (kbd "M-x") 'helm-M-x)
    ;; Enable fuzzy match for helm-M-x
@@ -1659,7 +1659,7 @@ Bookmarks with Helm
 The default save location in the .emacs folder is not very convenient. I
 would rather store this with my org files since I commit them Everyday.
 
-.. code:: lisp
+.. code:: commonlisp
 
    (setq bookmark-default-file "~/my_org/emacs_meta/bookmarks")
 
@@ -1669,7 +1669,7 @@ Technically, ``helm-filtered-bookmarks`` has almost the same
 functionality as the list in terms of being able to fuzzy-match a
 bookmark.
 
-.. code:: lisp
+.. code:: commonlisp
 
    (global-set-key (kbd "C-x r b") #'helm-filtered-bookmarks)
    (global-set-key (kbd "C-x r l") #'helm-bookmarks)
@@ -1700,7 +1700,7 @@ STABLE Setting sources for helm
 As an example: setting these sources enables my bookmarks to be
 available along with my buffers, enabling a jump to either.
 
-.. code:: lisp
+.. code:: commonlisp
 
    (setq helm-mini-default-sources '(helm-source-buffers-list
                                      helm-source-recentf
@@ -1721,7 +1721,7 @@ This needs `Semantic Mode <id:a0217652-e01b-4ba0-82e6-7ef2780381f8>`__
 enabled, and is a really cool function that enables jumping around
 variables and functions in a script file with fuzzy matching !
 
-.. code:: lisp
+.. code:: commonlisp
 
    (setq helm-semantic-fuzzy-match t
          helm-imenu-fuzzy-match t)
@@ -1734,7 +1734,7 @@ TODO Persistent follow mode for Helm
 -  Note taken on [2019-02-07 Thu 07:46]
    Need to find exactly what this does
 
-.. code:: lisp
+.. code:: commonlisp
 
    (custom-set-variables
     '(helm-follow-mode-persistent t))
@@ -1742,7 +1742,7 @@ TODO Persistent follow mode for Helm
 ``helm-ag`` and ``helm-org-rifle``, with refiling set to ``helm-org-rifle``
 ---------------------------------------------------------------------------
 
-.. code:: lisp
+.. code:: commonlisp
 
    (require 'helm-ag)
    (require 'helm-org-rifle)
@@ -1759,7 +1759,7 @@ helm-swoop
 
 Source: https://writequit.org/org/#orgheadline92
 
-.. code:: lisp
+.. code:: commonlisp
 
    (use-package helm-swoop
      :ensure t
@@ -1783,7 +1783,7 @@ Source: https://writequit.org/org/#orgheadline92
 Helm Loading completed
 ----------------------
 
-.. code:: lisp
+.. code:: commonlisp
 
    (message "Loaded Helm customisations")
 
@@ -1800,7 +1800,7 @@ Source: https://writequit.org/org/
 
 Basic config
 
-.. code:: lisp
+.. code:: commonlisp
 
    (use-package flycheck
      :defer 5
@@ -1827,7 +1827,7 @@ Reference: https://alhassy.github.io/init/
 Org mode is derived from text mode, therefore it is sufficient to
 activate for text mode.
 
-.. code:: lisp
+.. code:: commonlisp
 
    (use-package flyspell
      :hook (
@@ -1840,7 +1840,7 @@ Replacing flycheck with flymake
 
 This is especially for python modules at the moment.
 
-.. code:: lisp
+.. code:: commonlisp
 
    (when (require 'flycheck nil t)
      (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
@@ -1853,7 +1853,7 @@ Scheme setup
 
    -  http://praveen.kumar.in/2011/03/06/gnu-emacs-and-mit-scheme-on-mac-os-x/
 
-.. code:: lisp
+.. code:: commonlisp
 
    (setq scheme-program-name "/Applications/MIT-GNU-Scheme.app/Contents/Resources/mit-scheme")
    (require 'xscheme)
@@ -1873,7 +1873,7 @@ source: https://gist.github.com/mm--/60e0790bcbf8447160cc87a66dc949ab
 
 Also see
 
-.. code:: lisp
+.. code:: commonlisp
 
 
    (defun my/refile (file headline &optional arg)
@@ -1974,7 +1974,7 @@ Window manipulation
 
 Source : Hydra documentation
 
-.. code:: lisp
+.. code:: commonlisp
 
 
    ;;  Hydras for window configuration. Using the deluxe
@@ -2050,7 +2050,7 @@ https://emacs.stackexchange.com/questions/44128/function-to-do-helm-do-ag-for-a-
 In project directory
 ~~~~~~~~~~~~~~~~~~~~
 
-.. code:: lisp
+.. code:: commonlisp
 
    (defun helm-do-ag-projects ()
      "Grep string in Project directory" (interactive)
@@ -2061,7 +2061,7 @@ In project directory
 Scimax config directory
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code:: lisp
+.. code:: commonlisp
 
    (defun helm-do-ag-emacs-config ()
      "Grep string in Emacs custom code"
@@ -2073,7 +2073,7 @@ Scimax config directory
 Journal directory
 ~~~~~~~~~~~~~~~~~
 
-.. code:: lisp
+.. code:: commonlisp
 
    (defun helm-do-ag-journal ()
      "Grep string in journal"
@@ -2085,7 +2085,7 @@ Journal directory
 BGR file
 ~~~~~~~~
 
-.. code:: lisp
+.. code:: commonlisp
 
    (defun helm-do-ag-bgr ()
      "Grep string in BGR file"
@@ -2097,7 +2097,7 @@ BGR file
 Defining hydra
 ~~~~~~~~~~~~~~
 
-.. code:: lisp
+.. code:: commonlisp
 
    (defhydra shrysr/hydra-helm-ag-do-menu ()
      "
@@ -2123,7 +2123,7 @@ Frame configurations fo magit and project launch
 Scimax - magit and windows
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code:: lisp
+.. code:: commonlisp
 
    ;; scimax directory magit status
    (defun sr/windows-magit-scimax ()
@@ -2141,7 +2141,7 @@ Scimax - magit and windows
 Org files - magit and windows
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code:: lisp
+.. code:: commonlisp
 
    ;; my_org magit status
    (defun sr/windows-magit-org ()
@@ -2153,7 +2153,7 @@ Org files - magit and windows
 Project directory - magit and windows
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code:: lisp
+.. code:: commonlisp
 
    ;; magit status
    (defun sr/windows-magit-projects ()
@@ -2175,7 +2175,7 @@ TODO Project: Switch and windows
    Experiment with helm-swoop functions to target only top level
    headings
 
-.. code:: lisp
+.. code:: commonlisp
 
    (defun sr/windows-projects ()
      (interactive)
@@ -2195,7 +2195,7 @@ TODO Project: Switch and windows
 Defining Hydra
 ~~~~~~~~~~~~~~
 
-.. code:: lisp
+.. code:: commonlisp
 
    (defhydra sr/process-window-keys ()
      "
@@ -2219,7 +2219,7 @@ Defining Hydra
 Loading completed
 -----------------
 
-.. code:: lisp
+.. code:: commonlisp
 
    (message "Loaded Hydras")
 
@@ -2232,7 +2232,7 @@ Elfeed Basic + Customisations
 Source:
 http://heikkil.github.io/blog/2015/05/09/notes-from-elfeed-entries/
 
-.. code:: lisp
+.. code:: commonlisp
 
    ;; Elfeed configuration source :
    (use-package elfeed
@@ -2335,7 +2335,7 @@ Elfeed-org and elfeed-goodies setup [/]
 Using an org source is the easiest way to organise my RSS feeds for
 reading with Elfeed.
 
-.. code:: lisp
+.. code:: commonlisp
 
    ;; use an org file to organise feeds
    (use-package elfeed-org
@@ -2363,7 +2363,7 @@ TODO Consider storing the Feed sources here in org format
 Loading completed
 -----------------
 
-.. code:: lisp
+.. code:: commonlisp
 
    (message "Loaded Elfeed customisations")
 
@@ -2388,7 +2388,7 @@ http://beatofthegeek.com/2014/02/my-setup-for-using-emacs-as-web-browser.html
 Setting default browser to be w3m
 ---------------------------------
 
-.. code:: lisp
+.. code:: commonlisp
 
    ;;(setq browse-url-browser-function 'browse-url-default-browser)
    (setq browse-url-browser-function 'w3m-goto-url-new-session)
@@ -2402,7 +2402,7 @@ TODO Appending HTTP to web addresses entered by hand
 -  Note taken on [2019-02-07 Thu 07:40]
    Check whether this is necessary
 
-.. code:: lisp
+.. code:: commonlisp
 
    ;;when I want to enter the web address all by hand
    (defun w3m-open-site (site)
@@ -2418,7 +2418,7 @@ Changing w3m shortcuts for better tabbed browsing
 Source: Sacha Chua :
 http://sachachua.com/blog/2008/09/emacs-and-w3m-making-tabbed-browsing-easier/
 
-.. code:: lisp
+.. code:: commonlisp
 
    (eval-after-load 'w3m
      '(progn
@@ -2434,7 +2434,7 @@ TODO Default external browser settings
 -  Note taken on [2019-02-07 Thu 07:37]
    Need to have this change depending whether the OS is Linux or Mac OS
 
-.. code:: lisp
+.. code:: commonlisp
 
    (defun wicked/w3m-open-current-page-in-default-browser ()
      "Open the current URL in Mozilla Firefox."
@@ -2455,7 +2455,7 @@ TODO Default external browser settings
 Wikipedia search
 ----------------
 
-.. code:: lisp
+.. code:: commonlisp
 
    (defun wikipedia-search (search-term)
      "Search for SEARCH-TERM on wikipedia"
@@ -2477,7 +2477,7 @@ Wikipedia search
 Access Hacker News
 ------------------
 
-.. code:: lisp
+.. code:: commonlisp
 
    (defun hn ()
      (interactive)
@@ -2495,7 +2495,7 @@ TODO Open specific browser depending on the URL
 
 Source : http://ergoemacs.org/emacs/emacs_set_default_browser.Html
 
-.. code:: lisp
+.. code:: commonlisp
 
    ;; use browser depending on url
    (setq
@@ -2516,7 +2516,7 @@ be unfolded.
 Source:
 http://emacs.stackexchange.com/questions/21335/prevent-folding-org-files-opened-by-ediff
 
-.. code:: lisp
+.. code:: commonlisp
 
    ;; Check for org mode and existence of buffer
    (defun f-ediff-org-showhide (buf command &rest cmdargs)
@@ -2557,7 +2557,7 @@ TODO Defining content directory
    Need to check if this is still required since I have switche to
    ox-hugo
 
-.. code:: lisp
+.. code:: commonlisp
 
    (defvar hugo-content-dir "~/my_gits/hugo-sr/content/post/"
      "Path to Hugo's content directory")
@@ -2565,7 +2565,7 @@ TODO Defining content directory
 Ensuring properties exist and creating if they dont exist
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code:: lisp
+.. code:: commonlisp
 
    (defun hugo-ensure-property (property)
      "Make sure that a property exists. If not, it will be created.
@@ -2604,7 +2604,7 @@ Ensuring properties exist and creating if they dont exist
 Hugo function calling the above
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code:: lisp
+.. code:: commonlisp
 
    (defun hugo ()
      (interactive)
@@ -2651,7 +2651,7 @@ Hugo function calling the above
 ox-hugo setup
 -------------
 
-.. code:: lisp
+.. code:: commonlisp
 
    (use-package ox-hugo
      :ensure t
@@ -2675,7 +2675,7 @@ of Babel to be available for ready use. In some cases, with specific and
 relatively simple actions these are useful, and generally easier to
 define that Emacs Functions.
 
-.. code:: lisp
+.. code:: commonlisp
 
    (org-babel-lob-ingest "~/my_projects/sr-snip-lob/README.org")
 
@@ -2699,7 +2699,7 @@ org-Db
 
    Scimax help documentation
 
-.. code:: lisp
+.. code:: commonlisp
 
    (use-package emacsql-sqlite
      :ensure t
@@ -2728,7 +2728,7 @@ Note: any expansion can be undone with C-/
 Scimax Hotspots
 ---------------
 
-.. code:: lisp
+.. code:: commonlisp
 
    (setq scimax-user-hotspot-commands
          '(("Agenda All" . (lambda () (org-agenda "" "a")))
@@ -2762,28 +2762,28 @@ Scimax Hotspots
 Scimax Elfeed
 -------------
 
-.. code:: lisp
+.. code:: commonlisp
 
    (require 'scimax-elfeed)
 
 Scimax Notebook directory
 -------------------------
 
-.. code:: lisp
+.. code:: commonlisp
 
    (setq nb-notebook-directory "~/my_projects/")
 
 Scimax notebook
 ---------------
 
-.. code:: lisp
+.. code:: commonlisp
 
    (global-set-key (kbd "M-s n") 'nb-open)
 
 Enabling Scimax Statistics
 --------------------------
 
-.. code:: lisp
+.. code:: commonlisp
 
    (require 'scimax-statistics)
 
@@ -2792,7 +2792,7 @@ Enabling Scimax Statistics
 TODO Scimax Python
 ------------------
 
-.. code:: lisp
+.. code:: commonlisp
 
    (require 'scimax-org-babel-python)
    (require 'ob-ipython)
@@ -2810,7 +2810,7 @@ This was setup a long time ago to convert past technical repots into org
 mode, with references made in correct technical style. This project is
 on hold.
 
-.. code:: lisp
+.. code:: commonlisp
 
    (require 'doi-utils)
    (require 'org-ref-wos)
@@ -2836,7 +2836,7 @@ on hold.
 Message : loaded scimax Customisations
 --------------------------------------
 
-.. code:: lisp
+.. code:: commonlisp
 
    (message "Loaded scimax customisations")
 
@@ -2859,14 +2859,14 @@ General config
    This is to take care of the annoying indentation message that always
    pops up.
 
-.. code:: lisp
+.. code:: commonlisp
 
    (setq python-indent-guess-indent-offset nil)
 
 NEXT Autocomplete for python blocks
 -----------------------------------
 
-.. code:: lisp
+.. code:: commonlisp
 
    (add-to-list 'company-backends 'company-ob-ipython)
    (company-mode)
@@ -2880,7 +2880,7 @@ NEXT Emacs-jupyter
    setting of a kernel and file names for graphic outputs and so on - I
    will explore jupyter-emacs at a later date.
 
-.. code:: lisp
+.. code:: commonlisp
 
    (use-package jupyter
      :ensure t
@@ -2897,7 +2897,7 @@ TEST Alfred Integration
 
 Source: https://github.com/jjasghar/alfred-org-capture
 
-.. code:: lisp
+.. code:: commonlisp
 
    (if (system-type-is-darwin)
        (progn
@@ -2941,7 +2941,7 @@ TEST ox-Tufte
 
    `Github <https://github.com/dakrone/ox-tufte>`__
 
-.. code:: lisp
+.. code:: commonlisp
 
    (use-package ox-tufte
      :defer t
@@ -2954,7 +2954,7 @@ TEST ox-Tufte
 TODO Exporting org projects
 ---------------------------
 
-.. code:: lisp
+.. code:: commonlisp
 
    (
     setq org-publish-project-alist
@@ -3007,7 +3007,7 @@ publish should be maintained in it's own repository.
 As of now, I'm calling this function from my Emacs config file, and need
 to improve the above workflow.
 
-.. code:: lisp
+.. code:: commonlisp
 
    (defun sr/dotemacs-export()
      (interactive)
@@ -3045,7 +3045,7 @@ TODO mu4e
    online, which can then be searched via Emacs and mu4e from any
    location.
 
-.. code:: lisp
+.. code:: commonlisp
 
    (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e")
    (require 'mu4e)
@@ -3134,7 +3134,7 @@ This package provides a nifty little pop up containing a list of buffers
 (that can be filtered), and enables jumping to the specified buffer with
 just a single key press.
 
-.. code:: lisp
+.. code:: commonlisp
 
    (use-package frog-jump-buffer
      :ensure t
@@ -3161,7 +3161,7 @@ to cycle through the selections and use the help. Activate the command
 with ``M-w`` and ``?`` for help which provides the list of key bindings.
 Alternately, use ``SPC`` to cycle through the options available.
 
-.. code:: lisp
+.. code:: commonlisp
 
    (use-package easy-kill
      :config
@@ -3179,7 +3179,7 @@ Since I run emacs as a daemon and call the emacsclient, the background
 has to be set for new frames. Additionally, I'd like the frames to
 launch full screen.
 
-.. code:: lisp
+.. code:: commonlisp
 
    (setq default-frame-alist
          '(;; (background-color . "whitesmoke")
@@ -3190,7 +3190,7 @@ launch full screen.
 Custom Safe themes and Background change to light grey
 ------------------------------------------------------
 
-.. code:: lisp
+.. code:: commonlisp
 
    (setq custom-safe-themes t)
    ;; (set-background-color "whitesmoke")
@@ -3198,7 +3198,7 @@ Custom Safe themes and Background change to light grey
 Disabling leuven and loading other theme
 ----------------------------------------
 
-.. code:: lisp
+.. code:: commonlisp
 
    (disable-theme 'leuven)
    ;;(load-theme 'spacemacs-dark t)
@@ -3207,7 +3207,7 @@ Disabling leuven and loading other theme
 TEST Initial setup of Zenburn
 -----------------------------
 
-.. code:: lisp
+.. code:: commonlisp
 
    ;; use variable-pitch fonts for some headings and titles
    (setq zenburn-use-variable-pitch t)
@@ -3223,7 +3223,7 @@ TEST Use-package based template for customising zenburn
 
 Source: https://github.com/m-parashar/emax64/issues/5
 
-.. code:: lisp
+.. code:: commonlisp
 
    (use-package zenburn-theme
      :demand t
@@ -3270,7 +3270,7 @@ Font Customisation based on OS
 The same font is named differently in Antergos (Linux) and in the Mac
 OS.
 
-.. code:: lisp
+.. code:: commonlisp
 
    ;; For Linux
    (if (system-type-is-gnu)
@@ -3287,7 +3287,7 @@ Setting font faces for headline level
    This is available as in-built settings for the zenburn theme.
    However, once the font is changed, the
 
-.. code:: lisp
+.. code:: commonlisp
 
    (custom-set-faces
     '(org-level-1 ((t (:inherit outline-1 :height 1.2))))
@@ -3303,7 +3303,7 @@ TEST Spaceline : modeline configuration
 Source:
 http://pragmaticemacs.com/emacs/get-that-spacemacs-look-without-spacemacs/
 
-.. code:: lisp
+.. code:: commonlisp
 
    (use-package spaceline
      :demand t
@@ -3324,7 +3324,7 @@ TODO Basic cosmetics. Review & Convert to use-package style
 -  Note taken on [2019-02-07 Thu 08:20]
    These settings have to be cleaned up and the code optimised.
 
-.. code:: lisp
+.. code:: commonlisp
 
    (setq org-hide-leading-stars t)
    ;;(setq org-alphabetical-lists t)
@@ -3351,7 +3351,7 @@ Striking out Done headlines
 
 source: Sacha Chua
 
-.. code:: lisp
+.. code:: commonlisp
 
    (setq org-fontify-done-headline t)
    (custom-set-faces
@@ -3369,7 +3369,7 @@ Source : SO
 `link <https://stackoverflow.com/questions/12707492/add-custom-markers-to-emacs-org-mode>`__
 ,
 
-.. code:: lisp
+.. code:: commonlisp
 
    (set-face-attribute 'org-todo nil
                        :box '(:line-width 2
@@ -3394,7 +3394,7 @@ Source : SO
 TEST Background color for org source Blocks
 -------------------------------------------
 
-.. code:: lisp
+.. code:: commonlisp
 
    ;;(set-face-background 'org-block-emacs-lisp "black")
    (set-face-background 'org-block "black")
@@ -3412,7 +3412,7 @@ For some strange reason, the visual column mode seems to be removed
 every time the file is saved (when a single buffer is in view). When the
 window is split, the mode comes back on.
 
-.. code:: lisp
+.. code:: commonlisp
 
    (use-package visual-fill-column
      :ensure t
