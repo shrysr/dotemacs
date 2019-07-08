@@ -2129,6 +2129,19 @@ This is especially for python modules at the moment.
 #+RESULTS:
 | flymake-mode | poly-r-mode-setup | ess-S-mouse-me-menu-commands | ess-r-setup-flymake |
 
+** TEST Switching to aspell on the mac
+Facing trouble enabling flyspell in the mac. This seems to be a solution, as outlined in [[https://stackoverflow.com/questions/19022015/emacs-on-mac-os-x-how-to-get-spell-check-to-work][this SO discussion]].
+
+#+BEGIN_SRC emacs-lisp
+(if (system-type-is-darwin)
+    (setq ispell-program-name "/opt/local/bin/aspell")
+  )
+
+#+END_SRC
+
+#+RESULTS:
+: /opt/local/bin/aspell
+
 * Scheme setup
 - References
   - http://praveen.kumar.in/2011/03/06/gnu-emacs-and-mit-scheme-on-mac-os-x/

@@ -190,6 +190,10 @@ ttt          treemacs-no-png-images                 nil
   (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
   (add-hook 'elpy-mode-hook 'flycheck-mode))
 
+(if (system-type-is-darwin)
+    (setq ispell-program-name "/opt/local/bin/aspell")
+  )
+
 (setq scheme-program-name "/Applications/MIT-GNU-Scheme.app/Contents/Resources/mit-scheme")
 (require 'xscheme)
 
