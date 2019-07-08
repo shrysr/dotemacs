@@ -5,8 +5,8 @@
 #+author: Shreyas Ragavan
 #+hugo_tags: Emacs
 #+hugo_categories: Emacs
-#+hugo_menu: :menu "docs" :weight 2001 :parent Emacs
-#+hugo_custom_front_matter: :linktitle Dotemacs  :toc true
+#+hugo_menu: :menu "docs" :weight 2001 :parent
+#+hugo_custom_front_matter: :linktitle Dotemacs - Emacs config  :toc true
 #+hugo_draft: false
 #+TITLE: My Emacs + Scimax configuration
 
@@ -900,8 +900,8 @@ This package is deemed necessary to enable flymake in ESS. Without it, there is 
 (message "Loaded ox-reveal cust")
 #+end_src
 
-* Org-mode related
-** Default org directory and setting it as the agenda file directory
+* Org mode related
+** Default org directory and agenda file directory
 
 #+begin_src emacs-lisp :tangle yes
 (setq
@@ -1008,9 +1008,9 @@ In addition, I would like an org id to be created every time the capture is used
 | sequence | TEST(T) | BUG(b)  | KNOWNCAUSE(k) |              |   | FIXED(f) |         |           |
 | sequence |         |         |               |              |   |          |         |           |
 
-** Cosmetics for org
-
 ** Refiling settings
+- Note taken on [2019-07-06 Sat 13:56] \\
+  Helm org rifle is mapped to the refile command. See Helm section.
 *** Refile target level for search
 
 #+begin_src emacs-lisp :tangle yes
@@ -1289,6 +1289,466 @@ Org-noter’s purpose is to let you create notes that are kept in sync when you 
 :CREATED:  <2019-02-07 Thu 13:59>
 :END:
 [[https://github.com/howardabrams/dot-files/blob/master/emacs.org#perspective][Refer Howard's config snippet]] to setup a test.
+
+** TODO org-projectile
+- Note taken on [2019-02-07 Thu 08:42]  \\
+  need to optimise further and convert to use-package style. Also need a way to capture Notes from projects, in addition to tasks.
+
+Starting off with the basic configuration posted in org-projectile github repo.
+
+#+begin_src emacs-lisp :tangle yes
+(use-package org-projectile
+  :ensure t
+  :bind (("C-c n p" . org-projectile-project-todo-completing-read)
+         ("C-c c" . org-capture))
+  :config
+  (setq org-projectile-projects-file
+        "~/my_org/project-tasks.org")
+  ;; (setq org-agenda-files (append org-agenda-files (org-projectile-todo-files))) ;; Not necessary as my task projects are a part of the main org folder
+  (push (org-projectile-project-todo-entry) org-capture-templates)
+  )
+#+end_src
+
+#+RESULTS:
+: org-capture
+
+** TODO org-gcal customisation
+
+** TODO Property customisation
+
+*** TEST Optimise CREATED and PLANNED property tags
+- Note taken on [2019-02-07 Thu 09:10]  \\
+  Needs further review and optimisation.
+
+Using an active date tag on the heading itself makes the org document look ugly, and makes navigation difficult. This is better entered into a property drawer. Two properties should work well - CREATED (inactive date-time tag) and PLANNED (active date-time tag). This will enable me to filter based on property in the future and easily archive older or irrelevant tasks. When the task is shifted or postponed, only the PLANNED property is changed, leaving clear reference of the created date.
+
+The above is implemented only for tasks with a TODO heading. For now, I want to test using Notes with an inactive date-time tag, which can be individually setup via the capture templates. The attempt is to have a clear separation between tasks and notes.
+
+This is a modified version of the snippet at https://emacs.stackexchange.com/questions/35751/how-to-add-a-created-field-to-any-todo-task
+
+#+begin_src emacs-lisp :tangle yes
+(defun sr/log-todo-creation-date (&rest ignore)
+  "Log TODO creation time in the property drawer under the key 'CREATED'."
+  (when (and (org-get-todo-state)
+             (not (org-entry-get nil "CREATED")))
+    (org-entry-put nil "CREATED" (format-time-string "[%Y-%m-%d %a]"))
+    (org-entry-put nil "PLANNED" (format-time-string (cdr org-time-stamp-formats)))
+    ))
+
+(advice-add 'org-insert-todo-heading :after #'sr/log-todo-creation-date)
+(advice-add 'org-insert-todo-heading-respect-content :after #'sr/log-todo-creation-date)
+(advice-add 'org-insert-todo-subheading :after #'sr/log-todo-creation-date)
+(advice-add 'org-capture :after #'sr/log-todo-creation-date)
+(advice-add 'org-projectile-project-todo-completing-read :after #'sr/log-todo-creation-date)
+
+;; (require 'org-expiry)
+;; ;; Configure it a bit to my liking
+;; (setq
+;;  org-expiry-created-property-name "CREATED" ; Name of property when an item is created
+;;  org-expiry-inactive-timestamps   nil         ; Don't have everything in the agenda view
+;;  )
+
+;; (defun mrb/insert-created-timestamp()
+;;   "Insert a CREATED property using org-expiry.el for TODO entries"
+;;   (org-expiry-insert-created)
+;;   (org-back-to-heading)
+;;   (org-end-of-line)
+;;   (insert " ")
+;;   )
+
+;; ;; Whenever a TODO entry is created, I want a timestamp
+;; ;; Advice org-insert-todo-heading to insert a created timestamp using org-expiry
+;; (defadvice org-insert-todo-heading (after mrb/created-timestamp-advice activate)
+;;   "Insert a CREATED property using org-expiry.el for TODO entries"
+;;   (mrb/insert-created-timestamp)
+;;   )
+;; ;; Make it active
+;; (ad-activate 'org-insert-todo-heading)
+
+;; (require 'org-capture)
+
+;; (defadvice org-capture (after mrb/created-timestamp-advice activate)
+;;   "Insert a CREATED property using org-expiry.el for TODO entries"
+;;    					; Test if the captured entry is a TODO, if so insert the created
+;;    					; timestamp property, otherwise ignore
+;;   (mrb/insert-created-timestamp))
+;; ;;  (when (member (org-get-todo-state) org-todo-keywords-1)
+;; ;;    (mrb/insert-created-timestamp)))
+;;   (ad-activate 'org-capture)
+#+end_src
+
+#+RESULTS:
+
+*** Enabling adding tags in the capture window
+
+#+begin_src emacs-lisp :tangle yes
+;; Add feature to allow easy adding of tags in a capture window
+(defun mrb/add-tags-in-capture()
+  (interactive)
+  "Insert tags in a capture window without losing the point"
+  (save-excursion
+    (org-back-to-heading)
+    (org-set-tags)))
+;; Bind this to a reasonable key
+(define-key org-capture-mode-map "\C-c\C-t" 'mrb/add-tags-in-capture)
+#+end_src
+
+** TODO org web clipper
+- Note taken on [2019-02-07 Thu 09:11]  \\
+  This works fine now. However, it would be nice to find a way to strip the headers and menu columns and other unnecessary information before capture.
+
+Source: http://www.bobnewell.net/publish/35years/webclipper.html
+
+#+begin_src emacs-lisp :tangle yes
+;; org-eww and org-w3m should be in your org distribution, but see
+;; note below on patch level of org-eww.
+(require 'org-eww)
+(require 'org-w3m)
+(defvar org-website-page-archive-file "~/my_org/full_article_archive.org")
+(defun org-website-clipper ()
+  "When capturing a website page, go to the right place in capture file,
+   but do sneaky things. Because it's a w3m or eww page, we go
+   ahead and insert the fixed-up page content, as I don't see a
+   good way to do that from an org-capture template alone. Requires
+   Emacs 25 and the 2017-02-12 or later patched version of org-eww.el."
+  (interactive)
+
+  ;; Check for acceptable major mode (w3m or eww) and set up a couple of
+  ;; browser specific values. Error if unknown mode.
+
+  (cond
+   ((eq major-mode 'w3m-mode)
+    (org-w3m-copy-for-org-mode))
+   ((eq major-mode 'eww-mode)
+    (org-eww-copy-for-org-mode))
+   (t
+    (error "Not valid -- must be in w3m or eww mode")))
+
+  ;; Check if we have a full path to the archive file.
+  ;; Create any missing directories.
+
+  (unless (file-exists-p org-website-page-archive-file)
+    (let ((dir (file-name-directory org-website-page-archive-file)))
+      (unless (file-exists-p dir)
+        (make-directory dir))))
+
+  ;; Open the archive file and yank in the content.
+  ;; Headers are fixed up later by org-capture.
+
+  (find-file org-website-page-archive-file)
+  (goto-char (point-max))
+  ;; Leave a blank line for org-capture to fill in
+  ;; with a timestamp, URL, etc.
+  (insert "\n\n")
+  ;; Insert the web content but keep our place.
+  (save-excursion (yank))
+  ;; Don't keep the page info on the kill ring.
+  ;; Also fix the yank pointer.
+  (setq kill-ring (cdr kill-ring))
+  (setq kill-ring-yank-pointer kill-ring)
+  ;; Final repositioning.
+  (forward-line -1)
+  )
+#+end_src
+
+** Org-babel
+*** Loading language base
+
+#+begin_src emacs-lisp :tangle yes
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((clojure . t)
+   (scheme . t)
+   (sqlite . t)
+   (R . t)
+   ;(jupyter . t)
+   )
+ )
+#+end_src
+
+*** Clojure and cider
+
+#+begin_src emacs-lisp :tangle yes
+(require 'cider)
+(setq org-babel-clojure-backend 'cider)
+#+end_src
+
+** TODO Org-trello
+** Clock Customisation
+*** Continuous clocking + punch in/out approach
+This approach and code snippets are adapted (and shamelessly borrowed) from [[http://doc.norang.ca/org-mode.html][Bernt Hansen's approach]]. While Bernt follows a complex approach of clocking into parent tasks - my current workflow favors clocking in directly to set clocking headlines within projects, which are placed in my org-projectile todo task file.
+
+I have a default continuous clock after punching in (defined by org-id) which will cater to general re-organisation, including capturing notes, refiling , email etc. Other tasks or even mini projects can be directly clocked into when required. These mini-projets are often just located within my org-agenda files and not as a separate git repositoy. Every time I am on my computer, whether on Emacs or not, I would like the automatic clock to capture time, unless it is being clocked to a specific project.
+
+**** Defining default Task
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(defvar sr/organization-task-id "a8712a47-a648-477f-bdbf-d6004a0cc70b")
+
+(defun sr/clock-in-organization-task-as-default ()
+  (interactive)
+  (org-with-point-at (org-id-find sr/organization-task-id 'marker)
+    (org-clock-in '(16))))
+#+END_SRC
+
+#+RESULTS:
+: sr/clock-in-organization-task-as-default
+
+**** Punch in
+Bernt Hansen shares that he has a default punch in and punch out task that keeps the clock on all day. I think this will work for me as well. Other than work and projects, most of the time I am tinkering with Emacs, or writing a journal note or trying to re-organise my stuff. By using a punch in and out, I can track how much time I am engaged with a computer, other than specific projects.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(defun sr/punch-in (arg)
+    (interactive "p")
+  (setq sr/keep-clock-running t)
+  (sr/clock-in-organization-task-as-default))
+#+END_SRC
+
+#+RESULTS:
+: sr/punch-in
+
+**** Punch Out
+#+BEGIN_SRC emacs-lisp :tangle yes
+(defun sr/punch-out ()
+  (interactive)
+  (setq sr/keep-clock-running nil)
+  (when (org-clock-is-active)
+    (org-clock-out))
+  )
+#+END_SRC
+
+#+RESULTS:
+: sr/punch-out
+
+**** Advising clock Out
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(defun sr/clock-out-maybe ()
+  (when (and sr/keep-clock-running
+             (not org-clock-clocking-in)
+             (marker-buffer org-clock-default-task)
+             (not org-clock-resolving-clocks-due-to-idleness))
+    (sr/clock-in-organization-task-as-default)))
+
+(add-hook 'org-clock-out-hook 'sr/clock-out-maybe 'append)
+#+END_SRC
+
+#+RESULTS:
+| org-clock-remove-empty-clock-drawer | sr/clock-out-maybe |
+
+*** TEST org-mru-clock
+- Note taken on [2019-03-14 Thu 10:16] \\
+  Issue is with the org-mru-select-recent-task command - it doesn't jump to the specified task and always pesudo messes up the format of the headings.
+
+This is a handy package to quickly select past tasks which have been clocked in.
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package org-mru-clock
+  :ensure t
+  :bind (("M-s 1" . org-mru-clock-in)
+          ("C-c C-x C-j" . org-mru-clock-select-recent-task))
+  :init
+  (setq org-mru-clock-how-many 100
+        org-mru-clock-completing-read #'ivy-completing-read))
+#+END_SRC
+
+#+RESULTS:
+: org-mru-clock-select-recent-task
+
+*** Do not log or consider 0 Clocks
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(setq org-clock-out-remove-zero-time-clocks t)
+#+END_SRC
+
+#+RESULTS:
+: t
+
+*** set idle timer for clocked task
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+;; setting idle timer to 15 minutes
+(setq org-clock-idle-time 15)
+#+END_SRC
+
+*** Show clocked task history and enable re-clocking
+Source: [[https://writequit.org/denver-emacs/presentations/2017-04-11-time-clocking-with-org.html][link]]
+
+This should enable me to quickly clock back into specific tasks.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+;; Show lot of clocking history so it's easy to pick items off the `C-c I` list
+(setq org-clock-history-length 23)
+
+(defun eos/org-clock-in ()
+  (interactive)
+  (org-clock-in '(4)))
+
+(global-set-key (kbd "C-c I") #'eos/org-clock-in)
+(global-set-key (kbd "C-c O") #'org-clock-out)
+#+END_SRC
+
+#+RESULTS:
+: org-clock-out
+
+** Org-Brain [1/2]
+
+#+BEGIN_QUOTE
+org-brain implements a variant of concept mapping in Emacs, using org-mode.
+
+You can think of org-brain as a combination of a wiki and a mind map, where each wiki page / mind map node is an org-mode file which resides in your org-brain-path, or a headline with an ID property in one of those files. These are called entries. Entries can be linked together, and you can then view the network of links as a mind map, using M-x org-brain-visualize
+
+[[https://github.com/Kungsgeten/org-brain][org-brain on github]]
+#+END_QUOTE
+
+*** STABLE Basic setup along with org-id
+CLOSED: [2019-04-11 Thu 08:52]
+
+Since org-brain requires the org id for a heading to be recognized and displayed, it is convenient to have capture and refile mechanisms that create the org-id if the heading does not have it.
+
+Further streamlining is necessary as such.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package org-brain
+  :ensure t
+  :init
+  (setq org-brain-path "~/my_org/brain/")
+  ;; ;; For Evil users
+  ;; (with-eval-after-load 'evil
+  ;;   (evil-set-initial-state 'org-brain-visualize-mode 'emacs))
+  :config
+  (setq org-id-track-globally t)
+  (setq org-id-locations-file "~/my_org/emacs_meta/.org-id-locations")
+  (push '("b" "Brain" plain (function org-brain-goto-end)
+          "* %i%?\n:PROPERTIES:\n:CREATED: [%<%Y-%m-%d %a %H:%M>]\n:END:" :empty-lines 1)
+        org-capture-templates)
+  (setq org-brain-visualize-default-choices 'all)
+  (setq org-brain-title-max-length 12)
+  (add-hook 'org-brain-refile 'org-id-get-create)
+  (global-set-key (kbd "M-s v") #'org-brain-visualize))
+  )
+
+#+END_SRC
+
+#+RESULTS:
+: t
+
+** Org journal
+*** Base config
+
+#+begin_src emacs-lisp :tangle yes
+(use-package org-journal
+  :ensure t
+  :defer t
+  :custom
+  (org-journal-dir "~/my_org/journal/")
+  (org-journal-file-format "%Y%m%d")
+  (org-journal-enable-agenda-integration t)
+  )
+#+end_src
+
+#+RESULTS:
+: t
+
+*** setting org-capture template for Journal
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(defun org-journal-find-location ()
+  ;; Open today's journal, but specify a non-nil prefix argument in order to
+  ;; inhibit inserting the heading; org-capture will insert the heading.
+  (org-journal-new-entry t)
+  ;; Position point on the journal's top-level heading so that org-capture
+  ;; will add the new entry as a child entry.
+  (goto-char (point-min)))
+#+END_SRC
+
+#+RESULTS:
+: org-journal-find-location
+
+*** TODO Figure out easy encryption approach for org journal
+:PROPERTIES:
+:CREATED:  <2019-02-07 Thu 13:51>
+:END:
+
+** TEST Org sticky Header [0/1]
+:PROPERTIES:
+:CREATED:  [2019-03-29 Fri]
+:END:
+
+- [ ] Explore further options : example full path or customised path to be shown
+
+#+BEGIN_QUOTE
+This package displays in the header-line the Org heading for the node that’s at the top of the window. This way, if the heading for the text at the top of the window is beyond the top of the window, you don’t forget which heading the text belongs to. The display can be customized to show just the heading, the full outline path, or the full outline path in reverse.
+
+[[https://github.com/alphapapa/org-sticky-header/blob/master/README.org][org-sticky-header]]
+#+END_QUOTE
+
+This is especially useful for free form longer Documentation.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package org-sticky-header
+  :ensure t
+  :config
+  (org-sticky-header-mode)
+  )
+
+#+END_SRC
+
+** TEST Org wild Notifier
+- Note taken on [2019-03-28 Thu 13:48] \\
+  This seems to be able to do exactly what I am looking for. However there are unexplained errors while starting up the package.
+
+#+BEGIN_SRC emacs-lisp :tangle no
+(use-package org-wild-notifier
+  :ensure t
+  :custom
+  (require 'org-wild-notifier)
+  (org-wild-notifier-mode)
+  )
+#+END_SRC
+
+** TEST Org to RST Exporter
+
+It is useful to be able to export to the RST format to develop documentation for projects and host with the sphinx or readthedocs platform.
+
+This platform is actually pleasant to browse through documentation and has good search facilities as well.
+
+#+BEGIN_SRC emacs-lisp
+(use-package ox-rst
+  :ensure t
+  :defer t
+  :config
+  (require 'ox-rst)
+  )
+#+END_SRC
+
+#+RESULTS:
+
+** TEST Org to Slack exporter
+This should prove handy as I write almost all my responses within Org mode and copy this into Slack.
+
+#+BEGIN_SRC emacs-lisp
+(use-package ox-slack
+  :ensure t
+  :defer t
+  :config
+  (require 'ox-slack)
+  )
+#+END_SRC
+
+#+RESULTS:
+
+** TEST ox-pandoc
+
+#+BEGIN_SRC emacs-lisp
+(use-package ox-pandoc
+  :ensure t
+  :defer t
+  :config
+  (require 'ox-pandoc)
+  )
+#+END_SRC
+
+#+RESULTS:
 
 * TEST Projectile behavior
 
@@ -1896,12 +2356,15 @@ Reference: https://emacs.stackexchange.com/questions/44128/function-to-do-helm-d
 
 #+begin_src emacs-lisp :tangle yes
 (defun helm-do-ag-journal ()
-  "Grep string in journal"
+  "Grep string in journal directory"
   (interactive)
   (let ((specfile (concat "~/my_org/journal/")))
     (let ((helm-ag-command-option (concat helm-ag-command-option "")))
-      (helm-ag-this-file rootdir))))
+      (helm-ag-this-file specfile))))
 #+end_src
+
+#+RESULTS:
+: helm-do-ag-journal
 
 *** BGR file
 
