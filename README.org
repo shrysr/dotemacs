@@ -3370,6 +3370,73 @@ This looks like a very handy package. The easiest way to get started is to cycle
 #+RESULTS:
 : t
 
+* TEST Docker
+
+I've started playing with Docker, and need Emacs to take care of my workflows! :).
+
+** Docker package
+The =docker= package enables several commands, but does not seem to include syntax highlighting for docker files.
+
+#+BEGIN_SRC emacs-lisp
+(use-package docker
+  :ensure t
+  :defer t
+  :config
+  (require 'docker)
+)
+#+END_SRC
+
+#+RESULTS:
+
+** docker-compose-mode
+#+BEGIN_SRC emacs-lisp
+(use-package docker-compose-mode
+  :ensure t
+  :defer t
+  :config
+  (require 'docker-compose-mode)
+  )
+#+END_SRC
+
+#+RESULTS:
+
+** docker-file-mode
+
+This is required for syntax highlighting in dockerfiles.
+
+#+BEGIN_SRC emacs-lisp
+(use-package dockerfile-mode
+  :ensure t
+  :defer t
+  :config
+  (require 'dockerfile-mode)
+  (add-to-list 'auto-mode-alist
+               '("Dockerfile\\" . dockerfile-mode)
+               )
+  )
+#+END_SRC
+
+#+RESULTS:
+
+* memento mori
+- Note taken on [2019-07-15 Mon 09:37] \\
+  This package requires the birthdate to be specified, therefore it is included in the encrypted section of my personal config. A sample configuration is provided for reference.
+
+This is a cool little package that displays your age with double decimal digits. A good reminder to get productive.
+
+#+BEGIN_SRC emacs-lisp :tangle no
+(use-package memento-mori
+  :ensure t
+  :defer nil
+  :config
+  (setq memento-mori-birth-date "2018-12-31")
+  (memento-mori-mode 1)
+  )
+#+END_SRC
+
+
+#+END_SRC
+
 * Theme and visuals
 ** Emacsclient or frame specific settings
 Since I run emacs as a daemon and call the emacsclient, the background has to be set for new frames. Additionally, I'd like the frames to launch full screen.
