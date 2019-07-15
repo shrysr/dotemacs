@@ -762,7 +762,6 @@ Note:  I use the TAD application to view CSV files. It is a cross platform appli
 #+begin_src emacs-lisp :tangle yes
 (use-package ess
   :ensure t
-  :defer t
   :config
   (require 'ess)
 
@@ -781,13 +780,13 @@ Note:  I use the TAD application to view CSV files. It is a cross platform appli
   (setq comint-move-point-for-output t)
   )
 
-;;(require 'ess-R-data-view)
-;;(require 'ess-rutils)
+(require 'ess-R-data-view)
+(require 'ess-rutils)
 
 (use-package ess-view
   :ensure t
-  :defer t
   :config
+  (require 'ess-view)
   (if (system-type-is-darwin)
       (setq ess-view--spreadsheet-program
             "/Applications/Tad.app/Contents/MacOS/Tad"
@@ -805,7 +804,7 @@ Note:  I use the TAD application to view CSV files. It is a cross platform appli
             #+end_src
 
             #+RESULTS:
-	    : Loaded ESS configuration
+            : Loaded ESS configuration
 
 ** ESS Buffer display Config
 
