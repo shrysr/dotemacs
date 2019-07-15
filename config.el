@@ -1,28 +1,10 @@
-(use-package ox-rst
+(use-package eyebrowse
   :ensure t
-  :defer t
   :config
-  (require 'ox-rst)
+  (setq eyebrowse-mode-line-separator " "
+        eyebrowse-new-workspace t)
+  (eyebrowse-mode 1)
   )
-
-(use-package ox-slack
-  :ensure t
-  :defer t
-  :config
-  (require 'ox-slack)
-  )
-
-(use-package ox-pandoc
-  :ensure t
-  :defer t
-  :config
-  (require 'ox-pandoc)
-  )
-
-(setq projectile-sort-order 'recently-active)
-
-;; Change cache file location
-(setq projectile-cache-file "~/my_org/emacs_meta/.projectile-cache")
 
 (use-package treemacs
   :ensure t
@@ -46,7 +28,7 @@
           treemacs-indentation-string            " "
           treemacs-is-never-other-window         nil
           treemacs-max-git-entries               5000
-ttt          treemacs-no-png-images                 nil
+          ttreemacs-no-png-images                 nil
           treemacs-no-delete-other-windows       t
           treemacs-project-follow-cleanup        nil
           treemacs-persist-file                  "~/my_org/emacs_meta/.treemacs-persist"
@@ -466,116 +448,6 @@ SPC     exit
 
 (message "Loaded Hydras")
 
-;; Elfeed configuration source :
-(use-package elfeed
-  :bind (:map elfeed-search-mode-map
-              ("A" . bjm/elfeed-show-all)
-              ("E" . bjm/elfeed-show-emacs)
-              ("D" . bjm/elfeed-show-daily)
-              ("q" . bjm/elfeed-save-db-and-bury))
-  :init
-  (setq my/default-elfeed-search-filter "@1-month-ago +unread !sport ")
-  (setq-default elfeed-search-filter my/default-elfeed-search-filter)
-  (setq elfeed-db-direcory "~/scimax/user/elfeeddb")
-  :config
-  (elfeed-org)
-  (elfeed-goodies/setup)
-
-  ;;
-  ;; linking and capturing
-  ;;
-
-  (defun elfeed-link-title (entry)
-    "Copy the entry title and URL as org link to the clipboard."
-    (interactive)
-    (let* ((link (elfeed-entry-link entry))
-           (title (elfeed-entry-title entry))
-           (titlelink (concat "[[" link "][" title "]]")))
-      (when titlelink
-        (kill-new titlelink)
-        (x-set-selection 'PRIMARY titlelink)
-        (message "Yanked: %s" titlelink))))
-
-  ;; show mode
-
-  (defun elfeed-show-link-title ()
-    "Copy the current entry title and URL as org link to the clipboard."
-    (interactive)
-    (elfeed-link-title elfeed-show-entry))
-
-  (defun elfeed-show-quick-url-note ()
-    "Fastest way to capture entry link to org agenda from elfeed show mode"
-    (interactive)
-    (elfeed-link-title elfeed-show-entry)
-    (org-capture nil "n")
-    (yank)
-    (org-capture-finalize))
-
-  (bind-keys :map elfeed-show-mode-map
-             ("l" . elfeed-show-link-title)
-             ("v" . elfeed-show-quick-url-note))
-
-  ;; search mode
-
-  (defun elfeed-search-link-title ()
-    "Copy the current entry title and URL as org link to the clipboard."
-    (interactive)
-    (let ((entries (elfeed-search-selected)))
-      (cl-loop for entry in entries
-               when (elfeed-entry-link entry)
-               do (elfeed-link-title entry))))
-
-  (defun elfeed-search-quick-url-note ()
-    "In search mode, capture the title and link for the selected
-     entry or entries in org aganda."
-    (interactive)
-    (let ((entries (elfeed-search-selected)))
-      (cl-loop for entry in entries
-               do (elfeed-untag entry 'unread)
-               when (elfeed-entry-link entry)
-               do (elfeed-link-title entry)
-               do (org-capture nil "n")
-               do (yank)
-               do (org-capture-finalize)
-               (mapc #'elfeed-search-update-entry entries))
-      (unless (use-region-p) (forward-line))))
-
-  (bind-keys :map elfeed-search-mode-map
-             ("l" . elfeed-search-link-title)
-             ("v" . elfeed-search-quick-url-note))
-
-   ;;functions to support syncing .elfeed between machines
-  ;;makes sure elfeed reads index from disk before launching
-  (defun bjm/elfeed-load-db-and-open ()
-    "Wrapper to load the elfeed db from disk before opening"
-    (interactive)
-    (elfeed-db-load)
-    (elfeed)
-    (elfeed-search-update--force))
-
-  ;;write to disk when quiting
-  (defun bjm/elfeed-save-db-and-bury ()
-    "Wrapper to save the elfeed db to disk before burying buffer"
-    (interactive)
-    (elfeed-db-save)
-    (quit-window))
-  )
-
-;; use an org file to organise feeds
-(use-package elfeed-org
-  :ensure t
-  :config
-  (setq rmh-elfeed-org-files (list "~/my_org/elfeed.org"))
-  )
-
-(use-package elfeed-goodies
-  :ensure t
-  :init
-  (elfeed-goodies/setup)
-)
-
-(message "Loaded Elfeed customisations")
-
 ;;when I want to enter the web address all by hand
 (defun w3m-open-site (site)
   "Opens site in new w3m session with 'http://' appended"
@@ -812,85 +684,88 @@ Returns the property name if the property has been created, otherwise nil."
     )
   )
 
-(add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e")
-(require 'mu4e)
-(require 'mu4e-contrib)
-(require 'org-mu4e)
+(if (system-type-is-darwin)
+    (progn
+      (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e")
+      (require 'mu4e)
+      (require 'mu4e-contrib)
+      (require 'org-mu4e)
 
-(setq
- mue4e-headers-skip-duplicates  t
- mu4e-view-show-images t
- mu4e-view-show-addresses 't
- mu4e-compose-format-flowed nil
- mu4e-update-interval 200
- message-ignored-cited-headers 'nil
- mu4e-date-format "%y/%m/%d"
- mu4e-headers-date-format "%Y/%m/%d"
- mu4e-change-filenames-when-moving t
- mu4e-attachments-dir "~/Downloads/Mail-Attachments/"
- mu4e-maildir (expand-file-name "~/my_mail/fmail")
- )
+      (setq
+       mue4e-headers-skip-duplicates  t
+       mu4e-view-show-images t
+       mu4e-view-show-addresses 't
+       mu4e-compose-format-flowed nil
+       mu4e-update-interval 200
+       message-ignored-cited-headers 'nil
+       mu4e-date-format "%y/%m/%d"
+       mu4e-headers-date-format "%Y/%m/%d"
+       mu4e-change-filenames-when-moving t
+       mu4e-attachments-dir "~/Downloads/Mail-Attachments/"
+       mu4e-maildir (expand-file-name "~/my_mail/fmail")
+       )
 
-;; mu4e email refiling loations
-(setq
- mu4e-refile-folder "/Archive"
- mu4e-trash-folder  "/Trash"
- mu4e-sent-folder   "/Sent"
- mu4e-drafts-folder "/Drafts"
- )
+      ;; mu4e email refiling loations
+      (setq
+       mu4e-refile-folder "/Archive"
+       mu4e-trash-folder  "/Trash"
+       mu4e-sent-folder   "/Sent"
+       mu4e-drafts-folder "/Drafts"
+       )
 
-;; setup some handy shortcuts
-(setq mu4e-maildir-shortcuts
-      '(("/INBOX"   . ?i)
-	("/Sent"    . ?s)
-	("/Archive" . ?a)
-	("/Trash"   . ?t)))
+      ;; setup some handy shortcuts
+      (setq mu4e-maildir-shortcuts
+            '(("/INBOX"   . ?i)
+	      ("/Sent"    . ?s)
+	      ("/Archive" . ?a)
+	      ("/Trash"   . ?t)))
 
-;;store link to message if in header view, not to header query
-(setq org-mu4e-link-query-in-headers-mode nil
-      org-mu4e-convert-to-html t) ;; org -> html
+      ;;store link to message if in header view, not to header query
+      (setq org-mu4e-link-query-in-headers-mode nil
+            org-mu4e-convert-to-html t) ;; org -> html
 
-;; Enabling view in browser for HTML heavy emails that don't render well
-(add-to-list 'mu4e-view-actions
-	     '("ViewInBrowser" . mu4e-action-view-in-browser) t)
+      ;; Enabling view in browser for HTML heavy emails that don't render well
+      (add-to-list 'mu4e-view-actions
+	           '("ViewInBrowser" . mu4e-action-view-in-browser) t)
 
-(autoload 'mu4e "mu4e" "mu for Emacs." t)
+      (autoload 'mu4e "mu4e" "mu for Emacs." t)
 
-;; Config for sending email
-(setq
- message-send-mail-function 'message-send-mail-with-sendmail
- send-mail-function 'sendmail-send-it
- message-kill-buffer-on-exit t
- )
+      ;; Config for sending email
+      (setq
+       message-send-mail-function 'message-send-mail-with-sendmail
+       send-mail-function 'sendmail-send-it
+       message-kill-buffer-on-exit t
+       )
 
-;; allow for updating mail using 'U' in the main view:
-(setq mu4e-get-mail-command  "mbsync -a -q")
+      ;; allow for updating mail using 'U' in the main view:
+      (setq mu4e-get-mail-command  "mbsync -a -q")
 
-;; Don't keep asking for confirmation for every action
-(defun my-mu4e-mark-execute-all-no-confirm ()
-  "Execute all marks without confirmation."
-  (interactive)
-  (mu4e-mark-execute-all 'no-confirm))
-;; mapping x to above function
-(define-key mu4e-headers-mode-map "x" #'my-mu4e-mark-execute-all-no-confirm)
+      ;; Don't keep asking for confirmation for every action
+      (defun my-mu4e-mark-execute-all-no-confirm ()
+        "Execute all marks without confirmation."
+        (interactive)
+        (mu4e-mark-execute-all 'no-confirm))
+      ;; mapping x to above function
+      (define-key mu4e-headers-mode-map "x" #'my-mu4e-mark-execute-all-no-confirm)
 
-;; source: http://matt.hackinghistory.ca/2016/11/18/sending-html-mail-with-mu4e/
+      ;; source: http://matt.hackinghistory.ca/2016/11/18/sending-html-mail-with-mu4e/
 
-;; this is stolen from John but it didn't work for me until I
-;; made those changes to mu4e-compose.el
-(defun htmlize-and-send ()
-  "When in an org-mu4e-compose-org-mode message, htmlize and send it."
-  (interactive)
-  (when
-      (member 'org~mu4e-mime-switch-headers-or-body post-command-hook)
-    (org-mime-htmlize)
-    (org-mu4e-compose-org-mode)
-    (mu4e-compose-mode)
-    (message-send-and-exit)))
+      ;; this is stolen from John but it didn't work for me until I
+      ;; made those changes to mu4e-compose.el
+      (defun htmlize-and-send ()
+        "When in an org-mu4e-compose-org-mode message, htmlize and send it."
+        (interactive)
+        (when
+            (member 'org~mu4e-mime-switch-headers-or-body post-command-hook)
+          (org-mime-htmlize)
+          (org-mu4e-compose-org-mode)
+          (mu4e-compose-mode)
+          (message-send-and-exit)))
 
-;; This overloads the amazing C-c C-c commands in org-mode with one more function
-;; namely the htmlize-and-send, above.
-(add-hook 'org-ctrl-c-ctrl-c-hook 'htmlize-and-send t)
+      ;; This overloads the amazing C-c C-c commands in org-mode with one more function
+      ;; namely the htmlize-and-send, above.
+      (add-hook 'org-ctrl-c-ctrl-c-hook 'htmlize-and-send t)
+      ))
 
 (use-package frog-jump-buffer
   :ensure t
@@ -902,6 +777,30 @@ Returns the property name if the property has been created, otherwise nil."
   :config
   (global-set-key [remap kill-ring-save] 'easy-kill)
   (global-set-key [remap mark-sexp] 'easy-mark)
+  )
+
+(use-package docker
+  :ensure t
+  :defer t
+  :config
+  (require 'docker)
+)
+
+(use-package docker-compose-mode
+  :ensure t
+  :defer t
+  :config
+  (require 'docker-compose-mode)
+  )
+
+(use-package dockerfile-mode
+  :ensure t
+  :defer t
+  :config
+  (require 'dockerfile-mode)
+  (add-to-list 'auto-mode-alist
+               '("Dockerfile\\" . dockerfile-mode)
+               )
   )
 
 (setq default-frame-alist

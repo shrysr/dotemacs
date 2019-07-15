@@ -1284,12 +1284,6 @@ Org-noter’s purpose is to let you create notes that are kept in sync when you 
 
 #+RESULTS:
 
-** TODO Persp-projectile
-:PROPERTIES:
-:CREATED:  <2019-02-07 Thu 13:59>
-:END:
-[[https://github.com/howardabrams/dot-files/blob/master/emacs.org#perspective][Refer Howard's config snippet]] to setup a test.
-
 ** TODO org-projectile
 - Note taken on [2019-02-07 Thu 08:42]  \\
   need to optimise further and convert to use-package style. Also need a way to capture Notes from projects, in addition to tasks.
@@ -1624,7 +1618,7 @@ Further streamlining is necessary as such.
   (setq org-brain-visualize-default-choices 'all)
   (setq org-brain-title-max-length 12)
   (add-hook 'org-brain-refile 'org-id-get-create)
-  (global-set-key (kbd "M-s v") #'org-brain-visualize))
+  (global-set-key (kbd "M-s v") #'org-brain-visualize)
   )
 
 #+END_SRC
@@ -1693,6 +1687,9 @@ This is especially useful for free form longer Documentation.
 
 #+END_SRC
 
+#+RESULTS:
+: t
+
 ** TEST Org wild Notifier
 - Note taken on [2019-03-28 Thu 13:48] \\
   This seems to be able to do exactly what I am looking for. However there are unexplained errors while starting up the package.
@@ -1712,7 +1709,7 @@ It is useful to be able to export to the RST format to develop documentation for
 
 This platform is actually pleasant to browse through documentation and has good search facilities as well.
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle yes
 (use-package ox-rst
   :ensure t
   :defer t
@@ -1726,7 +1723,7 @@ This platform is actually pleasant to browse through documentation and has good 
 ** TEST Org to Slack exporter
 This should prove handy as I write almost all my responses within Org mode and copy this into Slack.
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle  yes
 (use-package ox-slack
   :ensure t
   :defer t
@@ -1739,7 +1736,7 @@ This should prove handy as I write almost all my responses within Org mode and c
 
 ** TEST ox-pandoc
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle yes
 (use-package ox-pandoc
   :ensure t
   :defer t
@@ -1749,6 +1746,12 @@ This should prove handy as I write almost all my responses within Org mode and c
 #+END_SRC
 
 #+RESULTS:
+
+* TODO Persp-projectile
+:PROPERTIES:
+:CREATED:  <2019-02-07 Thu 13:59>
+:END:
+[[https://github.com/howardabrams/dot-files/blob/master/emacs.org#perspective][Refer Howard's config snippet]] to setup a test.
 
 * TEST Projectile behavior
 
@@ -1804,7 +1807,7 @@ This has to be combined with desktop.el or some other method to enable persisten
           treemacs-indentation-string            " "
           treemacs-is-never-other-window         nil
           treemacs-max-git-entries               5000
-ttt          treemacs-no-png-images                 nil
+          ttreemacs-no-png-images                 nil
           treemacs-no-delete-other-windows       t
           treemacs-project-follow-cleanup        nil
           treemacs-persist-file                  "~/my_org/emacs_meta/.treemacs-persist"
@@ -2522,10 +2525,12 @@ SPC     exit
 #+END_SRC
 
 * Elfeed customisation
+  - Note taken on [2019-07-08 Mon 08:10] \\
+    Disabling elfeed for now.
 ** Elfeed Basic + Customisations
 Source: http://heikkil.github.io/blog/2015/05/09/notes-from-elfeed-entries/
 
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+BEGIN_SRC emacs-lisp :tangle no
 ;; Elfeed configuration source :
 (use-package elfeed
   :bind (:map elfeed-search-mode-map
@@ -2628,7 +2633,7 @@ Source: http://heikkil.github.io/blog/2015/05/09/notes-from-elfeed-entries/
 ** Elfeed-org and elfeed-goodies setup [/]
 Using an org source is the easiest way to organise my RSS feeds for reading with Elfeed.
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle no
 ;; use an org file to organise feeds
 (use-package elfeed-org
   :ensure t
@@ -2651,7 +2656,7 @@ Using an org source is the easiest way to organise my RSS feeds for reading with
   This will need an export to a source org file per the settings.
 ** Loading completed
 
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+BEGIN_SRC emacs-lisp :tangle no
 (message "Loaded Elfeed customisations")
 #+END_SRC
 
@@ -3486,7 +3491,7 @@ Since I run emacs as a daemon and call the emacsclient, the background has to be
 (setq zenburn-scale-outline-headlines t)
 #+END_SRC
 
-** TEST Use-package based template for customising zenburn
+** TODO Use-package based template for customising zenburn
 
 Source: https://github.com/m-parashar/emax64/issues/5
 
