@@ -425,6 +425,7 @@ Source: https://superuser.com/questions/131538/can-i-create-directories-that-don
 (set-register ?f (cons 'file "~/scimax/user/sr-cust/"))
 (set-register ?d (cons 'file "~/my_org/datascience.org"))
 (set-register ?m (cons 'file "~/my_org/"))
+(set-register ?b (cons 'file "~/my_org/blog-book.org"))
 (set-register ?g (cons 'file "~/my_gits/"))
 #+end_src
 
