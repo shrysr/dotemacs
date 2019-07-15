@@ -1762,6 +1762,23 @@ This should prove handy as I write almost all my responses within Org mode and c
 #+RESULTS:
 : ~/my_org/emacs_meta/.projectile-cache
 
+* TEST eyebrowse
+
+This has to be combined with desktop.el or some other method to enable persistence across sessions. However, this does work well for a single session.
+
+#+BEGIN_SRC emacs-lisp
+(use-package eyebrowse
+  :ensure t
+  :config
+  (setq eyebrowse-mode-line-separator " "
+        eyebrowse-new-workspace t)
+  (eyebrowse-mode 1)
+  )
+#+END_SRC
+
+#+RESULTS:
+: t
+
 * TEST Treemacs Setup
 
 #+BEGIN_SRC emacs-lisp :tangle yes
