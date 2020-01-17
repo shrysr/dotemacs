@@ -278,8 +278,8 @@
        mue4e-headers-skip-duplicates  t
        mu4e-view-show-images t
        mu4e-view-show-addresses 't
-       mu4e-compose-format-flowed nil
-       mu4e-update-interval 200
+       mu4e-compose-format-flowed t
+       ;;mu4e-update-interval 200
        message-ignored-cited-headers 'nil
        mu4e-date-format "%y/%m/%d"
        mu4e-headers-date-format "%Y/%m/%d"
@@ -287,6 +287,10 @@
        mu4e-attachments-dir "~/Downloads/Mail-Attachments/"
        mu4e-maildir (expand-file-name "~/my_mail/fmail")
        message-citation-line-format "On %Y-%m-%d at %R %Z, %f wrote..."
+       mu4e-index-lazy-check t
+       ;; After Years. I've finally found you.
+       mu4e-compose-dont-reply-to-self t
+       mu4e-headers-auto-update nil
        )
 
       ;; mu4e email refiling loations
@@ -308,9 +312,6 @@
       (setq org-mu4e-link-query-in-headers-mode nil
             org-mu4e-convert-to-html t) ;; org -> html
 
-      ;; Enabling view in browser for HTML heavy emails that don't render well
-      (add-to-list 'mu4e-view-actions
-	           '("ViewInBrowser" . mu4e-action-view-in-browser) t)
 
       (autoload 'mu4e "mu4e" "mu for Emacs." t)
 
@@ -322,13 +323,26 @@
        )
 
       ;; allow for updating mail using 'U' in the main view:
-      (setq mu4e-get-mail-command  "mbsync -a -q")
+      (setq mu4e-get-mail-command  "mbsync -q fins")
+
+      ;; Stolen from https://github.com/djcb/mu/issues/1431 and found thanks to parsnip in #emacs
+      (defun my-mu4e-mbsync-current-maildir (msg)
+	(interactive)
+	(let* ((maildir (downcase (substring (plist-get msg :maildir) 1)))
+	       (mu4e-get-mail-command (format "mbsync %s" maildir)))
+	  (mu4e-update-mail-and-index t)))
+
+      ;; Enabling view in browser for HTML heavy emails that don't render well
+      (add-to-list 'mu4e-view-actions
+	           '("ViewInBrowser" . mu4e-action-view-in-browser) t)
+      (add-to-list 'mu4e-view-actions
+		     '("mbsync maildir of mail at point" . my-mu4e-mbsync-current-maildir) t)
 
       ;; Don't keep asking for confirmation for every action
       (defun my-mu4e-mark-execute-all-no-confirm ()
-        "Execute all marks without confirmation."
-        (interactive)
-        (mu4e-mark-execute-all 'no-confirm))
+	"Execute all marks without confirmation."
+	(interactive)
+	(mu4e-mark-execute-all 'no-confirm))
       ;; mapping x to above function
       (define-key mu4e-headers-mode-map "x" #'my-mu4e-mark-execute-all-no-confirm)
 
@@ -337,19 +351,52 @@
       ;; this is stolen from John but it didn't work for me until I
       ;; made those changes to mu4e-compose.el
       (defun htmlize-and-send ()
-        "When in an org-mu4e-compose-org-mode message, htmlize and send it."
-        (interactive)
-        (when
-            (member 'org~mu4e-mime-switch-headers-or-body post-command-hook)
-          (org-mime-htmlize)
-          (org-mu4e-compose-org-mode)
-          (mu4e-compose-mode)
-          (message-send-and-exit)))
+	"When in an org-mu4e-compose-org-mode message, htmlize and send it."
+	(interactive)
+	(when
+	    (member 'org~mu4e-mime-switch-headers-or-body post-command-hook)
+	  (org-mime-htmlize)
+	  (org-mu4e-compose-org-mode)
+	  (mu4e-compose-mode)
+	  (message-send-and-exit)))
 
       ;; This overloads the amazing C-c C-c commands in org-mode with one more function
       ;; namely the htmlize-and-send, above.
-      (add-hook 'org-ctrl-c-ctrl-c-hook 'htmlize-and-send t)
-      ))
+      (add-hook 'org-ctrl-c-ctrl-c-hook 'htmlize-and-send t)))
+
+(use-package mu4e
+:ensure nil
+:hook
+ ((mu4e-view-mode . visual-line-mode)
+   (mu4e-compose-mode . (lambda ()
+                          (visual-line-mode)
+                          (use-hard-newlines -1)
+                          (flyspell-mode)))
+   (mu4e-view-mode . (lambda() ;; try to emulate some of the eww key-bindings
+                       (local-set-key (kbd "<tab>") 'shr-next-link)
+                       (local-set-key (kbd "<backtab>") 'shr-previous-link)))
+   (mu4e-headers-mode . (lambda ()
+                          (interactive)
+                          (setq mu4e-headers-fields
+                                `((:human-date . 25) ;; alternatively, use :date
+                                  (:flags . 6)
+                                  (:from . 22)
+                                  (:thread-subject . ,(- (window-body-width) 70)) ;; alternatively, use :subject
+                                  (:size . 7))))))
+:custom
+(mu4e-update-interval 150)
+(message-kill-buffer-on-exit t)
+
+)
+
+(use-package mu4e-alert
+    :defer t
+    :config
+    (when (executable-find "notify-send")
+      (mu4e-alert-set-default-style 'libnotify))
+    :hook
+    ((after-init . mu4e-alert-enable-notifications)
+     (after-init . mu4e-alert-enable-mode-line-display)))
 
 (use-package multiple-cursors
   :ensure t
@@ -984,6 +1031,19 @@
   :after treemacs magit
   :ensure t)
 
+;; Adding helm ag to the search commands
+(defhydra scimax-search (:color blue :inherit (scimax-base/heads) :columns 3)
+  "search"
+  ("a" counsel-ag "ag")
+  ("g" counsel-git-grep "grep")
+  ("m" multi-moccur "moccur")
+  ("o" occur "occur")
+  ("p" projectile-grep "project grep")
+  ("r" isearch-backward "search back")
+  ("s" counsel-grep-or-swiper "search")
+  ("h" helm-ag "helm-ag")
+  ("t" counsel-pt "pt"))
+
 (defun explorer (&optional path)
   "Open Finder or Windows Explorer in the current directory."
   (interactive (list (if (buffer-file-name)
@@ -1043,7 +1103,7 @@ commands (`scimax-user-bash-app')
 
 (setq scimax-user-hotspot-locations
       '(
-        ("CV Org" . "~/org_cv/CV_Shreyas_Ragavan.org")
+        ("CV Org" . "~/Desktop/Resume_Shreyas_Ragavan.pdf")
         ("tmrs"  .  "~/my_org/tmsr.org")
         ("scd - scimax dir" . "~/scimax/" )
         ("scu - scimax user dir" . "~/scimax/user/")
@@ -1054,10 +1114,9 @@ commands (`scimax-user-bash-app')
         ("cheatsheet" . "~/my_projects/ds_cheatsheets/")
         ("passwords" . "~/my_org/secrets.org.gpg")
         ("references" . "~/Dropbox/bibliography/references.bib")
+        ("R Lib source src folder" . "/Library/Frameworks/R.framework/Resources/library")
         )
       )
-
-(require 'scimax-elfeed)
 
 (setq nb-notebook-directory "~/my_projects/")
 
@@ -1375,3 +1434,12 @@ Returns the property name if the property has been created, otherwise nil."
   :custom
   (org-hugo--tag-processing-fn-replace-with-hyphens-maybe t)
   )
+
+(use-package pdf-tools
+  :ensure t
+  :config
+  (custom-set-variables
+   '(pdf-tools-handle-upgrades nil)) ; Use brew upgrade pdf-tools instead in the mac
+  (setq pdf-info-epdfinfo-program "/usr/local/bin/epdfinfo")
+  (pdf-tools-install)
+)
