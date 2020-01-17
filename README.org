@@ -1,13 +1,3 @@
-#+toc: t
-#+hugo_base_dir: ~/hugo-sr/
-#+hugo_section: docs
-#+hugo_auto_set_lastmod: t
-#+author: Shreyas Ragavan
-#+hugo_tags: Emacs
-#+hugo_categories: Emacs
-#+hugo_menu: :menu "docs" :weight 2001 :parent
-#+hugo_custom_front_matter: :linktitle Dotemacs - Emacs config  :toc true
-#+hugo_draft: false
 #+TITLE: My Emacs + Scimax configuration
 
 * Introduction and preamble
