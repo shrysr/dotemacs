@@ -1,212 +1,221 @@
 
 # Table of Contents
 
-1.  [Introduction and preamble](#org670b6d7)
-    1.  [This configuration](#org2b02d71)
-    2.  [Other literate Emacs configs](#org0f8a776)
-2.  [Stable Core](#orgd8031a0)
-    1.  [OS Level variables <code>[0/0]</code>](#org8ef13fd)
-    2.  [Browse kill ring](#orgb812a1c)
-    3.  [Remove trailing whitespace at the end of lines](#org75641f3)
-    4.  [Remove '^' at the start of ivy commands](#orgeadf5ba)
-    5.  [Move to the next sentence](#org7e9832d)
-    6.  [Package installation](#org36cade1)
-        1.  [Package list](#org30fb500)
-        2.  [Fetch and install missing packages](#org77c812d)
-    7.  [Switch-window configuration](#orga9843e6)
-    8.  [Create intermediate directories while saving files](#org82f457f)
-    9.  [Shortcuts and registers](#org3c8c78d)
-        1.  [Registers](#org7b4226e)
-        2.  [Google this](#orgcf91fc2)
-        3.  [ivy-yasnippet](#org7b8be70)
-        4.  [Mu4e related](#org2b243a9)
-        5.  [Org related](#org7a4289b)
-        6.  [Shortcuts for punching in and Out](#org0fb9f46)
-        7.  [Setting the super and hyper Key](#org63c3903)
-        8.  [Shortcut for frog-jump-Buffer](#org03e7fce)
-    10. [yanking links in org format](#org2cffede)
-    11. [Export setup](#org037ccee)
-    12. [Markdown config](#orga36d675)
-    13. [SLIME and lisp](#orgf79630e)
-    14. [Expand region](#org8c13dc6)
-    15. [Hippie Expand](#orgc93f993)
-    16. [Theme and visuals](#orge605d7c)
-        1.  [Emacsclient or frame specific settings](#orgaa0033c)
-        2.  [Custom Safe themes and Background change to light grey,](#org1c69eeb)
-        3.  [Setting terminal theme options](#orgf58eff2)
-        4.  [Font Customisation based on OS](#org782c5c3)
-        5.  [Spaceline : modeline configuration](#org935e751)
-        6.  [Basic cosmetics. Review & Convert to use-package style](#org383bfb1)
-        7.  [Striking out Done headlines](#orga23a356)
-        8.  [Formatting keywords as boxes with inverted colors](#org32fdd5b)
-    17. [mu4e](#org96fc5c2)
-        1.  [New attempt at use package](#org9f55108)
-        2.  [mu4e alerts](#org307eb06)
-    18. [Multiple Cursors](#orgff62afb)
-    19. [git related](#orgf4cb604)
-        1.  [Git gutter](#orge86edbb)
-        2.  [magit settings](#orgaaecb95)
-        3.  [Completed loading message](#org543b6cc)
-    20. [Projectile behavior](#org2c56b72)
-    21. [Helm](#org236518c)
-        1.  [Enabling Helm mode and activation for basic functions](#org8eb35a6)
-        2.  [Bookmarks with Helm](#orgee812f0)
-        3.  [Setting sources for helm](#orga658ba2)
-        4.  [helm-semantic](#orgf272293)
-        5.  [Persistent follow mode for Helm](#orga7bbb0d)
-        6.  [`helm-ag` and `helm-org-rifle`, with refiling set to `helm-org-rifle`](#orga39a46d)
-        7.  [helm-swoop](#orgee7e629)
-        8.  [Helm Loading completed](#orgb368c4e)
-    22. [Org mode related](#orga6a505a)
-        1.  [Org tags to be available everywhere](#org455c7bd)
-        2.  [Default org directory and agenda file directory](#orgaf5fbce)
-        3.  [Org-notes into log drawer](#org6b62369)
-        4.  [Enabling org capture and org protocol](#orgbc0cba9)
-        5.  [Ensuring archive files are also in org mode](#org03834b7)
-        6.  [Archiving mechanics](#org744a21e)
-        7.  [org-wiki](#orgd7940bd)
-        8.  [org-id](#org8b7b2ca)
-        9.  [Setting custom keywords with fast access](#org0991706)
-        10. [Refiling settings](#org61c5700)
-        11. [Agenda mechanics](#org38a8ffd)
-        12. [Capture mechanics](#orgc718895)
-        13. [version control and backup of files](#org1c912b0)
-        14. [org-noter](#org4eaba6a)
-        15. [org-projectile](#org6fc48b2)
-        16. [org-gcal customisation](#org522342f)
-        17. [Property customisation](#orgae5d624)
-        18. [org web clipper](#org782c74e)
-        19. [Org-babel](#org79ba85f)
-        20. [Org-trello](#orgfa12dfc)
-        21. [Clock Customisation](#orgb2e7e8b)
-        22. [Org-Brain <code>[1/2]</code>](#org4de465f)
-        23. [Org journal](#orgf1d1fd0)
-        24. [Org sticky Header <code>[0/1]</code>](#org3eade6e)
-        25. [Org wild Notifier](#orgf9bb745)
-        26. [Org to RST Exporter](#org7b7cbab)
-        27. [Org to Slack exporter](#org1e67184)
-        28. [ox-pandoc](#org669e94d)
-        29. [Setting the columns for the column view](#org6963691)
-        30. [org-sidebar](#org2bae6a7)
-3.  [Stable Extras](#org85e8fa1)
-    1.  [Time machine for git](#orgd296a91)
-    2.  [Loading External Packages](#org8a08da9)
-    3.  [memento mori](#org8867220)
-    4.  [Treemacs Setup](#org738ebe9)
-    5.  [Scimax customisations](#org30bce76)
-        1.  [Adding commands to scimax hydras](#org43616ee)
-        2.  [Redefining scimax-apps](#org32d364d)
-        3.  [Scimax autoformat and corrections](#orgb1ce878)
-        4.  [Scimax Hotspots](#org3dc746a)
-        5.  [Scimax Elfeed](#org5724422)
-        6.  [Scimax Notebook directory](#org0a0490c)
-        7.  [Scimax notebook](#orgdb9b0a6)
-        8.  [Changing key for scimax/body](#orgb5e9537)
-        9.  [Scimax Python](#org85f17cc)
-        10. [Message : loaded scimax Customisations](#orga70d44b)
-    6.  [Swiper](#orgd706007)
-    7.  [Writeroom customisations](#org791905c)
-    8.  [ESS configuration](#org49d693c)
-        1.  [Basic ESS configuration](#orgee389e5)
-        2.  [Ox-ravel for exporting from Org mode to ipynb](#org3f096a9)
-    9.  [ox-reveal - presentations](#org16dac86)
-    10. [Deft](#org24b9a1a)
-    11. [w3m customisation](#org084e05f)
-        1.  [Setting default browser to be w3m](#org1540853)
-        2.  [Appending HTTP to web addresses entered by hand](#orge6785e6)
-        3.  [Changing w3m shortcuts for better tabbed browsing](#orgbb4b824)
-        4.  [Default external browser settings](#orgb966013)
-        5.  [Wikipedia search](#org8c8fce8)
-        6.  [Access Hacker News](#orgc3d122a)
-        7.  [Open specific browser depending on the URL](#org8e5a40a)
-    12. [frog jump buffer](#org5affe50)
-    13. [easy-kill and easy mark](#org903914a)
-    14. [eyebrowse](#org206edfb)
-    15. [Hugo](#org0445596)
-        1.  [Function to create specific properties for a blog post](#org5cd58a9)
-        2.  [ox-hugo setup](#org59dd8cd)
-    16. [PDF Tools](#orgbf05828)
-4.  [Testing](#org6429930)
-    1.  [Oddmuse curl](#org589d30a)
-    2.  [Scimax cusomisations](#orgd5a231b)
-        1.  [Scimax journal settings](#org6da6cfc)
-        2.  [Bibliography settings and customisation](#org4af4db8)
-        3.  [Adding actions to ivy](#orgf6d933e)
-        4.  [Setting Hyper key for the mac](#org66762dd)
-        5.  [org-Db](#org21443a4)
-    3.  [Tangle org mode config on save](#orgea6af0d)
-    4.  [Visual line and visual fill column](#org86d2370)
-    5.  [Marking](#org59e89ca)
-    6.  [Semantic Mode](#org9549642)
-    7.  [Sauron](#orgf3d017d)
-    8.  [emacs url shortener](#org5a00dbc)
-    9.  [free-keys](#orga96c29f)
-    10. [Zenburn theme exploration](#org569b01e)
-        1.  [Disabling leuven and loading other theme](#org2951349)
-        2.  [Background color for org source Blocks](#org2a03e49)
-        3.  [Initial setup of Zenburn](#orgbe18b7a)
-        4.  [Use-package based template for customising zenburn](#orgc4f8770)
-        5.  [Setting font faces for headline level](#orgdc15863)
-    11. [Alfred Integration](#org67dc8e9)
-    12. [Project publishing setup <code>[0/3]</code>](#org6de2321)
-        1.  [ox-Tufte](#orgdf7c189)
-        2.  [Exporting org projects](#org00052cc)
-        3.  [Function for exporting dotemacs config <code>[1/3]</code>](#org1b17ad8)
-    13. [Docker](#org1738865)
-        1.  [Docker package](#orgc5255ad)
-        2.  [docker-compose-mode](#org0600b33)
-        3.  [docker-file-mode](#orgf123b12)
-    14. [org-bookmark-heading](#orgfa5d72b)
-    15. [Crux  - basic movement](#org96afef9)
-    16. [Crypto setup](#org1076b6c)
-        1.  [Basic crypto](#org4f72737)
-        2.  [Setting auth sources](#orgaaecd91)
-        3.  [github token access](#org87e04ed)
-    17. [Persp-projectile](#org2094809)
-    18. [LOB](#org9b2422f)
-    19. [Hydras and some custom functions](#org8b6e129)
-        1.  [Refiling](#org110b4b7)
-        2.  [Window manipulation](#org6bf8931)
-        3.  [helm-do-ag in specific locations](#org0647e7e)
-        4.  [Frame configurations fo magit and project launch](#orgae9d68a)
-        5.  [Loading completed](#org7463772)
-    20. [Python <code>[0/4]</code>](#org1304318)
-        1.  [setup virtual environment approach](#orgd87d668)
-        2.  [setup conda for virtual environment management](#org8e64cd1)
-        3.  [General config](#orgd4408b6)
-        4.  [Autocomplete for python blocks](#org7da5fda)
-        5.  [Emacs-jupyter](#orgad5dcc4)
-5.  [Disabled](#org1633577)
-    1.  [org2blog : publishing to wordpress <code>[0/1]</code>](#orgbd91204)
-    2.  [helm-ext](#orgc053cc5)
-    3.  [Scimax customisations](#org1e32392)
-        1.  [Enabling Scimax Statistics](#orga7001a3)
-    4.  [Dired](#org7617950)
-    5.  [Activating windmove to facilitate Hydras](#org4385ab4)
-    6.  [Export async](#orgffa90b8)
-    7.  [Ob-async](#orgea62f99)
-    8.  [Auto saving all org files by the hour](#orgaccffc3)
-    9.  [Tags setup](#orgef96fbe)
-    10. [Icicles](#orgeda0e4a)
-    11. [erc](#orgf953a8a)
-    12. [Scheme setup](#org5feffd4)
-    13. [lintr](#org6335606)
-    14. [Better defaults](#org0b74d81)
-    15. [Elfeed customisation](#org60ce5a3)
-        1.  [Elfeed Basic + Customisations](#org3e3d158)
-        2.  [Scimax + Elfeed-org and elfeed-goodies setup <code>[/]</code>](#org869770e)
-        3.  [Consider storing the Feed sources here in org format](#org0f0fa97)
-        4.  [Loading completed](#org2fd3efa)
-    16. [ediff](#org17622f0)
-    17. [Spell Checking](#org0396769)
-        1.  [Flycheck](#org2fc49a5)
-        2.  [Enabling Flyspell](#org4860718)
-        3.  [Replacing flycheck with flymake](#orga3762a9)
-        4.  [Switching to aspell on the mac](#orgda2a8eb)
+1.  [Introduction and preamble](#org63b45e8)
+    1.  [This configuration](#orgb55fad4)
+    2.  [Other literate Emacs configs](#org1f65a99)
+2.  [Stable Core](#org5ab479f)
+    1.  [OS Level variables <code>[0/0]</code>](#org0080139)
+    2.  [Browse kill ring](#org2d2914b)
+    3.  [Remove trailing whitespace at the end of lines](#org5fbaa05)
+    4.  [Remove '^' at the start of ivy commands](#org6dd0b20)
+    5.  [Move to the next sentence](#orgf8ba217)
+    6.  [Package installation](#org8c2589a)
+        1.  [Package list](#org35004e3)
+        2.  [Fetch and install missing packages](#orga79e1a9)
+    7.  [Switch-window configuration](#org9c4a348)
+    8.  [Create intermediate directories while saving files](#org386454a)
+    9.  [Shortcuts and registers](#org1642c87)
+        1.  [Registers](#org2927591)
+        2.  [Google this](#org70a3697)
+        3.  [ivy-yasnippet](#orgd7e9527)
+        4.  [Mu4e related](#org40577be)
+        5.  [Org related](#orgfbff280)
+        6.  [Shortcuts for punching in and Out](#org216750b)
+        7.  [Setting the super and hyper Key](#org3027e50)
+        8.  [Shortcut for frog-jump-Buffer](#orgf5d5782)
+    10. [yanking links in org format](#org00e9c10)
+    11. [Export setup](#org9e9e25b)
+    12. [Markdown config](#org2e9a049)
+    13. [SLIME and lisp](#org5e10577)
+    14. [Expand region](#orgd763563)
+    15. [Hippie Expand](#orgea65c79)
+    16. [Theme and visuals](#orgfe25d66)
+        1.  [Emacsclient or frame specific settings](#org8f7f655)
+        2.  [Custom Safe themes and Background change to light grey,](#orgc0c1bc4)
+        3.  [Setting terminal theme options](#org0b8bd39)
+        4.  [Font Customisation based on OS](#org05d4ea9)
+        5.  [Spaceline : modeline configuration](#orgba734ad)
+        6.  [Basic cosmetics. Review & Convert to use-package style](#orgbec470f)
+        7.  [Striking out Done headlines](#org9906091)
+        8.  [Formatting keywords as boxes with inverted colors](#org001eeb3)
+    17. [mu4e](#org4d33faa)
+        1.  [New attempt at use package](#orga3d919c)
+        2.  [mu4e alerts](#orgcc1cb6c)
+    18. [Multiple Cursors](#org597d142)
+    19. [git related](#org20e17d0)
+        1.  [Git gutter](#org1d5def0)
+        2.  [magit settings](#orgd57569c)
+        3.  [Completed loading message](#org8dfd3ce)
+    20. [Projectile behavior](#org902f96f)
+    21. [Helm](#orgf3d1992)
+        1.  [Enabling Helm mode and activation for basic functions](#orgdc175cf)
+        2.  [Bookmarks with Helm](#org9ba1bd0)
+        3.  [Setting sources for helm](#orga07eb6b)
+        4.  [helm-semantic](#org260eb9d)
+        5.  [Persistent follow mode for Helm](#orga0e5039)
+        6.  [`helm-ag` and `helm-org-rifle`, with refiling set to `helm-org-rifle`](#org6220705)
+        7.  [helm-swoop](#org7a73320)
+        8.  [Helm Loading completed](#org919b31f)
+    22. [Org mode related](#org6bd7f9c)
+        1.  [Org tags to be available everywhere](#org3e68e64)
+        2.  [Default org directory and agenda file directory](#org89a25b7)
+        3.  [Org-notes into log drawer](#orgcc6b0fb)
+        4.  [Enabling org capture and org protocol](#orgf3f2486)
+        5.  [Ensuring archive files are also in org mode](#org5578185)
+        6.  [Archiving mechanics](#orgf1608e7)
+        7.  [org-wiki](#org12735a7)
+        8.  [org-id](#org37cca8a)
+        9.  [Setting custom keywords with fast access](#org14eb6cf)
+        10. [Refiling settings](#org7270092)
+        11. [Agenda mechanics](#org3a2be92)
+        12. [Capture mechanics](#org9b35107)
+        13. [version control and backup of files](#org6e04520)
+        14. [org-noter](#org23215ab)
+        15. [org-projectile](#orge100071)
+        16. [org-gcal customisation](#orga834ff4)
+        17. [Property customisation](#org7d2df57)
+        18. [org web clipper](#org79b3817)
+        19. [Org-babel](#org2302dd9)
+        20. [Org-trello](#org2562b35)
+        21. [Clock Customisation](#orgb6338d3)
+        22. [Org-Brain <code>[1/2]</code>](#org6ce33ee)
+        23. [Org journal](#org68fab1b)
+        24. [Org sticky Header <code>[0/1]</code>](#org8b83a98)
+        25. [Org wild Notifier](#org6f0b04c)
+        26. [Org to RST Exporter](#org2a5f245)
+        27. [Org to Slack exporter](#org5f008d9)
+        28. [ox-pandoc](#org1f18218)
+        29. [Setting the columns for the column view](#org870e2ca)
+        30. [org-sidebar](#org44d9b78)
+3.  [Stable Extras](#orgd571e03)
+    1.  [Oddmuse curl](#org21fb58f)
+    2.  [Pinboard <code>[1/2]</code>](#org61b45a1)
+    3.  [EWW setup](#orgc2c3160)
+        1.  [Default browser to be eww and basic settings](#orgfdc530a)
+        2.  [Keyboard map for default external browser](#orgd2893bd)
+        3.  [Wikipedia search](#org7b84a9d)
+        4.  [Access Hacker News](#org07f0262)
+        5.  [Open specific browser depending on the URL](#org7131c91)
+        6.  [Kaushal Modi's setup](#org7131e01)
+    4.  [Time machine for git](#orgf306f7b)
+    5.  [Loading External Packages](#org7eb0b8f)
+    6.  [memento mori](#orgf2c653e)
+    7.  [Treemacs Setup](#orgee7d2f5)
+    8.  [Scimax customisations](#org545b3f3)
+        1.  [Adding commands to scimax hydras](#orgb59c9ea)
+        2.  [Redefining scimax-apps](#org86e1c31)
+        3.  [Scimax autoformat and corrections](#orga59ec6b)
+        4.  [Scimax Hotspots](#org6975a92)
+        5.  [Scimax Elfeed](#orga071c3d)
+        6.  [Scimax Notebook directory](#orgc4cfa1c)
+        7.  [Scimax notebook](#orgd3ac81b)
+        8.  [Changing key for scimax/body](#org98e2fca)
+        9.  [Scimax Python](#orgaab63c6)
+        10. [Message : loaded scimax Customisations](#org3f443ae)
+    9.  [Swiper](#org72f3406)
+    10. [Writeroom customisations](#org254aaac)
+    11. [ESS configuration](#org4d16551)
+        1.  [Basic ESS configuration](#org1d4c764)
+        2.  [Ox-ravel for exporting from Org mode to ipynb](#org5c6405d)
+    12. [ox-reveal - presentations](#org6e8c18a)
+    13. [Deft](#orgd7f1b86)
+    14. [w3m customisation](#org9e71149)
+        1.  [Setting default browser to be w3m](#orgb125988)
+        2.  [Appending HTTP to web addresses entered by hand](#org1f63994)
+        3.  [Changing w3m shortcuts for better tabbed browsing](#orgf8b3ce1)
+        4.  [Default external browser settings](#org2e03188)
+        5.  [Wikipedia search](#orga9ac2f0)
+        6.  [Access Hacker News](#org0d7cfae)
+        7.  [Open specific browser depending on the URL](#org01d0ef7)
+    15. [frog jump buffer](#org8c5ed62)
+    16. [easy-kill and easy mark](#org372b875)
+    17. [eyebrowse](#org77244ca)
+    18. [Hugo](#org70e0b9a)
+        1.  [Function to create specific properties for a blog post](#org6c88dab)
+        2.  [ox-hugo setup](#orgec2c526)
+    19. [PDF Tools](#org0cde12c)
+    20. [ox-oddmuse](#org17fa6b1)
+4.  [Testing](#org12f1ec0)
+    1.  [Scimax cusomisations](#org5c0492f)
+        1.  [Scimax journal settings](#orgd5cb4e1)
+        2.  [Bibliography settings and customisation](#org39fdf8c)
+        3.  [Adding actions to ivy](#org3792938)
+        4.  [Setting Hyper key for the mac](#orgd8e136b)
+        5.  [org-Db](#org102fd50)
+    2.  [Tangle org mode config on save](#orgbc4e27d)
+    3.  [Visual line and visual fill column](#org3a4f96b)
+    4.  [Marking](#orge8af9f8)
+    5.  [Semantic Mode](#org50096e5)
+    6.  [Sauron](#orgceb70d5)
+    7.  [emacs url shortener](#org087e31f)
+    8.  [free-keys](#orgddfbbfc)
+    9.  [Zenburn theme exploration](#org4ba7edb)
+        1.  [Disabling leuven and loading other theme](#orgdf329be)
+        2.  [Background color for org source Blocks](#orge7747e4)
+        3.  [Initial setup of Zenburn](#orgc459c1c)
+        4.  [Use-package based template for customising zenburn](#org30abce2)
+        5.  [Setting font faces for headline level](#org1409303)
+    10. [Alfred Integration](#org1aca4fb)
+    11. [Project publishing setup <code>[0/3]</code>](#orgdce156a)
+        1.  [ox-Tufte](#orgd84b47e)
+        2.  [Exporting org projects](#org8f90301)
+        3.  [Function for exporting dotemacs config <code>[1/3]</code>](#org91e5b8e)
+    12. [Docker](#orgb5da1a0)
+        1.  [Docker package](#orga31c67a)
+        2.  [docker-compose-mode](#org4972329)
+        3.  [docker-file-mode](#org81f0ef1)
+    13. [org-bookmark-heading](#orgea45881)
+    14. [Crux  - basic movement](#org4cf34b5)
+    15. [Crypto setup](#org4deeb3c)
+        1.  [Basic crypto](#org4c1ae14)
+        2.  [Setting auth sources](#org6cd664b)
+        3.  [github token access](#org062009f)
+    16. [Persp-projectile](#org61dd0f2)
+    17. [LOB](#org740eb4d)
+    18. [Hydras and some custom functions](#org6b9b2e7)
+        1.  [Refiling](#orgc920e6b)
+        2.  [Window manipulation](#org2ba9fe3)
+        3.  [helm-do-ag in specific locations](#org3d2c225)
+        4.  [Frame configurations fo magit and project launch](#orga7b8329)
+        5.  [Loading completed](#orgc21669a)
+    19. [Python <code>[0/4]</code>](#orga061001)
+        1.  [setup virtual environment approach](#orgbd37ff8)
+        2.  [setup conda for virtual environment management](#orgc4009d1)
+        3.  [General config](#org9df1cec)
+        4.  [Autocomplete for python blocks](#org4f2bd86)
+        5.  [Emacs-jupyter](#orgd6b2773)
+5.  [Disabled](#org5cb909b)
+    1.  [org2blog : publishing to wordpress <code>[0/1]</code>](#org11038e5)
+    2.  [helm-ext](#org5503990)
+    3.  [Scimax customisations](#org6a10d62)
+        1.  [Enabling Scimax Statistics](#orgab9ac27)
+    4.  [Dired](#org82f6c0a)
+    5.  [Activating windmove to facilitate Hydras](#org6ab902c)
+    6.  [Export async](#org3068482)
+    7.  [Ob-async](#orgde6ac23)
+    8.  [Auto saving all org files by the hour](#orga564dc6)
+    9.  [Tags setup](#orgc7bf88c)
+    10. [Icicles](#org1b06a1e)
+    11. [erc](#org7b23d3d)
+    12. [Scheme setup](#org26bff80)
+    13. [lintr](#orgc9e671d)
+    14. [Better defaults](#org3fd5097)
+    15. [Elfeed customisation](#org8d69a09)
+        1.  [Elfeed Basic + Customisations](#org607741b)
+        2.  [Scimax + Elfeed-org and elfeed-goodies setup <code>[/]</code>](#orgf1f6b61)
+        3.  [Consider storing the Feed sources here in org format](#orga41b04e)
+        4.  [Loading completed](#org5272a40)
+    16. [ediff](#orgc7fcb1b)
+    17. [Spell Checking](#org8a7e73d)
+        1.  [Flycheck](#orgaab3f24)
+        2.  [Enabling Flyspell](#org04aed4a)
+        3.  [Replacing flycheck with flymake](#orgce0a4d3)
+        4.  [Switching to aspell on the mac](#org9ad186b)
 
 
 
-<a id="org670b6d7"></a>
+<a id="org63b45e8"></a>
 
 # Introduction and preamble
 
@@ -223,7 +232,7 @@ The style of documentation is particularly influenced by the [dotemacs config](h
 > Note: The configuration posted on my website and github repo are updated from time to time, and may be older than the version I am using everyday.
 
 
-<a id="org2b02d71"></a>
+<a id="orgb55fad4"></a>
 
 ## This configuration
 
@@ -281,7 +290,7 @@ Scimax's init calls the `user.el` script placed in the user folder. The followin
         ln -s ~/scimax-personal/mail/fmail.crt /etc/postfix/
 
 
-<a id="org0f8a776"></a>
+<a id="org1f65a99"></a>
 
 ## Other literate Emacs configs
 
@@ -294,14 +303,14 @@ These references were used for exploration and inspiration. Other resources and 
 5.  [Bernt Hansen's very detailed Org-mode config](http://doc.norang.ca/org-mode.html)
 
 
-<a id="orgd8031a0"></a>
+<a id="org5ab479f"></a>
 
 # Stable Core
 
 These are packages and functions that I know to be working as expected, and settings that I use on a daily basis.
 
 
-<a id="org8ef13fd"></a>
+<a id="org0080139"></a>
 
 ## OS Level variables <code>[0/0]</code>
 
@@ -337,7 +346,7 @@ Since I switch between a Linux machine and a Mac frequently, it is better to def
     (message "Completed OS Level variables load")
 
 
-<a id="orgb812a1c"></a>
+<a id="org2d2914b"></a>
 
 ## Browse kill ring
 
@@ -347,21 +356,21 @@ Since I switch between a Linux machine and a Mac frequently, it is better to def
     )
 
 
-<a id="org75641f3"></a>
+<a id="org5fbaa05"></a>
 
 ## Remove trailing whitespace at the end of lines
 
     (add-hook 'before-save-hook 'delete-trailing-whitespace)
 
 
-<a id="orgeadf5ba"></a>
+<a id="org6dd0b20"></a>
 
 ## Remove '^' at the start of ivy commands
 
     (setq ivy-initial-inputs-alist nil)
 
 
-<a id="org7e9832d"></a>
+<a id="orgf8ba217"></a>
 
 ## Move to the next sentence
 
@@ -372,12 +381,12 @@ Reference: <http://pragmaticemacs.com/emacs/move-to-startend-of-line-or-sentence
     (setq sentence-end-double-space nil)
 
 
-<a id="org36cade1"></a>
+<a id="org8c2589a"></a>
 
 ## Package installation
 
 
-<a id="org30fb500"></a>
+<a id="org35004e3"></a>
 
 ### Package list
 
@@ -433,7 +442,7 @@ Though the use-package approach is a lot more elegant, I also like to have a lis
                          sx define-word))
 
 
-<a id="org77c812d"></a>
+<a id="orga79e1a9"></a>
 
 ### Fetch and install missing packages
 
@@ -447,7 +456,7 @@ Though the use-package approach is a lot more elegant, I also like to have a lis
         (package-install package)))
 
 
-<a id="orga9843e6"></a>
+<a id="org9c4a348"></a>
 
 ## Switch-window configuration
 
@@ -480,7 +489,7 @@ Source link: <https://github.com/dimitri/switch-window>
       )
 
 
-<a id="org82f457f"></a>
+<a id="org386454a"></a>
 
 ## Create intermediate directories while saving files
 
@@ -494,12 +503,12 @@ Source: <https://superuser.com/questions/131538/can-i-create-directories-that-do
             (make-directory dir)))))
 
 
-<a id="org3c8c78d"></a>
+<a id="org1642c87"></a>
 
 ## Shortcuts and registers
 
 
-<a id="org7b4226e"></a>
+<a id="org2927591"></a>
 
 ### Registers
 
@@ -518,21 +527,21 @@ Source: <https://superuser.com/questions/131538/can-i-create-directories-that-do
     (set-register ?g (cons 'file "~/my_gits/"))
 
 
-<a id="orgcf91fc2"></a>
+<a id="org70a3697"></a>
 
 ### Google this
 
     (global-set-key (kbd "M-s g") 'google-this-mode-submap)
 
 
-<a id="org7b8be70"></a>
+<a id="orgd7e9527"></a>
 
 ### ivy-yasnippet
 
     (global-set-key (kbd "M-s i") 'ivy-yasnippet)
 
 
-<a id="org2b243a9"></a>
+<a id="org40577be"></a>
 
 ### Mu4e related
 
@@ -541,7 +550,7 @@ Source: <https://superuser.com/questions/131538/can-i-create-directories-that-do
     (global-set-key (kbd "C-x m") 'mu4e-compose-new)
 
 
-<a id="org7a4289b"></a>
+<a id="orgfbff280"></a>
 
 ### Org related
 
@@ -551,7 +560,7 @@ Source: <https://superuser.com/questions/131538/can-i-create-directories-that-do
     ;;(global-set-key (kbd "M-s j") 'org-journal-new-entry)
 
 
-<a id="org0fb9f46"></a>
+<a id="org216750b"></a>
 
 ### Shortcuts for punching in and Out
 
@@ -559,7 +568,7 @@ Source: <https://superuser.com/questions/131538/can-i-create-directories-that-do
     (global-set-key (kbd "M-<f9>") 'sr/punch-out)
 
 
-<a id="org63c3903"></a>
+<a id="org3027e50"></a>
 
 ### TODO Setting the super and hyper Key
 
@@ -577,7 +586,7 @@ Source: <https://superuser.com/questions/131538/can-i-create-directories-that-do
       )
 
 
-<a id="org03e7fce"></a>
+<a id="orgf5d5782"></a>
 
 ### Shortcut for frog-jump-Buffer
 
@@ -588,7 +597,7 @@ Source: <https://superuser.com/questions/131538/can-i-create-directories-that-do
     frog-jump-buffer
 
 
-<a id="org2cffede"></a>
+<a id="org00e9c10"></a>
 
 ## yanking links in org format
 
@@ -604,7 +613,7 @@ Enables inserting a URL into an org document as '[<URL>][link]' by tapping F6 af
     (global-set-key (kbd "<f6>") 'my/yank-more)
 
 
-<a id="org037ccee"></a>
+<a id="org9e9e25b"></a>
 
 ## Export setup
 
@@ -614,7 +623,7 @@ Enables inserting a URL into an org document as '[<URL>][link]' by tapping F6 af
     (load "~/scimax/ox-ipynb/ox-ipynb.el")
 
 
-<a id="orga36d675"></a>
+<a id="org2e9a049"></a>
 
 ## Markdown config
 
@@ -623,7 +632,7 @@ Setting pandoc as the markdown command for live previews. The default command is
     (setq markdown-command "pandoc")
 
 
-<a id="orgf79630e"></a>
+<a id="org5e10577"></a>
 
 ## SLIME and lisp
 
@@ -644,7 +653,7 @@ Setting the location of the lisp interpreter based on the OS being used:
         )
 
 
-<a id="org8c13dc6"></a>
+<a id="orgd763563"></a>
 
 ## Expand region
 
@@ -658,7 +667,7 @@ Setting the location of the lisp interpreter based on the OS being used:
     (message "Loaded easier selection")
 
 
-<a id="orgc93f993"></a>
+<a id="orgea65c79"></a>
 
 ## Hippie Expand
 
@@ -668,12 +677,12 @@ Setting the location of the lisp interpreter based on the OS being used:
     			       try-expand-dabbrev-all-buffers) t))
 
 
-<a id="orge605d7c"></a>
+<a id="orgfe25d66"></a>
 
 ## Theme and visuals
 
 
-<a id="orgaa0033c"></a>
+<a id="org8f7f655"></a>
 
 ### Emacsclient or frame specific settings
 
@@ -686,7 +695,7 @@ Since I run emacs as a daemon and call the emacsclient, the background has to be
             ))
 
 
-<a id="org1c69eeb"></a>
+<a id="orgc0c1bc4"></a>
 
 ### Custom Safe themes and Background change to light grey,
 
@@ -694,7 +703,7 @@ Since I run emacs as a daemon and call the emacsclient, the background has to be
     (set-background-color "whitesmoke")
 
 
-<a id="orgf58eff2"></a>
+<a id="org0b8bd39"></a>
 
 ### TODO Setting terminal theme options
 
@@ -711,7 +720,7 @@ This seems to prevent the emacs daemon from starting up. I will need a condition
       (set-background-color "whitesmoke"))
 
 
-<a id="org782c5c3"></a>
+<a id="org05d4ea9"></a>
 
 ### Font Customisation based on OS
 
@@ -726,7 +735,7 @@ The same font is named differently in Antergos (Linux) and in the Mac OS.
         (set-face-attribute 'default nil :family "Iosevka Type" :height 160 ))
 
 
-<a id="org935e751"></a>
+<a id="orgba734ad"></a>
 
 ### TEST Spaceline : modeline configuration
 
@@ -744,7 +753,7 @@ Source: <http://pragmaticemacs.com/emacs/get-that-spacemacs-look-without-spacema
     )
 
 
-<a id="org383bfb1"></a>
+<a id="orgbec470f"></a>
 
 ### TODO Basic cosmetics. Review & Convert to use-package style
 
@@ -772,7 +781,7 @@ Source: <http://pragmaticemacs.com/emacs/get-that-spacemacs-look-without-spacema
     ;;   (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
 
 
-<a id="orga23a356"></a>
+<a id="org9906091"></a>
 
 ### Striking out Done headlines
 
@@ -788,7 +797,7 @@ source: Sacha Chua
          (:foreground "LightSalmon" :strike-through t)))))
 
 
-<a id="org32fdd5b"></a>
+<a id="org001eeb3"></a>
 
 ### Formatting keywords as boxes with inverted colors
 
@@ -815,7 +824,7 @@ Source : SO [link](https://stackoverflow.com/questions/12707492/add-custom-marke
                         )
 
 
-<a id="org96fc5c2"></a>
+<a id="org4d33faa"></a>
 
 ## TODO mu4e
 
@@ -924,7 +933,7 @@ Source : SO [link](https://stackoverflow.com/questions/12707492/add-custom-marke
           (add-hook 'org-ctrl-c-ctrl-c-hook 'htmlize-and-send t)))
 
 
-<a id="org9f55108"></a>
+<a id="orga3d919c"></a>
 
 ### TEST New attempt at use package
 
@@ -954,7 +963,7 @@ Source : SO [link](https://stackoverflow.com/questions/12707492/add-custom-marke
     )
 
 
-<a id="org307eb06"></a>
+<a id="orgcc1cb6c"></a>
 
 ### TEST mu4e alerts
 
@@ -968,7 +977,7 @@ Source : SO [link](https://stackoverflow.com/questions/12707492/add-custom-marke
          (after-init . mu4e-alert-enable-mode-line-display)))
 
 
-<a id="orgff62afb"></a>
+<a id="org597d142"></a>
 
 ## Multiple Cursors
 
@@ -984,12 +993,12 @@ Source : SO [link](https://stackoverflow.com/questions/12707492/add-custom-marke
     (message "Loaded MC")
 
 
-<a id="orgf4cb604"></a>
+<a id="org20e17d0"></a>
 
 ## git related
 
 
-<a id="orge86edbb"></a>
+<a id="org1d5def0"></a>
 
 ### TODO Git gutter
 
@@ -1003,21 +1012,21 @@ Source : SO [link](https://stackoverflow.com/questions/12707492/add-custom-marke
       :diminish git-gutter-mode)
 
 
-<a id="orgaaecb95"></a>
+<a id="orgd57569c"></a>
 
 ### magit settings
 
     (setq magit-revert-buffers 'silent)
 
 
-<a id="org543b6cc"></a>
+<a id="org8dfd3ce"></a>
 
 ### Completed loading message
 
     (message "Loaded git related config")
 
 
-<a id="org2c56b72"></a>
+<a id="org902f96f"></a>
 
 ## Projectile behavior
 
@@ -1027,12 +1036,12 @@ Source : SO [link](https://stackoverflow.com/questions/12707492/add-custom-marke
     (setq projectile-cache-file "~/my_org/emacs_meta/.projectile-cache")
 
 
-<a id="org236518c"></a>
+<a id="orgf3d1992"></a>
 
 ## Helm
 
 
-<a id="org8eb35a6"></a>
+<a id="orgdc175cf"></a>
 
 ### Enabling Helm mode and activation for basic functions
 
@@ -1057,7 +1066,7 @@ I prefer using Helm for specific functions like M-x, find files and bookmarks an
     (helm-mode 1)
 
 
-<a id="orgee812f0"></a>
+<a id="org9ba1bd0"></a>
 
 ### Bookmarks with Helm
 
@@ -1072,7 +1081,7 @@ The default bookmarks list `C-x r l` can be accessed using `helm-bookmarks`. The
     (setq helm-bookmark-show-location t)
 
 
-<a id="orga658ba2"></a>
+<a id="orga07eb6b"></a>
 
 ### STABLE Setting sources for helm
 
@@ -1102,17 +1111,17 @@ As an example: setting these sources enables my bookmarks to be available along 
                                               helm-source-buffer-not-found))
 
 
-<a id="orgf272293"></a>
+<a id="org260eb9d"></a>
 
 ### helm-semantic
 
-This needs [Semantic Mode](#org9549642) enabled, and is a really cool function that enables jumping around variables and functions in a script file with fuzzy matching !
+This needs [Semantic Mode](#org50096e5) enabled, and is a really cool function that enables jumping around variables and functions in a script file with fuzzy matching !
 
     (setq helm-semantic-fuzzy-match t
           helm-imenu-fuzzy-match t)
 
 
-<a id="orga7bbb0d"></a>
+<a id="orga0e5039"></a>
 
 ### TODO Persistent follow mode for Helm
 
@@ -1123,7 +1132,7 @@ This needs [Semantic Mode](#org9549642) enabled, and is a really cool function t
      '(helm-follow-mode-persistent t))
 
 
-<a id="orga39a46d"></a>
+<a id="org6220705"></a>
 
 ### `helm-ag` and `helm-org-rifle`, with refiling set to `helm-org-rifle`
 
@@ -1143,7 +1152,7 @@ This needs [Semantic Mode](#org9549642) enabled, and is a really cool function t
     )
 
 
-<a id="orgee7e629"></a>
+<a id="org7a73320"></a>
 
 ### helm-swoop
 
@@ -1172,26 +1181,26 @@ Source: <https://writequit.org/org/#orgheadline92>
             helm-swoop-speed-or-color nil))
 
 
-<a id="orgb368c4e"></a>
+<a id="org919b31f"></a>
 
 ### Helm Loading completed
 
     (message "Loaded Helm customisations")
 
 
-<a id="orga6a505a"></a>
+<a id="org6bd7f9c"></a>
 
 ## Org mode related
 
 
-<a id="org455c7bd"></a>
+<a id="org3e68e64"></a>
 
 ### TEST Org tags to be available everywhere
 
     (setq org-complete-tags-always-offer-all-agenda-tags t)
 
 
-<a id="orgaf5fbce"></a>
+<a id="org89a25b7"></a>
 
 ### Default org directory and agenda file directory
 
@@ -1201,7 +1210,7 @@ Source: <https://writequit.org/org/#orgheadline92>
      )
 
 
-<a id="org6b62369"></a>
+<a id="orgcc6b0fb"></a>
 
 ### Org-notes into log drawer
 
@@ -1211,7 +1220,7 @@ I've been inserting org notes into the body of the text, since I do not make ext
     (setq org-log-redeadline 'time)
 
 
-<a id="orgbc0cba9"></a>
+<a id="orgf3f2486"></a>
 
 ### TODO Enabling org capture and org protocol
 
@@ -1224,7 +1233,7 @@ Source: <http://www.diegoberrocal.com/blog/2015/08/19/org-protocol/>
     (require 'org-protocol)
 
 
-<a id="org03834b7"></a>
+<a id="org5578185"></a>
 
 ### TODO Ensuring archive files are also in org mode
 
@@ -1240,7 +1249,7 @@ Source: <http://www.diegoberrocal.com/blog/2015/08/19/org-protocol/>
     (add-to-list 'auto-mode-alist '("\\.org_archive\\'" . org-mode))
 
 
-<a id="org744a21e"></a>
+<a id="orgf1608e7"></a>
 
 ### Archiving mechanics
 
@@ -1272,7 +1281,7 @@ Archive organised by Top level headings in the original file and with Tag preser
             (org-set-tags-to tags)))))
 
 
-<a id="orgd7940bd"></a>
+<a id="org12735a7"></a>
 
 ### TEST org-wiki
 
@@ -1292,7 +1301,7 @@ Archive organised by Top level headings in the original file and with Tag preser
         (setq org-wiki-location "~/my_projects/ds-job-search")
 
 
-<a id="org8b7b2ca"></a>
+<a id="org37cca8a"></a>
 
 ### org-id
 
@@ -1312,7 +1321,7 @@ In addition, I would like an org id to be created every time the capture is used
     (add-hook 'org-capture-prepare-finalize-hook 'org-id-get-create)
 
 
-<a id="org0991706"></a>
+<a id="org14eb6cf"></a>
 
 ### TODO Setting custom keywords with fast access
 
@@ -1325,7 +1334,7 @@ In addition, I would like an org id to be created every time the capture is used
             (sequence "|" )))
 
 
-<a id="org61c5700"></a>
+<a id="org7270092"></a>
 
 ### Refiling settings
 
@@ -1348,10 +1357,10 @@ In addition, I would like an org id to be created every time the capture is used
         (setq org-reverse-note-order t)
         (setq org-refile-allow-creating-parent-nodes 'confirm)
 
-3.  [Also refer Refiling hydra](#org110b4b7)
+3.  [Also refer Refiling hydra](#orgc920e6b)
 
 
-<a id="org38a8ffd"></a>
+<a id="org3a2be92"></a>
 
 ### Agenda mechanics
 
@@ -1447,7 +1456,7 @@ In addition, I would like an org id to be created every time the capture is used
         (setq org-habit-graph-column 90)
 
 
-<a id="orgc718895"></a>
+<a id="org9b35107"></a>
 
 ### TODO Capture mechanics
 
@@ -1542,7 +1551,7 @@ In addition, I would like an org id to be created every time the capture is used
           (advice-add 'org-capture-place-template :around 'my-org-capture-place-template-dont-delete-windows))
 
 
-<a id="org1c912b0"></a>
+<a id="org6e04520"></a>
 
 ### TODO version control and backup of files
 
@@ -1553,7 +1562,7 @@ In addition, I would like an org id to be created every time the capture is used
     (setq version-control t)
 
 
-<a id="org4eaba6a"></a>
+<a id="org23215ab"></a>
 
 ### org-noter
 
@@ -1569,7 +1578,7 @@ In addition, I would like an org id to be created every time the capture is used
       )
 
 
-<a id="org6fc48b2"></a>
+<a id="orge100071"></a>
 
 ### TODO org-projectile
 
@@ -1590,12 +1599,12 @@ Starting off with the basic configuration posted in org-projectile github repo.
       )
 
 
-<a id="org522342f"></a>
+<a id="orga834ff4"></a>
 
 ### TODO org-gcal customisation
 
 
-<a id="orgae5d624"></a>
+<a id="org7d2df57"></a>
 
 ### TODO Property customisation
 
@@ -1672,7 +1681,7 @@ Starting off with the basic configuration posted in org-projectile github repo.
         (define-key org-capture-mode-map "\C-c\C-t" 'mrb/add-tags-in-capture)
 
 
-<a id="org782c74e"></a>
+<a id="org79b3817"></a>
 
 ### TODO org web clipper
 
@@ -1732,7 +1741,7 @@ Source: <http://www.bobnewell.net/publish/35years/webclipper.html>
       )
 
 
-<a id="org79ba85f"></a>
+<a id="org2302dd9"></a>
 
 ### Org-babel
 
@@ -1756,12 +1765,12 @@ Source: <http://www.bobnewell.net/publish/35years/webclipper.html>
         (setq org-babel-clojure-backend 'cider)
 
 
-<a id="orgfa12dfc"></a>
+<a id="org2562b35"></a>
 
 ### TODO Org-trello
 
 
-<a id="orgb2e7e8b"></a>
+<a id="orgb6338d3"></a>
 
 ### Clock Customisation
 
@@ -1850,7 +1859,7 @@ Source: <http://www.bobnewell.net/publish/35years/webclipper.html>
         (global-set-key (kbd "C-c O") #'org-clock-out)
 
 
-<a id="org4de465f"></a>
+<a id="org6ce33ee"></a>
 
 ### Org-Brain <code>[1/2]</code>
 
@@ -1886,7 +1895,7 @@ Source: <http://www.bobnewell.net/publish/35years/webclipper.html>
           )
 
 
-<a id="orgf1d1fd0"></a>
+<a id="org68fab1b"></a>
 
 ### Org journal
 
@@ -1914,7 +1923,7 @@ Source: <http://www.bobnewell.net/publish/35years/webclipper.html>
 3.  TODO Figure out easy encryption approach for org journal
 
 
-<a id="org3eade6e"></a>
+<a id="org8b83a98"></a>
 
 ### TEST Org sticky Header <code>[0/1]</code>
 
@@ -1933,7 +1942,7 @@ This is especially useful for free form longer Documentation.
       )
 
 
-<a id="orgf9bb745"></a>
+<a id="org6f0b04c"></a>
 
 ### TEST Org wild Notifier
 
@@ -1948,7 +1957,7 @@ This is especially useful for free form longer Documentation.
       )
 
 
-<a id="org7b7cbab"></a>
+<a id="org2a5f245"></a>
 
 ### TEST Org to RST Exporter
 
@@ -1964,7 +1973,7 @@ This platform is actually pleasant to browse through documentation and has good 
       )
 
 
-<a id="org1e67184"></a>
+<a id="org5f008d9"></a>
 
 ### TEST Org to Slack exporter
 
@@ -1978,7 +1987,7 @@ This should prove handy as I write almost all my responses within Org mode and c
       )
 
 
-<a id="org669e94d"></a>
+<a id="org1f18218"></a>
 
 ### TEST ox-pandoc
 
@@ -1990,14 +1999,14 @@ This should prove handy as I write almost all my responses within Org mode and c
       )
 
 
-<a id="org6963691"></a>
+<a id="org870e2ca"></a>
 
 ### Setting the columns for the column view
 
     (setq org-columns-default-format "%50ITEM %TODO %3PRIORITY %10TAGS %17Effort(Estimated Effort){:} %12CLOCKSUM")
 
 
-<a id="org2bae6a7"></a>
+<a id="org44d9b78"></a>
 
 ### TEST org-sidebar
 
@@ -2007,14 +2016,502 @@ This should prove handy as I write almost all my responses within Org mode and c
       )
 
 
-<a id="org85e8fa1"></a>
+<a id="orgd571e03"></a>
 
 # Stable Extras
 
 These are packages and code snippets that I know to be working fine. Some still have rough edges and these are marked test. However not having these will not break my experience. Over time, some of these may make it to the core stable group.
 
 
-<a id="orgd296a91"></a>
+<a id="org21fb58f"></a>
+
+## STABLE Oddmuse curl
+
+-   Note taken on <span class="timestamp-wrapper"><span class="timestamp">[2020-01-19 Sun 09:25] </span></span>
+    Current issue: Emacswiki is working as expected with oddmuse-curl. However, my own wiki is not being listed. I am able to curl the contents of pages from my wiki which indicates that curl is working for the website. Discussions are on with Alex to figure this out.
+
+    (add-to-list 'load-path "~/scimax-personal/external_packages/oddmuse-curl/")
+    (setq oddmuse-username "shrysr")
+    (setq oddmuse-wikis
+          '(("EmacsWiki" "https://www.emacswiki.org/emacs" utf-8 "abcd" nil)
+    	("sr" "https://shrysr.ragavan.co" utf-8 nil nil)))
+    (setq oddmuse-directory "~/my_org/01_wiki/oddmuse/")
+    (add-to-list 'auto-mode-alist '("~/my_org/01_wiki/oddmuse" . oddmuse-mode))
+    (autoload 'oddmuse-edit "oddmuse-curl"
+      "Edit a page on an Oddmuse wiki." t)
+    (add-to-list 'vc-handled-backends 'oddmuse)
+
+    (defun vc-oddmuse-registered (file)
+      "Handle files in `oddmuse-directory'."
+      (string-match (concat "^" (expand-file-name oddmuse-directory))
+                    (file-name-directory file)))
+
+    (require 'oddmuse-curl)
+    ;; (oddmuse-mode-initialize)
+
+
+<a id="org61b45a1"></a>
+
+## STABLE Pinboard <code>[1/2]</code>
+
+To get started, visit your password settings page on Pinboard and get the API token that's displayed there.
+
+Then edit ~/.authinfo and add a line like this:
+
+    machine api.pinboard.in password foo:8ar8a5w188l3
+
+    (use-package pinboard
+    :defer nil
+    :ensure t
+    )
+
+-   [X] Figure out the auth file settings from before
+-   [ ] Checkout the org mode snippet [link](https://gist.github.com/khinsen/7ed357eed9b27f142e4fa6f5c4ad45dd)
+
+
+<a id="orgc2c3160"></a>
+
+## TEST EWW setup
+
+-   Note taken on <span class="timestamp-wrapper"><span class="timestamp">[2020-01-19 Sun 14:33] </span></span>
+    I switched to using eww today. Apparently there are some more handy built-in functions in EWW and the rendering is actually better than w3m. The loading also seems to be a lot faster.
+
+
+<a id="orgfdc530a"></a>
+
+### Default browser to be eww and basic settings
+
+    (setq browse-url-browser-function 'eww-browse-url)
+
+
+<a id="orgd2893bd"></a>
+
+### Keyboard map for default external browser
+
+    ;; Open the current URL in the default external browser
+    (eval-after-load 'eww
+      '(progn
+         (define-key eww-mode-map "o" 'eww-browse-with-external-browser)
+         ))
+
+
+<a id="org7b84a9d"></a>
+
+### Wikipedia search
+
+    (defun wikipedia-search (search-term)
+      "Search for SEARCH-TERM on wikipedia"
+      (interactive
+       (let ((term (if mark-active
+                       (buffer-substring (region-beginning) (region-end))
+                     (word-at-point))))
+         (list
+          (read-string
+           (format "Wikipedia (%s):" term) nil nil term)))
+       )
+      (browse-url
+       (concat
+        "http://en.m.wikipedia.org/w/index.php?search="
+        search-term
+        ))
+      )
+
+
+<a id="org07f0262"></a>
+
+### Access Hacker News
+
+    (defun hn ()
+      (interactive)
+      (browse-url "http://news.ycombinator.com"))
+
+
+<a id="org7131c91"></a>
+
+### TODO Open specific browser depending on the URL
+
+-   Note taken on <span class="timestamp-wrapper"><span class="timestamp">[2019-03-07 Thu 11:59] </span></span>
+    This is worth setting up. It would be convenient for frequently visited websites like reddit and others, to open in the external browser, especially as they do not render well within w3m.
+
+Source : <http://ergoemacs.org/emacs/emacs_set_default_browser.Html>
+
+    ;; use browser depending on url
+    (setq
+     browse-url-browser-function
+     '(
+      ("wikipedia\\.org" . eww-browse-url)
+      ("github" . eww-browse-url)
+      ("thefreedictionary\\.com" . eww-browse-url)
+      ("." . browse-url-default-browser)
+      ))
+
+
+<a id="org7131e01"></a>
+
+### Kaushal Modi's setup
+
+This is Kaushal Modi's entire eww setup. There are many nifty functions here that I need to study and I have not explored the code.
+
+    ;; Eww - Emacs browser (needs emacs 24.4 or higher)
+
+    (use-package eww
+      :bind
+      :commands (modi/eww-im-feeling-lucky
+    	     modi/eww-browse-url-of-file)
+      ;; :init
+      ;; (progn
+      ;;   (bind-to-modi-map "e" #'eww-open-file))
+      :config
+      (progn
+        (defvar modi/eww-google-search-url "https://www.google.com/search?q="
+          "URL for Google searches.")
+        (setq eww-search-prefix modi/eww-google-search-url)
+        ;; (setq eww-search-prefix "https://duckduckgo.com/html/?q=")
+        (setq eww-download-directory "~/downloads")
+        (setq eww-form-checkbox-symbol "[ ]")
+        (setq eww-form-checkbox-selected-symbol "[X]")
+        ;; Improve the contract of pages like Google results
+        ;; http://emacs.stackexchange.com/q/2955/115
+        (setq shr-color-visible-luminance-min 80) ; default = 40
+
+        ;; Auto-rename new eww buffers
+        ;; http://ergoemacs.org/emacs/emacs_eww_web_browser.html
+        (defun xah-rename-eww-hook ()
+          "Rename eww browser's buffer so sites open in new page."
+          (rename-buffer "eww" t))
+        (add-hook 'eww-mode-hook #'xah-rename-eww-hook)
+
+        ;; If the current buffer is an eww buffer, "M-x eww" will always reuse the
+        ;; current buffer to load the new page. Below advice will make "C-u M-x eww"
+        ;; force a new eww buffer even when the current buffer is an eww buffer.
+        ;; The above `xah-rename-eww-hook' fix is still needed in order to create
+        ;; uniquely named eww buffers.
+        ;; http://emacs.stackexchange.com/a/24477/115
+        (defun modi/force-new-eww-buffer (orig-fun &rest args)
+          "When prefix argument is used, a new eww buffer will be created.
+       This is regardless of whether the current buffer is an eww buffer. "
+          (if current-prefix-arg
+    	  (with-temp-buffer
+    	    (apply orig-fun args))
+    	(apply orig-fun args)))
+        (advice-add 'eww :around #'modi/force-new-eww-buffer)
+
+        ;; Re-write of the `eww-search-words' definition.
+        (defun modi/eww-search-words ()
+          "Search the web for the text between BEG and END.
+
+       If region is active (and not whitespace), search the web for
+       the text in that region.
+
+       Else if the region is not active, and the point is on a symbol,
+       search the web for that symbol.
+
+       Else prompt the user for a search string.
+
+       See the `eww-search-prefix' variable for the search engine used."
+          (interactive)
+          (let ((search-string (modi/get-selected-text-or-symbol-at-point)))
+    	(when (and (stringp search-string)
+    		   (string-match-p "\\`[[:blank:]]*\\'" search-string))
+    	  (setq search-string nil))
+    	(if (stringp search-string)
+    	    (eww search-string)
+    	  (call-interactively #'eww))))
+
+        ;; Tue Oct 17 08:00:57 EDT 2017 - kmodi
+        ;; duckduckgo is not included in the below alist because
+        ;; `shr-probe-and-copy-url' does not work on duckduckgo search result URLs.
+        (defvar modi/eww-search-alist `((,modi/eww-google-search-url . "[[:digit:]]+ results[[:blank:]]*$"))
+          "Alist of search engines and regexp matching the start of results.
+       The elements are of type (SEARCH-PREFIX . REGEXP) where
+       SEARCH-PREFIX is a prefix URL as would be used by
+       `eww-search-prefix', and REGEXP is a regular expression to match
+       the start of search results.")
+
+        (defun modi/eww--go-to-first-search-result (search-term)
+          "Navigate to the first search result in the *eww* buffer."
+          ;; Keep on burying the current buffer if it turns out to be an eww buffer.
+          (while (string-match "^\\*?eww" (buffer-name))
+    	(bury-buffer))
+          (let* ((eww-search-prefix eww-search-prefix) ;Use the global value of `eww-search-prefix' by default
+    	     (start-results-re
+    	      (let ((re (cdr (assoc eww-search-prefix modi/eww-search-alist))))
+    		(unless re
+    		  (message "Using Google search because `modi/eww-search-alist' does not have an entry for %S" eww-search-prefix)
+    		  (setq eww-search-prefix modi/eww-google-search-url)
+    		  (setq re (cdr (assoc eww-search-prefix modi/eww-search-alist))))
+    		re))
+    	     (max-wait 5)		  ;Seconds
+    	     (search-repeat-interval 0.1) ;Seconds
+    	     (max-trials (floor max-wait search-repeat-interval))
+    	     (start-time (current-time))
+    	     (n 1))
+    	(unless start-results-re
+    	  ;; This condition would be entered only if `modi/eww-search-alist' is
+    	  ;; messed up badly.
+    	  (user-error "`modi/eww-search-alist' does not contain an entry for %S" eww-search-prefix))
+    	(eww search-term)		;Start a new eww search
+    	;; The while loop will keep on repeating every `search-repeat-interval'
+    	;; seconds till the return value of `eww-links-at-point' is non-nil.
+    	(catch 'break
+    	  (while (<= n max-trials)
+    	    (goto-char (point-min))	;Go to the top of the buffer
+    	    ;; Go to the start of results
+    	    (re-search-forward start-results-re nil :noerror)
+    	    (shr-next-link)		;Go to the first search result
+    	    (when (eww-links-at-point)
+    	      (throw 'break nil))
+    	    ;; Wait for a while before trying link check again.
+    	    (sleep-for search-repeat-interval)
+    	    ;; (message "eww search result trial # %d" n)
+    	    (setq n (1+ n))))
+    	(message "Search for `%s' finished in %0.2f seconds."
+    		 search-term (float-time (time-since start-time)))))
+
+        (defun modi/eww-get-link (search-term)
+          "Copy the link to the first search result."
+          (interactive "sSearch term: ")
+          (let ((eww-buffer-name))
+    	(modi/eww--go-to-first-search-result search-term)
+    	(setq eww-buffer-name (rename-buffer "*eww-temp*" t))
+    	(>=e "26.0"
+    	     ;; http://git.savannah.gnu.org/cgit/emacs.git/commit/?id=1b4f0a92ff3505ef9a465b9b391756e3a73a6443
+    	     (call-interactively #'shr-probe-and-copy-url)
+    	     ;; Copy the actual link instead of the redirection link by calling
+    	     ;; `shr-copy-url' twice. This twice-calling is needed only on emacs
+    	     ;; versions 25.x and older.
+    	     (dotimes (i 2)
+    	       (shr-copy-url)))
+    	(kill-buffer eww-buffer-name)))
+
+        (defun modi/eww-im-feeling-lucky (search-term)
+          "Navigate to the first search result directly."
+          (interactive "sSearch term (I'm Feeling Lucky!): ")
+          (modi/eww--go-to-first-search-result search-term)
+          (eww-follow-link))
+
+        (defun modi/eww-copy-url-dwim (&optional option)
+          "Copy the URL or image under point to the kill ring.
+
+       If OPTION is \\[universal-argument], or if there is no link under
+       point, but there is an image under point then copy the URL of the
+       image under point instead.
+
+       If OPTION is \\[universal-argument] \\[universal-argument], or if
+       there is neither a link nor an image, the page URL will be
+       copied.
+
+       \(For emacs 25.x and older) If this function is called twice, try
+       to fetch the URL and see whether it redirects somewhere else.
+
+       \(For emacs 26.x and newer) Automatically use the fetched URL's
+       redirection destination if it has one."
+          (interactive "P")
+          (let (image-url page-url)
+    	(cond
+    	 ((equal '(4) option)		;C-u
+    	  (setq image-url t))
+    	 ((equal '(16) option)		;C-u C-u
+    	  (setq page-url t))
+    	 (t				;No prefix
+    	  ))
+    	(>=e "26.0"
+    	     (let* ((pt-on-url (shr-url-at-point nil))
+    		    (pt-on-image (shr-url-at-point :image-url)))
+    	       (unless (or pt-on-url
+    			   pt-on-image)
+    		 (setq page-url t)) ;Get page URL if point is neither on URL nor image
+    	       (if page-url
+    		   (message "Copied page url: %s" (eww-copy-page-url))
+    		 (let ((current-prefix-arg image-url))
+    		   (call-interactively #'shr-probe-and-copy-url))))
+    	     (if page-url
+    		 (message "Copied page url: %s" (eww-copy-page-url))
+    	       (when (string= (shr-copy-url image-url) "No URL under point") ;No prefix or C-u
+    		 ;; Copy page url if COMMAND or C-u COMMAND returns
+    		 ;; "No URL under point".
+    		 (message "Copied page url: %s" (eww-copy-page-url)))))))
+
+        (defun modi/eww-browse-url-of-file ()
+          "Browse the current file using `eww'."
+          (interactive)
+          (let ((browse-url-browser-function 'eww-browse-url))
+    	(call-interactively #'browse-url-of-file)))
+
+        ;; eww-lnum
+        ;; https://github.com/m00natic/eww-lnum
+        (use-package eww-lnum
+          :bind (:map eww-mode-map
+    		  ("f" . eww-lnum-follow)
+    		  ("U" . eww-lnum-universal)))
+
+        ;; Apparently this package does not exist anymore - shreyas.
+        ;; org-eww
+        ;; Copy text from html page for pasting in org mode file/buffer
+        ;; e.g. Copied HTML hyperlinks get converted to [[link][desc]] for org mode.
+        ;; http://emacs.stackexchange.com/a/8191/115
+        ;; (use-package org-eww
+        ;;   :bind (:map eww-mode-map
+        ;; 		  ("o" . org-eww-copy-for-org-mode)))
+
+        ;; Auto-refreshing eww buffer whenever the html file it's showing changes
+        ;; http://emacs.stackexchange.com/a/2566/115
+        (defvar modi/eww--file-notify-descriptors-list ()
+          "List to store file-notify descriptor for all files that have an
+       associated auto-reloading eww buffer.")
+
+        (defun modi/advice-eww-open-file-to-auto-reload (orig-fun &rest args)
+          "When `eww-open-file' is called with \\[universal-argument], open
+       the file in eww and also add `file-notify' watch for it so that the eww
+       buffer auto-reloads when the HTML file changes."
+          (prog1
+    	  (apply orig-fun args)
+    	(when current-prefix-arg	; C-u M-x eww-open-file
+    	  (require 'filenotify)
+    	  (let ((file-name (car args)))
+    	    (file-notify-add-watch file-name
+    				   '(change attribute-change)
+    				   #'modi/file-notify-callback-eww-reload)
+    	    ;; Show the HTML file and its rendered form in eww side-by-side
+    	    (find-file-other-window file-name))
+    	  ;; Redefine the `q' binding in `eww-mode-map'
+    	  (bind-key "q" #'modi/eww-quit-and-update-fn-descriptors eww-mode-map))))
+        (advice-add 'eww-open-file :around #'modi/advice-eww-open-file-to-auto-reload)
+
+        (defun modi/file-notify-callback-eww-reload (event)
+          "On getting triggered, switch to the eww buffer, reload and switch
+       back to the working buffer. Also save the `file-notify-descriptor' of the
+       triggering event."
+          (let* ((working-buffer (buffer-name)))
+    	(switch-to-buffer-other-window "eww")
+    	(eww-reload)
+    	(switch-to-buffer-other-window working-buffer))
+          ;; `(car event)' will return the event descriptor
+          (add-to-list 'modi/eww--file-notify-descriptors-list (car event)))
+
+        (defun modi/eww-quit-and-update-fn-descriptors ()
+          "When quitting `eww', first remove any saved file-notify descriptors
+       specific to eww, while also updating `modi/eww--file-notify-descriptors-list'."
+          (interactive)
+          (dotimes (index (safe-length modi/eww--file-notify-descriptors-list))
+    	(file-notify-rm-watch (pop modi/eww--file-notify-descriptors-list)))
+          (quit-window :kill))
+
+        ;; Toggle displaying of images
+        ;; https://emacs.stackexchange.com/a/38639/115
+        (defun glucas/eww-toggle-images ()
+          "Toggle displaying of images in the current Eww buffer,
+       The page is reloaded from cache when doing this toggle."
+          (interactive)
+          (setq-local shr-inhibit-images (not shr-inhibit-images))
+          (eww-reload :local)  ;Reload from cache rather than from network
+          (message "Images are now %s"
+    	       (if shr-inhibit-images "disabled" "enabled")))
+
+        (bind-keys
+         :map eww-mode-map
+         (":" . eww)			;Go to URL
+         ("h" . eww-list-histories)		;View history
+         ("w" . modi/eww-copy-url-dwim)
+         ("/" . highlight-regexp)
+         ("=" . text-scale-increase)			 ;-/_ key
+         ("-" . text-scale-decrease)			 ;=/+ key
+         ("_" . (lambda() (interactive) (text-scale-set 0))) ;Shift + -/_ key
+         ("+" . (lambda() (interactive) (text-scale-set 0))) ;Shift + =/+ key
+         ("I" . glucas/eww-toggle-images))
+        ;; Make the binding for `revert-buffer' do `eww-reload' in eww-mode
+        (define-key eww-mode-map [remap revert-buffer] #'eww-reload)
+        (bind-keys
+         :map eww-text-map		       ;For single line text fields
+         ("<backtab>" . shr-previous-link) ;S-TAB Jump to previous link on the page
+         ("<C-return>" . eww-submit)) ;S-TAB Jump to previous link on the page
+        (bind-keys
+         :map eww-textarea-map	       ;For multi-line text boxes
+         ("<backtab>" . shr-previous-link) ;S-TAB Jump to previous link on the page
+         ("<C-return>" . eww-submit)) ;S-TAB Jump to previous link on the page
+        (bind-keys
+         :map eww-checkbox-map
+         ("<down-mouse-1>" . eww-toggle-checkbox))))
+
+    (with-eval-after-load 'shr
+      ;; Tweak the fontification of h1 heading s in eww (usually the
+      ;; article titles).
+      (defun modi/shr-tag-h1-advice (dom)
+        (let ((h1-font-prop '(:height 1.3 :weight bold :foreground "#c75646")))
+          (shr-heading dom (if shr-use-fonts
+    			   `(variable-pitch ,h1-font-prop)
+    			 `(fixed-pitch ,h1-font-prop)))))
+      (advice-add 'shr-tag-h1 :override #'modi/shr-tag-h1-advice)
+
+      ;; Tweak the fontification of h2 headings in eww (usually the
+      ;; first-level headings in the articles).
+      (defun modi/shr-tag-h2-advice (dom)
+        (let ((h2-font-prop '(:weight bold :foreground "#d0b03c")))
+          (shr-heading dom (if shr-use-fonts
+    			   `(variable-pitch ,h2-font-prop)
+    			 `(fixed-pitch ,h2-font-prop)))))
+      (advice-add 'shr-tag-h2 :override #'modi/shr-tag-h2-advice)
+
+      ;; `shr-map' gets copied to `eww-link-keymap' in eww.el. So we need
+      ;; to override the `shr-map' instead of the latter.
+      (bind-keys
+       :map shr-map
+       ("w" . modi/eww-copy-url-dwim)
+       ("I" . glucas/eww-toggle-images))
+      ;; `shr-image-map' gets copied to `eww-image-link-keymap' in eww.el.
+      ;; So we need to override the `shr-image-map' instead of the latter.
+      (bind-keys
+       :map shr-image-map
+       ("w" . modi/eww-copy-url-dwim)
+       ("I" . glucas/eww-toggle-images)))
+
+
+    ;; (provide 'setup-eww)
+    					;
+
+    ;; Default eww key bindings
+    ;; |-----------+---------------------------------------------------------------------|
+    ;; | Key | Function |
+    ;; |-----------+---------------------------------------------------------------------|
+    ;; | & | Browse the current URL with an external browser. |
+    ;; | - | Begin a negative numeric argument for the next command. |
+    ;; | 0 .. 9 | Part of the numeric argument for the next command. |
+    ;; | C | Display a buffer listing the current URL cookies, if there are any. |
+    ;; | H | List the eww-histories. |
+    ;; | F | Toggle font between variable-width and fixed-width. |
+    ;; | G | Go to a URL |
+    ;; | R | Readable mode |
+    ;; | S | List eww buffers |
+    ;; | d | Download URL under point to `eww-download-directory'. |
+    ;; | g | Reload the current page. |
+    ;; | q | Quit WINDOW and bury its buffer. |
+    ;; | v | `eww-view-source' |
+    ;; | w | `eww-copy-page-url' |
+    ;; |-----------+---------------------------------------------------------------------|
+    ;; | b | Add the current page to the bookmarks. |
+    ;; | B | Display the bookmark list. |
+    ;; | M-n | Visit the next bookmark |
+    ;; | M-p | Visit the previous bookmark |
+    ;; |-----------+---------------------------------------------------------------------|
+    ;; | t | Go to the page marked `top'. |
+    ;; | u | Go to the page marked `up'. |
+    ;; |-----------+---------------------------------------------------------------------|
+    ;; | n | Go to the page marked `next'. |
+    ;; | p | Go to the page marked `previous'. |
+    ;; |-----------+---------------------------------------------------------------------|
+    ;; | l | Go to the previously displayed page. |
+    ;; | r | Go to the next displayed page. |
+    ;; |-----------+---------------------------------------------------------------------|
+    ;; | TAB | Move point to next link on the page. |
+    ;; | S-TAB | Move point to previous link on the page. |
+    ;; |-----------+---------------------------------------------------------------------|
+    ;; | SPC | Scroll up |
+    ;; | DEL/Bkspc | Scroll down |
+    ;; | S-SPC | Scroll down |
+    ;; |-----------+---------------------------------------------------------------------|
+
+
+<a id="orgf306f7b"></a>
 
 ## TODO Time machine for git
 
@@ -2027,7 +2524,7 @@ These are packages and code snippets that I know to be working fine. Some still 
       :ensure t)
 
 
-<a id="org8a08da9"></a>
+<a id="org7eb0b8f"></a>
 
 ## Loading External Packages
 
@@ -2037,7 +2534,7 @@ Loading external packages:  there are some packages which are not avaialble on M
       (normal-top-level-add-subdirs-to-load-path))
 
 
-<a id="org8867220"></a>
+<a id="orgf2c653e"></a>
 
 ## memento mori
 
@@ -2057,7 +2554,7 @@ This is a cool little package that displays your age with double decimal digits.
 \#+END\_SRC
 
 
-<a id="org738ebe9"></a>
+<a id="orgee7d2f5"></a>
 
 ## TEST Treemacs Setup
 
@@ -2146,14 +2643,14 @@ This is a cool little package that displays your age with double decimal digits.
       :ensure t)
 
 
-<a id="org30bce76"></a>
+<a id="org545b3f3"></a>
 
 ## Scimax customisations
 
 These are settings which custmise scimax specific variables. These are separated out here so that it becomes easier to try out Emacs configurations that are outside scimax.
 
 
-<a id="org43616ee"></a>
+<a id="orgb59c9ea"></a>
 
 ### TODO Adding commands to scimax hydras
 
@@ -2178,7 +2675,7 @@ The correct way of adding to a hydra is something like this. However this appear
       ("h" helm-ag "helm-ag"))
 
 
-<a id="org32d364d"></a>
+<a id="org86e1c31"></a>
 
 ### Redefining scimax-apps
 
@@ -2230,7 +2727,7 @@ The correct way of adding to a hydra is something like this. However this appear
         (advice-remove 'bash #'scimax-user-bash-app)
 
 
-<a id="orgb1ce878"></a>
+<a id="orga59ec6b"></a>
 
 ### Scimax autoformat and corrections
 
@@ -2247,7 +2744,7 @@ Note: any expansion can be undone with C-/
     (global-set-key (kbd "s-q") 'org-latex-math-region-or-point)
 
 
-<a id="org3dc746a"></a>
+<a id="org6975a92"></a>
 
 ### Scimax Hotspots
 
@@ -2283,35 +2780,35 @@ Note: any expansion can be undone with C-/
           )
 
 
-<a id="org5724422"></a>
+<a id="orga071c3d"></a>
 
 ### Scimax Elfeed
 
     (require 'scimax-elfeed)
 
 
-<a id="org0a0490c"></a>
+<a id="orgc4cfa1c"></a>
 
 ### Scimax Notebook directory
 
     (setq nb-notebook-directory "~/my_projects/")
 
 
-<a id="orgdb9b0a6"></a>
+<a id="orgd3ac81b"></a>
 
 ### Scimax notebook
 
     (global-set-key (kbd "M-s n") 'nb-open)
 
 
-<a id="orgb5e9537"></a>
+<a id="org98e2fca"></a>
 
 ### Changing key for scimax/body
 
     (global-set-key (kbd "C-\\") 'scimax/body)
 
 
-<a id="org85f17cc"></a>
+<a id="orgaab63c6"></a>
 
 ### TODO Scimax Python
 
@@ -2323,21 +2820,21 @@ Note: any expansion can be undone with C-/
     (scimax-ob-ipython-turn-on-eldoc)
 
 
-<a id="orga70d44b"></a>
+<a id="org3f443ae"></a>
 
 ### Message : loaded scimax Customisations
 
     (message "Loaded scimax customisations")
 
 
-<a id="orgd706007"></a>
+<a id="org72f3406"></a>
 
 ## Swiper
 
 -   Note taken on <span class="timestamp-wrapper"><span class="timestamp">[2019-09-24 Tue 10:31] </span></span>
     Swiper and below keybinding is included by default in scimax.
 -   Note taken on <span class="timestamp-wrapper"><span class="timestamp">[2019-02-07 Thu 16:50] </span></span>
-    I use swiper for a general search. However [helm-swoop](#orgee7e629) is awesome.
+    I use swiper for a general search. However [helm-swoop](#org7a73320) is awesome.
 
     (global-set-key (kbd "C-s") 'swiper)
     (setq ivy-display-style 'fancy)
@@ -2352,7 +2849,7 @@ Note: any expansion can be undone with C-/
     (message "Loaded Swiper customisation")
 
 
-<a id="org791905c"></a>
+<a id="org254aaac"></a>
 
 ## Writeroom customisations
 
@@ -2373,7 +2870,7 @@ The goal is to enable a customised zen writing mode, especially facilitating blo
     (message "Loaded writeroom customisations")
 
 
-<a id="org49d693c"></a>
+<a id="org4d16551"></a>
 
 ## TEST ESS configuration
 
@@ -2385,7 +2882,7 @@ The goal is to enable a customised zen writing mode, especially facilitating blo
 Note:  I use the TAD application to view CSV files. It is a cross platform application that is a lot faster than launching a spreadsheet based program.
 
 
-<a id="orgee389e5"></a>
+<a id="org1d4c764"></a>
 
 ### Basic ESS configuration
 
@@ -2472,7 +2969,7 @@ Note:  I use the TAD application to view CSV files. It is a cross platform appli
     (message "Loaded ESS configuration")
 
 
-<a id="org3f096a9"></a>
+<a id="org5c6405d"></a>
 
 ### TODO Ox-ravel for exporting from Org mode to ipynb
 
@@ -2483,7 +2980,7 @@ Note:  I use the TAD application to view CSV files. It is a cross platform appli
     ;; )
 
 
-<a id="org16dac86"></a>
+<a id="org6e8c18a"></a>
 
 ## ox-reveal - presentations
 
@@ -2501,7 +2998,7 @@ Note:  I use the TAD application to view CSV files. It is a cross platform appli
     (message "Loaded ox-reveal cust")
 
 
-<a id="org24b9a1a"></a>
+<a id="orgd7f1b86"></a>
 
 ## Deft
 
@@ -2518,7 +3015,7 @@ Note:  I use the TAD application to view CSV files. It is a cross platform appli
                     ))
 
 
-<a id="org084e05f"></a>
+<a id="org9e71149"></a>
 
 ## w3m customisation
 
@@ -2529,7 +3026,7 @@ However, it pays to have handy shortcuts to open a link in the default browser o
 A few snippets were sourced from: <http://beatofthegeek.com/2014/02/my-setup-for-using-emacs-as-web-browser.html>
 
 
-<a id="org1540853"></a>
+<a id="orgb125988"></a>
 
 ### Setting default browser to be w3m
 
@@ -2538,7 +3035,7 @@ A few snippets were sourced from: <http://beatofthegeek.com/2014/02/my-setup-for
     (setq w3m-default-display-inline-images t)
 
 
-<a id="orge6785e6"></a>
+<a id="org1f63994"></a>
 
 ### TODO Appending HTTP to web addresses entered by hand
 
@@ -2554,7 +3051,7 @@ A few snippets were sourced from: <http://beatofthegeek.com/2014/02/my-setup-for
        (concat "http://" site)))
 
 
-<a id="orgbb4b824"></a>
+<a id="orgf8b3ce1"></a>
 
 ### Changing w3m shortcuts for better tabbed browsing
 
@@ -2567,7 +3064,7 @@ Source:  Sacha Chua : <http://sachachua.com/blog/2008/09/emacs-and-w3m-making-ta
          (define-key w3m-mode-map "x" 'w3m-close-window)))
 
 
-<a id="orgb966013"></a>
+<a id="org2e03188"></a>
 
 ### TODO Default external browser settings
 
@@ -2591,7 +3088,7 @@ Source:  Sacha Chua : <http://sachachua.com/blog/2008/09/emacs-and-w3m-making-ta
          (define-key w3m-mode-map "O" 'wicked/w3m-open-link-or-image-in-default-browser)))
 
 
-<a id="org8c8fce8"></a>
+<a id="orga9ac2f0"></a>
 
 ### Wikipedia search
 
@@ -2613,7 +3110,7 @@ Source:  Sacha Chua : <http://sachachua.com/blog/2008/09/emacs-and-w3m-making-ta
       )
 
 
-<a id="orgc3d122a"></a>
+<a id="org0d7cfae"></a>
 
 ### Access Hacker News
 
@@ -2622,7 +3119,7 @@ Source:  Sacha Chua : <http://sachachua.com/blog/2008/09/emacs-and-w3m-making-ta
       (browse-url "http://news.ycombinator.com"))
 
 
-<a id="org8e5a40a"></a>
+<a id="org01d0ef7"></a>
 
 ### TODO Open specific browser depending on the URL
 
@@ -2642,7 +3139,7 @@ Source : <http://ergoemacs.org/emacs/emacs_set_default_browser.Html>
       ))
 
 
-<a id="org5affe50"></a>
+<a id="org8c5ed62"></a>
 
 ## frog jump buffer
 
@@ -2655,7 +3152,7 @@ This package provides a nifty little pop up containing a list of buffers (that c
     )
 
 
-<a id="org903914a"></a>
+<a id="org372b875"></a>
 
 ## easy-kill and easy mark
 
@@ -2675,7 +3172,7 @@ This looks like a very handy package. The easiest way to get started is to cycle
       )
 
 
-<a id="org206edfb"></a>
+<a id="org77244ca"></a>
 
 ## TEST eyebrowse
 
@@ -2691,12 +3188,12 @@ This has to be combined with desktop.el or some other method to enable persisten
       )
 
 
-<a id="org0445596"></a>
+<a id="org70e0b9a"></a>
 
 ## Hugo
 
 
-<a id="org5cd58a9"></a>
+<a id="org6c88dab"></a>
 
 ### Function to create specific properties for a blog post
 
@@ -2791,7 +3288,7 @@ Modified this function from:
                   (message "Exported to %s" file))))))
 
 
-<a id="org59dd8cd"></a>
+<a id="orgec2c526"></a>
 
 ### ox-hugo setup
 
@@ -2804,7 +3301,7 @@ Modified this function from:
       )
 
 
-<a id="orgbf05828"></a>
+<a id="org0cde12c"></a>
 
 ## STABLE PDF Tools
 
@@ -2830,7 +3327,28 @@ Modified this function from:
     )
 
 
-<a id="org6429930"></a>
+<a id="org17fa6b1"></a>
+
+## STABLE ox-oddmuse
+
+I'm building an oddmuse wiki to use for my blogging and as a repository for my braindump. A wiki driven blog is much more useful in inviting collaboration, and any technical note or article is always worth updating. There are many more advantages in using Oddmuse.
+
+This package is not on MELPA, so lets clone to the external packages folder.
+
+    cd ~/scimax-personal/external_packages/
+    git clone https://github.com/mbork/ox-oddmuse.git
+
+Lets add the specific path to Emacs for the package to be available.
+
+    ls -l ~/scimax-personal/external_packages/
+
+    (add-to-list 'load-path "~/scimax-personal/external_packages/ox-oddmuse/")
+    (require 'ox-oddmuse)
+
+Okay. The above works. It occurs to me that I could include the paths as a list of variables and just update from a single location.
+
+
+<a id="org12f1ec0"></a>
 
 # Testing
 
@@ -2839,32 +3357,12 @@ These are packages and functions that I am exploring, and also ones that I can l
 Some of these snippets or packages are enabled and some are not. In the case of troubleshooting, I will disable
 
 
-<a id="org589d30a"></a>
-
-## Oddmuse curl
-
-    (add-to-list 'load-path "~/scimax-personal/external_packages/oddmuse-curl/")
-    (setq oddmuse-username "shrysr")
-    (setq oddmuse-directory "~/my_org/01_wiki/oddmuse/")
-    (add-to-list 'auto-mode-alist '("~/my_org/01_wiki/oddmuse" . oddmuse-mode))
-    (autoload 'oddmuse-edit "oddmuse-curl"
-      "Edit a page on an Oddmuse wiki." t)
-    (add-to-list 'vc-handled-backends 'oddmuse)
-    (defun vc-oddmuse-registered (file)
-      "Handle files in `oddmuse-directory'."
-      (string-match (concat "^" (expand-file-name oddmuse-directory))
-                    (file-name-directory file)))
-
-    (require 'oddmuse)
-     ;; (oddmuse-mode-initialize)
-
-
-<a id="orgd5a231b"></a>
+<a id="org5c0492f"></a>
 
 ## Scimax cusomisations
 
 
-<a id="org6da6cfc"></a>
+<a id="orgd5cb4e1"></a>
 
 ### TODO Scimax journal settings
 
@@ -2876,7 +3374,7 @@ Some of these snippets or packages are enabled and some are not. In the case of 
     ;;(global-set-key (kbd "M-s j") 'scimax-journal-new-entry)
 
 
-<a id="org4af4db8"></a>
+<a id="org39fdf8c"></a>
 
 ### TODO Bibliography settings and customisation
 
@@ -2904,7 +3402,7 @@ This was setup a long time ago to convert past technical repots into org mode, w
           helm-bibtex-notes-path "~/my_org/references/research_notes.org")
 
 
-<a id="orgf6d933e"></a>
+<a id="org3792938"></a>
 
 ### TEST Adding actions to ivy
 
@@ -2918,7 +3416,7 @@ This was setup a long time ago to convert past technical repots into org mode, w
     	  (helm-do-ag x) "helm do ag here."))))
 
 
-<a id="org66762dd"></a>
+<a id="orgd8e136b"></a>
 
 ### TEST Setting Hyper key for the mac
 
@@ -2927,7 +3425,7 @@ This was setup a long time ago to convert past technical repots into org mode, w
       )
 
 
-<a id="org21443a4"></a>
+<a id="org102fd50"></a>
 
 ### org-Db
 
@@ -2944,7 +3442,7 @@ This was setup a long time ago to convert past technical repots into org mode, w
     )
 
 
-<a id="orgea6af0d"></a>
+<a id="orgbc4e27d"></a>
 
 ## TODO Tangle org mode config on save
 
@@ -2976,7 +3474,7 @@ This is a nice code snippet to automate the tangling on saving the config. This 
               'sr/tangle-on-save-emacs-config-org-file)
 
 
-<a id="org86d2370"></a>
+<a id="org3a4f96b"></a>
 
 ## TEST Visual line and visual fill column
 
@@ -2991,7 +3489,7 @@ This is a nice code snippet to automate the tangling on saving the config. This 
     ;;(add-hook 'visual-line-mode-hook #'visual-fill-column-mode)
 
 
-<a id="org59e89ca"></a>
+<a id="orge8af9f8"></a>
 
 ## TEST Marking
 
@@ -3018,7 +3516,7 @@ The `tmm-menu` command's shortcut `` M-` `` is much better served by `M-x counse
     (global-set-key (kbd "M-`") 'jump-to-mark)
 
 
-<a id="org9549642"></a>
+<a id="org50096e5"></a>
 
 ## TEST Semantic Mode
 
@@ -3029,7 +3527,7 @@ The `tmm-menu` command's shortcut `` M-` `` is much better served by `M-x counse
     (semantic-mode 1)
 
 
-<a id="orgf3d017d"></a>
+<a id="orgceb70d5"></a>
 
 ## TEST Sauron
 
@@ -3041,7 +3539,7 @@ The `tmm-menu` command's shortcut `` M-` `` is much better served by `M-x counse
       )
 
 
-<a id="org5a00dbc"></a>
+<a id="org087e31f"></a>
 
 ## emacs url shortener
 
@@ -3053,7 +3551,7 @@ Note that to use one of the url shortening services, an API access token will be
       )
 
 
-<a id="orga96c29f"></a>
+<a id="orgddfbbfc"></a>
 
 ## free-keys
 
@@ -3065,14 +3563,14 @@ This seems to be a nifty little package that lists the key combinations that are
     )
 
 
-<a id="org569b01e"></a>
+<a id="org4ba7edb"></a>
 
 ## Zenburn theme exploration
 
 For a long period, I was using the zenburn theme and had started customising it for my needs. However, I think leuven with a greyish background is really quite suitable. Even so, it's nice to have a dark theme available when required. I'm keeping this around for tinkering down the line.
 
 
-<a id="org2951349"></a>
+<a id="orgdf329be"></a>
 
 ### Disabling leuven and loading other theme
 
@@ -3081,7 +3579,7 @@ For a long period, I was using the zenburn theme and had started customising it 
     (load-theme 'zenburn t)
 
 
-<a id="org2a03e49"></a>
+<a id="orge7747e4"></a>
 
 ### TEST Background color for org source Blocks
 
@@ -3094,7 +3592,7 @@ This is necessary due to the customisation in scimax
     ;; (set-face-background 'org-block-quote "black")
 
 
-<a id="orgbe18b7a"></a>
+<a id="orgc459c1c"></a>
 
 ### TEST Initial setup of Zenburn
 
@@ -3108,7 +3606,7 @@ This is necessary due to the customisation in scimax
     (setq zenburn-scale-outline-headlines t)
 
 
-<a id="orgc4f8770"></a>
+<a id="org30abce2"></a>
 
 ### TODO Use-package based template for customising zenburn
 
@@ -3154,7 +3652,7 @@ Source: <https://github.com/m-parashar/emax64/issues/5>
          (face-list))))
 
 
-<a id="orgdc15863"></a>
+<a id="org1409303"></a>
 
 ### Setting font faces for headline level
 
@@ -3170,7 +3668,7 @@ Source: <https://github.com/m-parashar/emax64/issues/5>
      )
 
 
-<a id="org67dc8e9"></a>
+<a id="org1aca4fb"></a>
 
 ## TEST Alfred Integration
 
@@ -3192,14 +3690,14 @@ Source: <https://github.com/jjasghar/alfred-org-capture>
       )
 
 
-<a id="org6de2321"></a>
+<a id="orgdce156a"></a>
 
 ## TODO Project publishing setup <code>[0/3]</code>
 
 This is under construction and was initially started with the idea of having custom publishing settings for different projects. I was initially looking at this for publishing my hugo blog. However, the need has been negated with the excellent ox-hugo package.
 
 
-<a id="orgdf7c189"></a>
+<a id="orgd84b47e"></a>
 
 ### TEST ox-Tufte
 
@@ -3219,7 +3717,7 @@ This is under construction and was initially started with the idea of having cus
       )
 
 
-<a id="org00052cc"></a>
+<a id="org8f90301"></a>
 
 ### TODO Exporting org projects
 
@@ -3249,7 +3747,7 @@ This is under construction and was initially started with the idea of having cus
         )))
 
 
-<a id="org1b17ad8"></a>
+<a id="org91e5b8e"></a>
 
 ### TEST Function for exporting dotemacs config <code>[1/3]</code>
 
@@ -3285,14 +3783,14 @@ As of now, I'm calling this function from my Emacs config file, and need to impr
       )
 
 
-<a id="org1738865"></a>
+<a id="orgb5da1a0"></a>
 
 ## TEST Docker
 
 I've started playing with Docker, and need Emacs to take care of my workflows! :).
 
 
-<a id="orgc5255ad"></a>
+<a id="orga31c67a"></a>
 
 ### Docker package
 
@@ -3306,7 +3804,7 @@ The `docker` package enables several commands, but does not seem to include synt
     )
 
 
-<a id="org0600b33"></a>
+<a id="org4972329"></a>
 
 ### docker-compose-mode
 
@@ -3318,7 +3816,7 @@ The `docker` package enables several commands, but does not seem to include synt
       )
 
 
-<a id="orgf123b12"></a>
+<a id="org81f0ef1"></a>
 
 ### docker-file-mode
 
@@ -3335,7 +3833,7 @@ This is required for syntax highlighting in dockerfiles.
       )
 
 
-<a id="orgfa5d72b"></a>
+<a id="orgea45881"></a>
 
 ## org-bookmark-heading
 
@@ -3348,7 +3846,7 @@ For some reason, the default bookmark behavior in org mode is that the bookmark 
     )
 
 
-<a id="org96afef9"></a>
+<a id="org4cf34b5"></a>
 
 ## TODO Crux  - basic movement
 
@@ -3362,12 +3860,12 @@ Set C-a to move to the first non-whitespace character on a line, and then to tog
       :bind (("C-a" . crux-move-beginning-of-line)))
 
 
-<a id="org1076b6c"></a>
+<a id="org4deeb3c"></a>
 
 ## Crypto setup
 
 
-<a id="org4f72737"></a>
+<a id="org4c1ae14"></a>
 
 ### Basic crypto
 
@@ -3385,7 +3883,7 @@ Set C-a to move to the first non-whitespace character on a line, and then to tog
     (message "Loaded crypto setup")
 
 
-<a id="orgaaecd91"></a>
+<a id="org6cd664b"></a>
 
 ### Setting auth sources
 
@@ -3400,13 +3898,14 @@ I have modified it to my own file names.
                      "secrets:session"
                      "secrets:Login"
                      "~/.gh.authinfo.gpg"
+    		 "~/.authinfo.gpg"
                      "~/.netrc.gpg"
                      "~/.bitly-access.token.gpg"
                      )
      epa-file-cache-passphrase-for-symmetric-encryption t)
 
 
-<a id="org87e04ed"></a>
+<a id="org062009f"></a>
 
 ### github token access
 
@@ -3427,14 +3926,14 @@ Remove the original file when done.
     (setq magit-process-find-password-functions '(magit-process-password-auth-source))
 
 
-<a id="org2094809"></a>
+<a id="org61dd0f2"></a>
 
 ## TODO Persp-projectile
 
 [Refer Howard's config snippet](https://github.com/howardabrams/dot-files/blob/master/emacs.org#perspective) to setup a test.
 
 
-<a id="org9b2422f"></a>
+<a id="org740eb4d"></a>
 
 ## TODO LOB
 
@@ -3446,12 +3945,12 @@ There are a bunch of scripts that I would like ingested into the Library of Babe
     (org-babel-lob-ingest "~/my_projects/sr-snip-lob/README.org")
 
 
-<a id="org8b6e129"></a>
+<a id="org6b9b2e7"></a>
 
 ## Hydras and some custom functions
 
 
-<a id="org110b4b7"></a>
+<a id="orgc920e6b"></a>
 
 ### Refiling
 
@@ -3556,7 +4055,7 @@ Also see
     (global-set-key (kbd "<f8> r") 'josh/org-refile-hydra/body)
 
 
-<a id="org6bf8931"></a>
+<a id="org2ba9fe3"></a>
 
 ### Window manipulation
 
@@ -3628,7 +4127,7 @@ Source : Hydra documentation
     (global-set-key (kbd "<f8> w") 'hydra-window/body)
 
 
-<a id="org0647e7e"></a>
+<a id="org3d2c225"></a>
 
 ### helm-do-ag in specific locations
 
@@ -3690,7 +4189,7 @@ Reference: <https://emacs.stackexchange.com/questions/44128/function-to-do-helm-
         (global-set-key (kbd "<f8> h") 'shrysr/hydra-helm-ag-do-menu/body)
 
 
-<a id="orgae9d68a"></a>
+<a id="orga7b8329"></a>
 
 ### Frame configurations fo magit and project launch
 
@@ -3771,19 +4270,19 @@ Reference: <https://emacs.stackexchange.com/questions/44128/function-to-do-helm-
         (global-set-key (kbd "<f8> m") 'sr/process-window-keys/body)
 
 
-<a id="org7463772"></a>
+<a id="orgc21669a"></a>
 
 ### Loading completed
 
     (message "Loaded Hydras")
 
 
-<a id="org1304318"></a>
+<a id="orga061001"></a>
 
 ## Python <code>[0/4]</code>
 
 
-<a id="orgd87d668"></a>
+<a id="orgbd37ff8"></a>
 
 ### TEST setup virtual environment approach
 
@@ -3804,7 +4303,7 @@ Switching an environment is as simple as `M-x pyenv-workon`. This is quite excel
       )
 
 
-<a id="org8e64cd1"></a>
+<a id="orgc4009d1"></a>
 
 ### POSTPONED setup conda for virtual environment management
 
@@ -3824,7 +4323,7 @@ Switching an environment is as simple as `M-x pyenv-workon`. This is quite excel
       )
 
 
-<a id="orgd4408b6"></a>
+<a id="org9df1cec"></a>
 
 ### General config
 
@@ -3834,7 +4333,7 @@ Switching an environment is as simple as `M-x pyenv-workon`. This is quite excel
     (setq python-indent-guess-indent-offset nil)
 
 
-<a id="org7da5fda"></a>
+<a id="org4f2bd86"></a>
 
 ### NEXT Autocomplete for python blocks
 
@@ -3842,7 +4341,7 @@ Switching an environment is as simple as `M-x pyenv-workon`. This is quite excel
     (company-mode)
 
 
-<a id="orgad5dcc4"></a>
+<a id="orgd6b2773"></a>
 
 ### NEXT Emacs-jupyter
 
@@ -3860,14 +4359,14 @@ Switching an environment is as simple as `M-x pyenv-workon`. This is quite excel
       )
 
 
-<a id="org1633577"></a>
+<a id="org5cb909b"></a>
 
 # Disabled
 
 These are packages and snippets that disabled from tangling and execution. Some of them have been explored and discarded for various reasons. The rest are packages / features I could not get working satisfactorily.
 
 
-<a id="orgbd91204"></a>
+<a id="org11038e5"></a>
 
 ## TODO org2blog : publishing to wordpress <code>[0/1]</code>
 
@@ -3938,7 +4437,7 @@ The good thing that I've become more comfortable with Emacs and getting packages
       )
 
 
-<a id="orgc053cc5"></a>
+<a id="org5503990"></a>
 
 ## TEST helm-ext
 
@@ -3958,12 +4457,12 @@ The good thing that I've become more comfortable with Emacs and getting packages
       )
 
 
-<a id="org1e32392"></a>
+<a id="org6a10d62"></a>
 
 ## Scimax customisations
 
 
-<a id="orga7001a3"></a>
+<a id="orgab9ac27"></a>
 
 ### Enabling Scimax Statistics
 
@@ -3973,7 +4472,7 @@ The good thing that I've become more comfortable with Emacs and getting packages
     (require 'scimax-statistics)
 
 
-<a id="org7617950"></a>
+<a id="org82f6c0a"></a>
 
 ## Dired
 
@@ -4012,7 +4511,7 @@ Source: <https://github.com/angrybacon/dotemacs/blob/master/dotemacs.org>
     (message "Loaded Dired customisation")
 
 
-<a id="org4385ab4"></a>
+<a id="org6ab902c"></a>
 
 ## TEST Activating windmove to facilitate Hydras
 
@@ -4021,7 +4520,7 @@ Super would actually be a good option. However, this interferes with default con
     (windmove-default-keybindings 'meta)
 
 
-<a id="orgffa90b8"></a>
+<a id="org3068482"></a>
 
 ## TEST Export async
 
@@ -4033,7 +4532,7 @@ Super would actually be a good option. However, this interferes with default con
           )
 
 
-<a id="orgea62f99"></a>
+<a id="orgde6ac23"></a>
 
 ## TEST Ob-async
 
@@ -4045,7 +4544,7 @@ Super would actually be a good option. However, this interferes with default con
       )
 
 
-<a id="orgaccffc3"></a>
+<a id="orga564dc6"></a>
 
 ## TEST Auto saving all org files by the hour
 
@@ -4057,7 +4556,7 @@ This is adopted from [Bernt Hansen's](http://doc.norang.ca/org-mode.html) config
     (run-at-time "00:59" 3600 'org-save-all-org-buffers)
 
 
-<a id="orgef96fbe"></a>
+<a id="orgc7bf88c"></a>
 
 ## TEST Tags setup
 
@@ -4102,7 +4601,7 @@ Borrowing [Kaushal modi's setup](https://github.com/kaushalmodi/.emacs.d/blob/ma
           (key-chord-define-global "??" #'ggtags-show-definition))))
 
 
-<a id="orgeda0e4a"></a>
+<a id="org1b06a1e"></a>
 
 ## TEST Icicles
 
@@ -4116,7 +4615,7 @@ Borrowing [Kaushal modi's setup](https://github.com/kaushalmodi/.emacs.d/blob/ma
     (icy-mode 1)
 
 
-<a id="orgf953a8a"></a>
+<a id="org7b23d3d"></a>
 
 ## erc
 
@@ -4147,7 +4646,7 @@ Loading ERC without password (temporarily). The password has to be set in the .a
       :nick "shrysr")
 
 
-<a id="org5feffd4"></a>
+<a id="org26bff80"></a>
 
 ## Scheme setup
 
@@ -4163,7 +4662,7 @@ Loading ERC without password (temporarily). The password has to be set in the .a
     (message "Loaded scheme setup")
 
 
-<a id="org6335606"></a>
+<a id="orgc9e671d"></a>
 
 ## TODO lintr
 
@@ -4177,7 +4676,7 @@ This package is deemed necessary to enable flymake in ESS. Without it, there is 
     )
 
 
-<a id="org0b74d81"></a>
+<a id="org3fd5097"></a>
 
 ## Better defaults
 
@@ -4193,7 +4692,7 @@ I need to explore the changed made by this package. For now, it is loaded right 
     (message "Loaded better-defaults package")
 
 
-<a id="org60ce5a3"></a>
+<a id="org8d69a09"></a>
 
 ## Elfeed customisation
 
@@ -4203,7 +4702,7 @@ I need to explore the changed made by this package. For now, it is loaded right 
     Disabling elfeed for now.
 
 
-<a id="org3e3d158"></a>
+<a id="org607741b"></a>
 
 ### Elfeed Basic + Customisations
 
@@ -4306,7 +4805,7 @@ Source: <http://heikkil.github.io/blog/2015/05/09/notes-from-elfeed-entries/>
       )
 
 
-<a id="org869770e"></a>
+<a id="orgf1f6b61"></a>
 
 ### Scimax + Elfeed-org and elfeed-goodies setup <code>[/]</code>
 
@@ -4328,7 +4827,7 @@ Using an org source is the easiest way to organise my RSS feeds for reading with
       )
 
 
-<a id="org0f0fa97"></a>
+<a id="orga41b04e"></a>
 
 ### TODO Consider storing the Feed sources here in org format
 
@@ -4336,14 +4835,14 @@ Using an org source is the easiest way to organise my RSS feeds for reading with
     This will need an export to a source org file per the settings.
 
 
-<a id="org2fd3efa"></a>
+<a id="org5272a40"></a>
 
 ### Loading completed
 
     (message "Loaded Elfeed customisations")
 
 
-<a id="org17622f0"></a>
+<a id="orgc7fcb1b"></a>
 
 ## ediff
 
@@ -4374,12 +4873,12 @@ Source: <http://emacs.stackexchange.com/questions/21335/prevent-folding-org-file
     (add-hook 'ediff-unselect-hook 'f-ediff-org-fold-tree)
 
 
-<a id="org0396769"></a>
+<a id="org8a7e73d"></a>
 
 ## Spell Checking
 
 
-<a id="org2fc49a5"></a>
+<a id="orgaab3f24"></a>
 
 ### Flycheck
 
@@ -4408,7 +4907,7 @@ Basic config
           :init (add-hook 'flycheck-mode-hook #'flycheck-haskell-setup))))
 
 
-<a id="org4860718"></a>
+<a id="org04aed4a"></a>
 
 ### Enabling Flyspell
 
@@ -4423,7 +4922,7 @@ Org mode is derived from text mode, therefore it is sufficient to activate for t
     )
 
 
-<a id="orga3762a9"></a>
+<a id="orgce0a4d3"></a>
 
 ### Replacing flycheck with flymake
 
@@ -4434,7 +4933,7 @@ This is especially for python modules at the moment.
       (add-hook 'elpy-mode-hook 'flycheck-mode))
 
 
-<a id="orgda2a8eb"></a>
+<a id="org9ad186b"></a>
 
 ### STABLE Switching to aspell on the mac
 
