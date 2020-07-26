@@ -10,6 +10,13 @@
 #+hugo_draft: false
 #+TITLE: My Emacs + Scimax configuration
 
+* READ FIRST
+
+This is my old configuration that used to be run on top of Scimax. I am
+currently using a handrolled configu with parts of scimax, and that is
+the master branch. This configuration is spun off to a separate branch
+to be readily available when required. 
+
 * Introduction and preamble
 
 This is my literate, Org-mode based configuration for Emacs, which are essentially customisations built on top of the starter-kit Scimax. View a nicely rendered version with easy navigation [[https://shrysr.github.io/docs/sr-config/][on my website]], or if you prefer: [[https://github.com/shrysr/dotemacs][on github]].
